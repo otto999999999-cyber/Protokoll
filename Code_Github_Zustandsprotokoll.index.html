@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#1a5c8f">
+<title>Zustandsprotokoll</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html{height:100%;overflow:hidden}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#f0f4f8;color:#111;font-size:16px;height:100%;overflow:hidden;position:fixed;width:100%}
+:root{--blue:#1a5c8f;--blue-mid:#2e7ab5;--blue-light:#e8f1f8;--border:#c8d6e0;--white:#fff;--green:#1a7a42;--green-light:#e0f4ea;--field:#f2f3f5;--gray:#6b7c8d;--radius:12px}
+#shell{display:flex;flex-direction:column;height:100vh;height:100dvh}
+header{background:var(--blue);color:#fff;padding:env(safe-area-inset-top,12px) 16px 12px;display:flex;align-items:center;gap:10px;flex-shrink:0;min-height:56px}
+header h1{font-size:17px;font-weight:700;flex:1}
+.progress-bar{background:#1e4a70;height:3px;flex-shrink:0}
+.progress-fill{background:#5bb3f0;height:3px;transition:width .3s}
+#scroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;padding:14px 12px 100px}
+.nav-bar{position:fixed;bottom:0;left:0;right:0;background:var(--white);border-top:1px solid var(--border);padding:10px 16px calc(10px + env(safe-area-inset-bottom,0px));display:flex;gap:10px;z-index:100}
+.btn-nav{flex:1;padding:14px;border:none;border-radius:var(--radius);font-size:15px;font-weight:700;cursor:pointer;-webkit-appearance:none}
+.btn-nav:active{opacity:.75}
+.btn-back{background:var(--field);color:var(--blue);border:1.5px solid var(--blue)}
+.btn-next{background:var(--blue);color:#fff}
+.card{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);margin-bottom:12px;overflow:hidden}
+.card-title{font-size:12px;font-weight:700;color:#fff;background:var(--blue);text-transform:uppercase;letter-spacing:.6px;padding:10px 14px}
+.card-body{padding:14px}
+.pi{text-align:center;font-size:12px;color:var(--gray);margin-bottom:12px;font-weight:500}
+label{display:block;font-size:13px;color:#444;font-weight:600;margin-bottom:5px;margin-top:12px}
+label:first-child{margin-top:0}
+input[type=text],input[type=email],input[type=date],input[type=number],textarea{width:100%;border:1.5px solid var(--border);border-radius:10px;padding:12px 14px;font-size:16px;background:var(--field);color:#111;outline:none;-webkit-appearance:none}
+input:focus,textarea:focus{border-color:var(--blue-mid);background:#fff}
+textarea{resize:none;min-height:80px}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+.cbg{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px}
+.cbi{display:flex;align-items:center;gap:6px;background:var(--field);border:1.5px solid var(--border);border-radius:8px;padding:8px 12px;font-size:14px;color:#111;cursor:pointer}
+.cbi input{width:18px;height:18px;accent-color:var(--blue);flex-shrink:0}
+.sh{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:6px;padding:6px 0;border-bottom:1.5px solid var(--border);margin-bottom:4px}
+.sh span{font-size:11px;color:var(--gray);font-weight:700;text-align:center}
+.sh span:first-child{text-align:left}
+.sr{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:6px;align-items:center;padding:10px 0;border-bottom:1px solid var(--field)}
+.sr:last-child{border-bottom:none}
+.rb{display:flex;align-items:center;justify-content:center}
+.rb input{width:20px;height:20px;accent-color:var(--blue)}
+.tw{overflow-x:auto;-webkit-overflow-scrolling:touch;margin-top:10px;border-radius:10px;border:1px solid var(--border)}
+table{width:100%;border-collapse:collapse;font-size:13px;min-width:400px}
+thead th{background:var(--blue);color:#fff;padding:10px 8px;text-align:left;font-weight:700;white-space:nowrap}
+tbody tr:nth-child(even){background:#f7f9fb}
+tbody td{padding:6px;border-bottom:1px solid var(--field)}
+tbody td input{width:100%;border:1px solid var(--border);border-radius:6px;padding:6px 8px;font-size:13px;background:var(--field);color:#111;-webkit-appearance:none}
+.btn-add{width:100%;margin-top:10px;padding:12px;border:1.5px dashed var(--blue-mid);border-radius:10px;background:var(--blue-light);color:var(--blue);font-size:14px;font-weight:700;cursor:pointer;-webkit-appearance:none}
+.btn-photo{width:100%;padding:14px;border:none;border-radius:10px;background:var(--blue);color:#fff;font-size:14px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;margin-top:10px}
+.btn-del{border:none;background:none;color:#c0392b;cursor:pointer;font-size:20px;padding:0 4px}
+.ba{width:100%;padding:14px;border-radius:var(--radius);font-size:15px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;margin-top:10px;border:none}
+.bbl{background:var(--blue);color:#fff}
+.bgr{background:#1a5c3f;color:#fff}
+.bot{background:var(--field);color:var(--blue);border:1.5px solid var(--blue)!important}
+.pg{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px}
+.pt{position:relative;aspect-ratio:1;border-radius:8px;overflow:hidden;border:1px solid var(--border)}
+.pt img{width:100%;height:100%;object-fit:cover}
+.pd{position:absolute;top:4px;right:4px;background:rgba(0,0,0,.6);color:#fff;border:none;border-radius:6px;width:24px;height:24px;font-size:14px;display:flex;align-items:center;justify-content:center}
+.rt{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
+.rtb{padding:8px 14px;border-radius:20px;border:1.5px solid var(--border);background:var(--field);font-size:13px;font-weight:600;cursor:pointer;color:#111}
+.rtb.active{background:var(--blue);color:#fff;border-color:var(--blue)}
+.sc{border:2px solid var(--blue-mid);border-radius:10px;background:var(--field);touch-action:none;display:block;width:100%;height:150px}
+.sc.signed{border-color:var(--green);background:#f0faf4}
+.sa{display:flex;gap:8px;margin-top:8px}
+.sb{flex:1;padding:12px;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;border:1.5px solid var(--border);background:var(--field);color:#333}
+.sb.p{background:var(--blue);color:#fff;border-color:var(--blue)}
+.cbox{margin-top:10px;background:#f0faf4;border:1px solid #b0d8c0;border-radius:10px;padding:12px}
+.ct{font-size:12px;font-weight:700;color:var(--green);margin-bottom:6px}
+.cr{font-size:10px;color:#2a5a3a;padding:2px 0;font-family:monospace;word-break:break-all;line-height:1.5}
+.cbdg{display:inline-flex;align-items:center;background:var(--green-light);color:var(--green);border:1px solid #b0d8c0;border-radius:12px;padding:4px 12px;font-size:11px;font-weight:700;margin-top:6px}
+.smb{background:var(--blue-light);border:1px solid var(--border);border-radius:10px;padding:12px;margin-bottom:10px}
+.smb h3{font-size:13px;font-weight:700;color:var(--blue);margin-bottom:8px}
+.smr{display:flex;justify-content:space-between;padding:5px 0;font-size:13px;border-bottom:1px solid var(--border)}
+.smr:last-child{border-bottom:none}
+.hb{background:var(--field);border:1px solid var(--border);border-radius:8px;padding:10px;font-family:monospace;font-size:10px;color:var(--gray);word-break:break-all;margin-top:8px;line-height:1.8}
+.mm{display:none;margin-top:12px;background:var(--field);border:1.5px solid var(--border);border-radius:var(--radius);padding:14px}
+.mm.open{display:block}
+.mm textarea{height:220px;font-family:monospace;font-size:12px}
+.sbar{background:var(--field);border:1px solid var(--border);border-radius:8px;padding:8px 12px;font-size:12px;color:#444;display:flex;align-items:center;gap:8px;margin-bottom:12px}
+.dv{height:1px;background:var(--field);margin:12px 0}
+.wb{background:#fff8e6;border:1px solid #e8d5a0;border-radius:8px;padding:10px;font-size:12px;color:#7a5a00;margin-top:10px}
+.toast{position:fixed;bottom:calc(80px + env(safe-area-inset-bottom,0px));left:50%;transform:translateX(-50%);background:#1a5c8f;color:#fff;padding:10px 20px;border-radius:10px;font-size:13px;font-weight:600;z-index:999;opacity:0;transition:opacity .3s;pointer-events:none;white-space:nowrap;max-width:90vw}
+.toast.show{opacity:1}
+input[type=file]{display:none}
+</style>
+</head>
+<body>
+<div id="shell">
+  <header>
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 9h6M9 13h6M9 17h4"/></svg>
+    <h1>Zustandsprotokoll</h1>
+    <span id="hd" style="font-size:11px;opacity:.8"></span>
+  </header>
+  <div class="progress-bar"><div class="progress-fill" id="prog" style="width:12.5%"></div></div>
+  <div id="scroll"></div>
+  <div class="nav-bar">
+    <button class="btn-nav btn-back" id="bbk" onclick="nav(-1)">← Zurück</button>
+    <button class="btn-nav btn-next" id="bnx" onclick="nav(1)">Weiter →</button>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+<input type="file" id="cam" accept="image/*" capture="environment" multiple>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script>
+const S={
+  page:0,photos:{},sigs:{m:null,v:null},sm:{m:null,v:null},
+  rooms:[{n:'Raum 1',d:{}},{n:'Raum 2',d:{}},{n:'Raum 3',d:{}},{n:'Raum 4',d:{}},{n:'Raum 5',d:{}},
+         {n:'Küche',d:{}},{n:'Bad/WC',d:{}},{n:'Flur',d:{}},{n:'Balkon',d:{}}],
+  ar:0,g:{},hash:null,
+  doors:[{l:'Eingangstür zur Mietfläche',v:''},{l:'Weitere Zugangstür 1',v:''},{l:'Weitere Zugangstür 2',v:''}],
+  keys:Array(13).fill(0).map((_,i)=>({a:['Sicherungskarten','Haustür','Zugangstür ME','Zusatzschloss ME','Briefkasten','Zimmertür','Keller','Dachkammer','TG/Stellplatz','Stellplatz','Müllplatz','Sonstiges','Transponder'][i]||'',e:'',u:'',n:'',d:'',b:''})),
+  ctr:Array(10).fill(0).map((_,i)=>({s:'',a:['Strom','Gas','K-Wasser','W-Wasser','K-Wasser 2','W-Wasser 2','WM-Zähler 1','WM-Zähler 2','',''][i]||'',n:'',st:''})),
+  heiz:Array(8).fill(0).map(()=>({s:'',g:'',k:'',m:'',a:'',c:''}))
+};
+const NP=8;
+function sv(){try{localStorage.setItem('zp3',JSON.stringify(S));}catch(e){toast('⚠️ Speicher voll');}}
+function ld(){try{const d=localStorage.getItem('zp3');if(!d)return;const p=JSON.parse(d);['g','keys','ctr','heiz','rooms','photos','sigs','sm','doors'].forEach(k=>{if(p[k])S[k]=p[k];});}catch(e){}}
+function clrAll(){if(confirm('Alle Daten löschen?')){localStorage.removeItem('zp3');location.reload();}}
+function toast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2200);}
+async function sha(s){const b=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(s));return Array.from(new Uint8Array(b)).map(x=>x.toString(16).padStart(2,'0')).join('');}
+async function cHash(){return await sha(JSON.stringify({g:S.g,keys:S.keys,rooms:S.rooms.map(r=>({n:r.n,d:r.d}))}));}
+function dInf(){return{ua:navigator.userAgent.substring(0,80),lang:navigator.language,tz:Intl.DateTimeFormat().resolvedOptions().timeZone,sc:screen.width+'x'+screen.height};}
+let ck=null;
+document.getElementById('cam').addEventListener('change',function(e){
+  const fs=Array.from(e.target.files);let n=0;
+  fs.forEach(f=>{const r=new FileReader();r.onload=ev=>{if(!S.photos[ck])S.photos[ck]=[];S.photos[ck].push(ev.target.result);n++;if(n===fs.length){render();}};r.readAsDataURL(f);});
+  this.value='';
+});
+function openCam(k){ck=k;document.getElementById('cam').click();}
+function delP(k,i){S.photos[k].splice(i,1);render();}
+function pSec(key,lbl){
+  const ps=S.photos[key]||[];
+  let h=`<button class="btn-photo" onclick="openCam('${key}')">📷 ${lbl}</button>`;
+  if(ps.length){h+=`<div class="pg">`;ps.forEach((s,i)=>{h+=`<div class="pt"><img src="${s}" loading="lazy"><button class="pd" onclick="delP('${key}',${i})">✕</button></div>`;});h+=`</div>`;}
+  return h;
+}
+function inp(f,ph,tp='text'){const v=(S.g[f]||'').toString().replace(/"/g,'&quot;');return `<input type="${tp}" placeholder="${ph}" value="${v}" oninput="S.g['${f}']=this.value">`;}
+function cbGrp(opts,field,title){
+  let h=`<label>${title}</label><div class="cbg">`;
+  opts.forEach(o=>{const c=(S.g[field]||[]).includes(o)?'checked':'';h+=`<label class="cbi"><input type="checkbox" ${c} onchange="tCb('${field}','${o}',this.checked)"> ${o}</label>`;});
+  return h+`</div>`;
+}
+function tCb(f,v,c){if(!S.g[f])S.g[f]=[];if(c){if(!S.g[f].includes(v))S.g[f].push(v);}else S.g[f]=S.g[f].filter(x=>x!==v);}
+function rStat(ri,items){
+  let h=`<div class="sh"><span>Element</span><span>i.O.</span><span>abgenutzt</span><span>beschädigt</span></div>`;
+  items.forEach(it=>{const k=`r${ri}_${it.replace(/\s/g,'_')}`;const v=S.rooms[ri].d[k]||'';
+    h+=`<div class="sr"><span style="font-size:13px;font-weight:500">${it}</span>
+    <div class="rb"><input type="radio" name="${k}" value="ok" ${v==='ok'?'checked':''} onchange="S.rooms[${ri}].d['${k}']='ok'"></div>
+    <div class="rb"><input type="radio" name="${k}" value="abgenutzt" ${v==='abgenutzt'?'checked':''} onchange="S.rooms[${ri}].d['${k}']='abgenutzt'"></div>
+    <div class="rb"><input type="radio" name="${k}" value="beschaedigt" ${v==='beschaedigt'?'checked':''} onchange="S.rooms[${ri}].d['${k}']='beschaedigt'"></div>
+    </div>`;});
+  return h;
+}
+function rCb(ri,opts,field,title){
+  let h=`<label>${title}</label><div class="cbg">`;
+  opts.forEach(o=>{const k=`r${ri}_${field}_${o.replace(/\s/g,'_')}`;const c=S.rooms[ri].d[k]?'checked':'';h+=`<label class="cbi"><input type="checkbox" ${c} onchange="S.rooms[${ri}].d['${k}']=this.checked"> ${o}</label>`;});
+  return h+`</div>`;
+}
+function sbar(){const kb=Math.round(JSON.stringify(S).length/1024);return `<div class="sbar">💾 ~${kb} KB lokal &nbsp;|&nbsp;<a href="#" onclick="clrAll();return false" style="color:var(--blue);font-weight:700">Löschen</a></div>`;}
+function addDoor(){S.doors.push({l:'Weitere Zugangstür',v:''});render();}
+function delDoor(i){if(S.doors.length>1){S.doors.splice(i,1);render();}}
+function addKey(){S.keys.push({a:'',e:'',u:'',n:'',d:'',b:''});render();}
+function delKey(i){if(S.keys.length>1){S.keys.splice(i,1);render();}}
+function addCtr(){S.ctr.push({s:'',a:'',n:'',st:''});render();}
+function delCtr(i){if(S.ctr.length>1){S.ctr.splice(i,1);render();}}
+function addHz(){S.heiz.push({s:'',g:'',k:'',m:'',a:'',c:''});render();}
+function delHz(i){if(S.heiz.length>1){S.heiz.splice(i,1);render();}}
+function addRoom(){const n=S.rooms.filter(r=>r.n.startsWith('Raum ')).length+1;S.rooms.push({n:'Raum '+n,d:{}});S.ar=S.rooms.length-1;render();}
+function p0(){return `<div class="pi">Seite 1 von 8 – Allgemeine Angaben</div>${sbar()}
+<div class="card"><div class="card-title">Mieterdaten</div><div class="card-body">
+<div class="g2"><div><label>Mieter/in</label>${inp('mieter','Name')}</div><div><label>Etage</label>${inp('etage','2. OG')}</div></div>
+<div class="g2"><div><label>Straße, Nr.</label>${inp('strasse','Musterstr. 1')}</div><div><label>Gebäude</label>${inp('geb','Geb. A')}</div></div>
+<div class="g2"><div><label>PLZ, Ort</label>${inp('plz','10115 Berlin')}</div><div><label>MV-Nr.</label>${inp('mv','MV-Nr.')}</div></div>
+<label>Datum</label>${inp('datum','','date')}</div></div>
+<div class="card"><div class="card-title">Mietobjekt</div><div class="card-body">
+<div class="g2"><div><label>Obj.-Nr.</label>${inp('obj','Nr.')}</div><div><label>Nutzungsart</label>${inp('nutz','Wohnraum')}</div></div>
+<label>Bevollmächtigter Vertreter (Mieter)</label>${inp('vertr','Name')}
+<label>Vermieter / Vertreter</label>${inp('verm','Name')}</div></div>
+<div class="card"><div class="card-title">Besteht aus</div><div class="card-body">
+${cbGrp(['Räume','Küche','WC','Bad','Diele/Flur','Garderobe','Kammer','Abstellraum','Terrasse','Balkon','Loggia','Wintergarten','Keller','Dachboden','Garten','Stellplatz','Sonstiges'],'einh','Einheiten')}
+</div></div>
+<div class="card"><div class="card-title">Heizung & Elektro</div><div class="card-body">
+${cbGrp(['Zentrale Warmwasserversorgung','Etagenheizung','Nachtspeicherung'],'heizg','Heizung')}
+${cbGrp(['Elektro unter Putz','Elektro nicht unter Putz','Telefonanschluss','Kabelanschluss','Ladestelle'],'elek','Elektro')}
+</div></div>
+<div class="card"><div class="card-title">Türen</div><div class="card-body">
+<div class="sh"><span>Bezeichnung</span><span>i.O.</span><span>abgenutzt</span><span>beschädigt</span></div>
+${S.doors.map((d,i)=>`<div class="sr">
+<input type="text" value="${d.l}" oninput="S.doors[${i}].l=this.value" style="font-size:13px;font-weight:600;padding:6px 8px">
+<div class="rb"><input type="radio" name="d${i}" value="ok" ${d.v==='ok'?'checked':''} onchange="S.doors[${i}].v='ok'"></div>
+<div class="rb"><input type="radio" name="d${i}" value="abgenutzt" ${d.v==='abgenutzt'?'checked':''} onchange="S.doors[${i}].v='abgenutzt'"></div>
+<div class="rb"><input type="radio" name="d${i}" value="beschaedigt" ${d.v==='beschaedigt'?'checked':''} onchange="S.doors[${i}].v='beschaedigt'"></div>
+<button class="btn-del" onclick="delDoor(${i})">✕</button></div>`).join('')}
+<button class="btn-add" onclick="addDoor()">+ Tür hinzufügen</button>
+<div class="dv"></div>${pSec('p0','Fotos Türen / Eingang')}
+</div></div>`;}
+function p1(){
+  const rows=S.keys.map((k,i)=>`<tr><td><input type="text" value="${k.a}" oninput="S.keys[${i}].a=this.value"></td><td><input type="number" min="0" value="${k.e}" oninput="S.keys[${i}].e=this.value"></td><td><input type="number" min="0" value="${k.u}" oninput="S.keys[${i}].u=this.value"></td><td><input type="text" value="${k.n}" oninput="S.keys[${i}].n=this.value"></td><td><input type="number" min="0" value="${k.d}" oninput="S.keys[${i}].d=this.value"></td><td><input type="text" value="${k.b}" oninput="S.keys[${i}].b=this.value"></td><td><button class="btn-del" onclick="delKey(${i})">✕</button></td></tr>`).join('');
+  return `<div class="pi">Seite 2 von 8 – Schlüsselübergabe</div>
+<div class="card"><div class="card-title">Schlüssel – MV-Nr. ${S.g.mv||'—'}</div><div class="card-body">
+<label>Übergabedatum</label><input type="date" value="${S.g.sdatum||''}" onchange="S.g.sdatum=this.value">
+<div class="tw"><table><thead><tr><th>Art</th><th>Erh.</th><th>Üb.</th><th>Nr.</th><th>Diff.</th><th>Bem.</th><th></th></tr></thead><tbody>${rows}</tbody></table></div>
+<button class="btn-add" onclick="addKey()">+ Zeile</button>
+<div class="wb">⚠️ Fehlende Schlüssel werden nachbestellt und dem Mieter in Rechnung gestellt.</div>
+${pSec('p1','Fotos Schlüssel')}</div></div>`;}
+function p2(){
+  const rows=S.ctr.map((c,i)=>`<tr><td><input type="text" value="${c.s}" placeholder="Standort" oninput="S.ctr[${i}].s=this.value"></td><td><input type="text" value="${c.a}" placeholder="Art" oninput="S.ctr[${i}].a=this.value"></td><td><input type="text" value="${c.n}" placeholder="Nr." oninput="S.ctr[${i}].n=this.value"></td><td><input type="text" value="${c.st}" placeholder="Stand" oninput="S.ctr[${i}].st=this.value"></td><td><button class="btn-del" onclick="delCtr(${i})">✕</button></td></tr>`).join('');
+  return `<div class="pi">Seite 3 von 8 – Zählerstände</div>
+<div class="card"><div class="card-title">Verbrauchszähler</div><div class="card-body">
+<div class="tw"><table><thead><tr><th>Standort</th><th>Art</th><th>Zähler-Nr.</th><th>Stand</th><th></th></tr></thead><tbody>${rows}</tbody></table></div>
+<button class="btn-add" onclick="addCtr()">+ Zeile</button>
+${pSec('p2','Fotos Zähler')}</div></div>`;}
+function p3(){
+  const rows=S.heiz.map((h,i)=>`<tr><td><input type="text" value="${h.s}" placeholder="Raum" oninput="S.heiz[${i}].s=this.value"></td><td><input type="text" value="${h.g}" placeholder="WMZ" oninput="S.heiz[${i}].g=this.value"></td><td><input type="text" value="${h.k}" placeholder="K-Wert" oninput="S.heiz[${i}].k=this.value"></td><td><input type="text" value="${h.m}" placeholder="Memory" oninput="S.heiz[${i}].m=this.value"></td><td><input type="text" value="${h.a}" placeholder="Aktuell" oninput="S.heiz[${i}].a=this.value"></td><td><input type="text" value="${h.c}" placeholder="Datum" oninput="S.heiz[${i}].c=this.value"></td><td><button class="btn-del" onclick="delHz(${i})">✕</button></td></tr>`).join('');
+  return `<div class="pi">Seite 4 von 8 – Heizkostenverteiler</div>
+<div class="card"><div class="card-title">Heizkostenverteiler</div><div class="card-body">
+<div class="tw"><table><thead><tr><th>Standort</th><th>Gerät</th><th>K-Wert</th><th>Memory</th><th>Aktuell</th><th>Stichtag</th><th></th></tr></thead><tbody>${rows}</tbody></table></div>
+<button class="btn-add" onclick="addHz()">+ Zeile</button>
+${pSec('p3','Fotos Heizkostenverteiler')}</div></div>`;}
+function p4(){
+  const ri=S.ar,r=S.rooms[ri];
+  let tabs=`<div class="rt">`;
+  S.rooms.forEach((rm,i)=>{tabs+=`<div class="rtb ${i===ri?'active':''}" onclick="S.ar=${i};render()">${rm.n}</div>`;});
+  tabs+=`<div class="rtb" onclick="addRoom()" style="border-style:dashed">+ Raum</div></div>`;
+  return `<div class="pi">Seite 5 von 8 – Raumprotokoll</div>${tabs}
+<div class="card"><div class="card-title">${r.n}</div><div class="card-body">
+<label>Raumbezeichnung</label><input type="text" value="${r.n}" oninput="S.rooms[${ri}].n=this.value">
+<div class="dv"></div>
+${rStat(ri,['Boden','Decke','Wände','Fenster','Türen','Heizkörper'])}
+<div class="dv"></div>
+${rCb(ri,['Parkett','Dielen','Laminat','Fliesen','PVC','Stein/Beton','Terrazzo','Teppich','sonstiges'],'bod','Bodenart')}
+${rCb(ri,['Dispersionsfarbe','Kalkfarbe','Rauhfaser','Tapete','Stuck','Holz','abgehängt','Glasfaser'],'dec','Deckenart')}
+${rCb(ri,['Dispersionsfarbe','Kalkfarbe','Ölfarbe','Fliesen','teil gefliest','Tapete','Holz','Glasfaser'],'wan','Wandart')}
+${rCb(ri,['Alu','PVC','Holz','Einfachverglasung','Doppelverglasung','Dreifachverglasung'],'fen','Fensterart')}
+${rCb(ri,['Alu','PVC','Holz','Glas','Stahl/T30','gestrichen','lackiert'],'tur','Türart')}
+</div></div>
+<div class="card"><div class="card-title">Sanitär</div><div class="card-body">
+${rCb(ri,['Hänge-WC','Stand-WC','Urinal'],'wc','WC')}
+${rCb(ri,['eingebaut','freistehend','Duschkabine','Mischbatterie'],'bwn','Badewanne')}
+${rCb(ri,['eingebaut','freistehend','Bodenabfluss','Mischbatterie'],'dus','Dusche')}
+${rCb(ri,['kleines Waschbecken','großes Waschbecken','Mischbatterie'],'wbs','Waschbecken')}
+</div></div>
+<div class="card"><div class="card-title">Küche & Sonstiges</div><div class="card-body">
+${rCb(ri,['vorhanden','nicht vorhanden'],'ek','Einbauküche')}
+${rCb(ri,['Kühlschrank','Gefrierschrank','Herd Elektro','Herd Gas','Induktion','Geschirrspüler','Warmwasserbereiter'],'ger','Geräte')}
+${rCb(ri,['Kamin','Kachelofen','Nachtspeicherofen'],'ofe','Öfen')}
+${rCb(ri,['Jalousien','Markisen','Klimageräte','Lüftungsgeräte'],'tec','Weitere Geräte')}
+<label>Bemerkungen</label>
+<textarea oninput="S.rooms[${ri}].d['bem']=this.value">${r.d['bem']||''}</textarea>
+${pSec('rm'+ri,'Fotos – '+r.n)}
+</div></div>`;}
+function p5(){return `<div class="pi">Seite 6 von 8 – Keller / Stellplatz / Garten</div>
+<div class="card"><div class="card-title">Keller</div><div class="card-body">
+<div class="g3"><div><label>MV-Nr.</label><input type="text" value="${S.g.kmv||''}" oninput="S.g.kmv=this.value"></div><div><label>Datum</label><input type="date" value="${S.g.kdat||''}" onchange="S.g.kdat=this.value"></div><div><label>Keller-Nr.</label><input type="text" value="${S.g.knr||''}" oninput="S.g.knr=this.value"></div></div>
+${cbGrp(['Leer','Trocken','Licht vorhanden'],'kzus','Zustand')}
+<label>Bemerkungen</label><textarea oninput="S.g.kbem=this.value">${S.g.kbem||''}</textarea>
+${pSec('p5a','Fotos Keller')}</div></div>
+<div class="card"><div class="card-title">Stellplatz</div><div class="card-body">
+<div class="g3"><div><label>MV-Nr.</label><input type="text" value="${S.g.smv||''}" oninput="S.g.smv=this.value"></div><div><label>Datum</label><input type="date" value="${S.g.sdat||''}" onchange="S.g.sdat=this.value"></div><div><label>Stellplatz-Nr.</label><input type="text" value="${S.g.snr||''}" oninput="S.g.snr=this.value"></div></div>
+<label>Bemerkungen</label><textarea oninput="S.g.sbem=this.value">${S.g.sbem||''}</textarea>
+${pSec('p5b','Fotos Stellplatz')}</div></div>
+<div class="card"><div class="card-title">Garten</div><div class="card-body">
+<div class="g3"><div><label>MV-Nr.</label><input type="text" value="${S.g.gmv||''}" oninput="S.g.gmv=this.value"></div><div><label>Datum</label><input type="date" value="${S.g.gdat||''}" onchange="S.g.gdat=this.value"></div><div><label>Parzelle-Nr.</label><input type="text" value="${S.g.gnr||''}" oninput="S.g.gnr=this.value"></div></div>
+<label>Bemerkungen</label><textarea oninput="S.g.gbem=this.value">${S.g.gbem||''}</textarea>
+${pSec('p5c','Fotos Garten')}</div></div>
+<div class="card"><div class="card-title">Zusätze & Mängel</div><div class="card-body">
+<label>Einbauten (bei Auszug zu entfernen)</label><textarea oninput="S.g.einb=this.value">${S.g.einb||''}</textarea>
+<label>Rückbau notwendig</label><textarea oninput="S.g.rueck=this.value">${S.g.rueck||''}</textarea>
+<label>Instandsetzung notwendig</label><textarea oninput="S.g.inst=this.value">${S.g.inst||''}</textarea>
+<label>Sonstige Bemerkungen</label><textarea oninput="S.g.sons=this.value">${S.g.sons||''}</textarea>
+</div></div>`;}
+function p6(){
+  const mS=!!(S.sigs.m&&S.sm.m),vS=!!(S.sigs.v&&S.sm.v);
+  function cBox(id){
+    const mt=S.sm[id];if(!mt)return'';
+    const vn=id==='m'?S.g.mvn:S.g.vvn,nn=id==='m'?S.g.mnn:S.g.vnn,gb=id==='m'?S.g.mgb:S.g.vgb;
+    return `<div class="cbox"><div class="ct">🔒 Zertifizierungsdaten</div>
+    <div class="cr"><b>Name:</b> ${((vn||'')+' '+(nn||'')).trim()||'—'}</div>
+    <div class="cr"><b>Geburtsdatum:</b> ${gb||'—'}</div>
+    <div class="cr"><b>Zeitstempel:</b> ${mt.ts}</div>
+    <div class="cr"><b>Zeitzone:</b> ${mt.tz}</div>
+    <div class="cr"><b>SHA-256:</b> ${mt.hash}</div>
+    <div class="cbdg">✅ Unterzeichnet – ${mt.ts}</div></div>`;
+  }
+  return `<div class="pi">Seite 7 von 8 – Unterschriften</div>
+<div class="card"><div class="card-title">Übergabedaten</div><div class="card-body">
+<div class="g3"><div><label>Ort</label><input type="text" value="${S.g.ort||''}" oninput="S.g.ort=this.value" placeholder="Berlin"></div><div><label>Datum</label><input type="date" value="${S.g.udat||''}" onchange="S.g.udat=this.value"></div><div><label>Uhrzeit</label><input type="text" value="${S.g.uhr||''}" oninput="S.g.uhr=this.value" placeholder="10:00"></div></div>
+<label>Verzugsanschrift</label><input type="text" value="${S.g.vstr||''}" oninput="S.g.vstr=this.value">
+<div class="g2"><div><label>PLZ</label><input type="text" value="${S.g.vplz||''}" oninput="S.g.vplz=this.value"></div><div><label>Tel.</label><input type="text" value="${S.g.vtel||''}" oninput="S.g.vtel=this.value"></div></div>
+<label>E-Mail Mieter</label><input type="email" value="${S.g.meml||''}" oninput="S.g.meml=this.value" placeholder="mieter@email.de">
+</div></div>
+<div class="card"><div class="card-title">✍️ Unterschrift – Mieter</div><div class="card-body">
+<div class="g2"><div><label>Vorname</label><input type="text" value="${S.g.mvn||''}" oninput="S.g.mvn=this.value"></div><div><label>Nachname</label><input type="text" value="${S.g.mnn||''}" oninput="S.g.mnn=this.value"></div></div>
+<div class="g2" style="margin-bottom:12px"><div><label>Geburtsdatum</label><input type="date" value="${S.g.mgb||''}" onchange="S.g.mgb=this.value"></div></div>
+<p style="font-size:13px;color:#666;margin-bottom:8px">Mit Finger unterschreiben:</p>
+<canvas id="sig-m" class="sc ${mS?'signed':''}" width="700" height="150"></canvas>
+<div class="sa"><button class="sb" onclick="clrSig('m')">🗑 Löschen</button><button class="sb p" onclick="saveSig('m')">✅ Bestätigen</button></div>
+${cBox('m')}</div></div>
+<div class="card"><div class="card-title">✍️ Unterschrift – Vermieter</div><div class="card-body">
+<div class="g2"><div><label>Vorname</label><input type="text" value="${S.g.vvn||''}" oninput="S.g.vvn=this.value"></div><div><label>Nachname</label><input type="text" value="${S.g.vnn||''}" oninput="S.g.vnn=this.value"></div></div>
+<div class="g2" style="margin-bottom:12px"><div><label>Geburtsdatum</label><input type="date" value="${S.g.vgb||''}" onchange="S.g.vgb=this.value"></div></div>
+<p style="font-size:13px;color:#666;margin-bottom:8px">Mit Finger unterschreiben:</p>
+<canvas id="sig-v" class="sc ${vS?'signed':''}" width="700" height="150"></canvas>
+<div class="sa"><button class="sb" onclick="clrSig('v')">🗑 Löschen</button><button class="sb p" onclick="saveSig('v')">✅ Bestätigen</button></div>
+${cBox('v')}</div></div>`;}
+function p7(){
+  const tp=Object.values(S.photos).reduce((a,b)=>a+b.length,0);
+  const mN=((S.g.mvn||'')+' '+(S.g.mnn||'')).trim(),vN=((S.g.vvn||'')+' '+(S.g.vnn||'')).trim();
+  return `<div class="pi">Seite 8 von 8 – Abschluss</div>
+<div class="card"><div class="card-title">Zusammenfassung</div><div class="card-body">
+<div class="smb"><h3>Mietobjekt</h3>
+<div class="smr"><span>Mieter/in</span><span>${S.g.mieter||'—'}</span></div>
+<div class="smr"><span>Adresse</span><span>${S.g.strasse||'—'}</span></div>
+<div class="smr"><span>MV-Nr.</span><span>${S.g.mv||'—'}</span></div>
+<div class="smr"><span>Datum</span><span>${S.g.datum||'—'}</span></div></div>
+<div class="smb"><h3>Status</h3>
+<div class="smr"><span>Räume</span><span>${S.rooms.length}</span></div>
+<div class="smr"><span>Fotos</span><span>${tp}</span></div>
+<div class="smr"><span>Unterschrift Mieter</span><span>${S.sigs.m?'✅ '+mN:'⚠️ Fehlt'}</span></div>
+<div class="smr"><span>Unterschrift Vermieter</span><span>${S.sigs.v?'✅ '+vN:'⚠️ Fehlt'}</span></div></div>
+<div><div style="font-size:12px;font-weight:700;color:var(--blue);margin-bottom:4px">🔐 SHA-256 Hash</div>
+<div class="hb">${S.hash||'Noch nicht berechnet'}</div></div>
+</div></div>
+<div class="card"><div class="card-title">📧 E-Mail & PDF</div><div class="card-body">
+<label>E-Mail Mieter</label><input type="email" value="${S.g.meml||''}" placeholder="mieter@email.de" oninput="S.g.meml=this.value">
+<label>E-Mail Verwaltung</label><input type="email" value="${S.g.veml||''}" placeholder="verwaltung@beispiel.de" oninput="S.g.veml=this.value">
+<button class="ba bbl" onclick="openMM()">📧 E-Mail vorbereiten</button>
+<button class="ba bgr" onclick="genPDF()">📄 PDF herunterladen</button>
+<p style="font-size:11px;color:#888;margin-top:8px;text-align:center">Alle Daten werden beim PDF-Download gespeichert.</p>
+<div id="mm" class="mm">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+    <span style="font-size:13px;font-weight:700;color:var(--blue)">📋 E-Mail-Text</span>
+    <button onclick="document.getElementById('mm').classList.remove('open')" style="border:none;background:none;font-size:22px;color:#888">✕</button>
+  </div>
+  <textarea id="mt" readonly></textarea>
+  <button class="ba bbl" style="margin-top:8px" onclick="cpMail()">📋 Kopieren</button>
+  <button class="ba bot" style="border:1.5px solid var(--blue)" onclick="tryMail()">📨 In E-Mail-App öffnen</button>
+</div>
+</div></div>`;}
+let sd={};
+function initSig(){
+  ['m','v'].forEach(id=>{
+    const c=document.getElementById('sig-'+id);if(!c)return;
+    const ctx=c.getContext('2d');
+    c.width=c.offsetWidth*window.devicePixelRatio;c.height=150*window.devicePixelRatio;c.style.height='150px';
+    ctx.scale(window.devicePixelRatio,window.devicePixelRatio);
+    ctx.strokeStyle='#1a5c8f';ctx.lineWidth=2.5;ctx.lineCap='round';ctx.lineJoin='round';
+    if(S.sigs[id]){const img=new Image();img.onload=()=>ctx.drawImage(img,0,0,c.offsetWidth,150);img.src=S.sigs[id];}
+    const pos=(e,cv)=>{const r=cv.getBoundingClientRect();if(e.touches)return{x:e.touches[0].clientX-r.left,y:e.touches[0].clientY-r.top};return{x:e.clientX-r.left,y:e.clientY-r.top};};
+    c.addEventListener('touchstart',e=>{e.preventDefault();sd[id]=true;const p=pos(e,c);ctx.beginPath();ctx.moveTo(p.x,p.y);},{passive:false});
+    c.addEventListener('touchmove',e=>{e.preventDefault();if(!sd[id])return;const p=pos(e,c);ctx.lineTo(p.x,p.y);ctx.stroke();},{passive:false});
+    c.addEventListener('touchend',()=>sd[id]=false);
+    c.addEventListener('mousedown',e=>{sd[id]=true;const p=pos(e,c);ctx.beginPath();ctx.moveTo(p.x,p.y);});
+    c.addEventListener('mousemove',e=>{if(!sd[id])return;const p=pos(e,c);ctx.lineTo(p.x,p.y);ctx.stroke();});
+    c.addEventListener('mouseup',()=>sd[id]=false);c.addEventListener('mouseleave',()=>sd[id]=false);
+  });
+}
+function clrSig(id){const c=document.getElementById('sig-'+id);if(c)c.getContext('2d').clearRect(0,0,c.width,c.height);S.sigs[id]=null;S.sm[id]=null;render();setTimeout(initSig,80);}
+async function saveSig(id){
+  const c=document.getElementById('sig-'+id);if(!c)return;
+  S.sigs[id]=c.toDataURL('image/png');
+  const di=dInf(),h=await cHash();S.hash=h;
+  S.sm[id]={ts:new Date().toLocaleString('de-DE',{timeZoneName:'short'}),tz:di.tz,ua:di.ua,sc:di.sc,lang:di.lang,hash:h};
+  render();setTimeout(initSig,80);toast('✅ Unterschrift zertifiziert');
+}
+function bMail(){
+  const ms=S.sm.m,vs=S.sm.v,tp=Object.values(S.photos).reduce((a,b)=>a+b.length,0);
+  const mN=((S.g.mvn||'')+' '+(S.g.mnn||'')).trim()||'—',vN=((S.g.vvn||'')+' '+(S.g.vnn||'')).trim()||'—';
+  return `Betreff: Zustandsprotokoll – ${S.g.strasse||'Objekt'} – MV-Nr. ${S.g.mv||'—'}\nAn: ${S.g.meml||'—'}\nCC: ${S.g.veml||'—'}\n\nSehr geehrte/r ${S.g.mieter||'Mieter/in'},\n\nanbei das Zustandsprotokoll.\n\n── DATEN ──\nMieter: ${S.g.mieter||'—'}\nAdresse: ${S.g.strasse||'—'}, ${S.g.plz||'—'}\nMV-Nr.: ${S.g.mv||'—'}\nDatum: ${S.g.datum||'—'}\n\n── RÄUME ──\n${S.rooms.map((r,i)=>i+1+'. '+r.n).join('\n')}\n\nFotos: ${tp}\n\n── UNTERSCHRIFTEN ──\nMieter: ${ms?'✅ '+mN+' | Geb.: '+(S.g.mgb||'—')+' | '+ms.ts:'⚠️ Fehlt'}\nVermieter: ${vs?'✅ '+vN+' | Geb.: '+(S.g.vgb||'—')+' | '+vs.ts:'⚠️ Fehlt'}\n\n── HASH ──\n${S.hash||'—'}\n\nMit freundlichen Grüßen`;
+}
+function openMM(){document.getElementById('mt').value=bMail();document.getElementById('mm').classList.add('open');}
+function cpMail(){const t=document.getElementById('mt');t.select();navigator.clipboard.writeText(t.value).then(()=>toast('✅ Kopiert')).catch(()=>{document.execCommand('copy');toast('✅ Kopiert');});}
+function tryMail(){const to=S.g.meml||'',cc=S.g.veml||'';let ml='mailto:'+to+'?';if(cc)ml+='cc='+encodeURIComponent(cc)+'&';ml+='subject='+encodeURIComponent('Zustandsprotokoll '+S.g.mv||'')+'&body='+encodeURIComponent(bMail());window.location.href=ml;}
+async function genPDF(){
+  toast('📄 PDF wird erstellt…');await new Promise(r=>setTimeout(r,150));
+  const{jsPDF}=window.jspdf,doc=new jsPDF({orientation:'portrait',unit:'mm',format:'a4'});
+  const W=210,M=15,CW=W-M*2;let y=M;
+  const BL=[26,92,143],GR=[107,124,141],LB=[232,241,248],BK=[17,17,17];
+  function np(n=20){if(y+n>285){doc.addPage();y=M;hd();}}
+  function hd(){doc.setFillColor(...BL);doc.rect(0,0,210,14,'F');doc.setTextColor(255,255,255);doc.setFontSize(11);doc.setFont('helvetica','bold');doc.text('Zustandsprotokoll',M,9);doc.setFontSize(8);doc.setFont('helvetica','normal');doc.text('MV-Nr.: '+(S.g.mv||'—')+'  |  '+(S.g.strasse||'')+'  |  '+(S.g.datum||''),W-M,9,{align:'right'});y=Math.max(y,18);}
+  function sec(t){np(10);doc.setFillColor(...LB);doc.rect(M,y,CW,7,'F');doc.setTextColor(...BL);doc.setFontSize(9);doc.setFont('helvetica','bold');doc.text(t.toUpperCase(),M+2,y+5);y+=9;}
+  function row(l,v){np(7);doc.setTextColor(...GR);doc.setFontSize(8);doc.setFont('helvetica','normal');doc.text(l,M,y);doc.setTextColor(...BK);doc.setFont('helvetica','bold');doc.text(String(v||'—'),M+50,y);y+=6;}
+  function rowF(l,v){np(10);doc.setTextColor(...GR);doc.setFontSize(8);doc.setFont('helvetica','normal');doc.text(l,M,y);y+=5;doc.setTextColor(...BK);doc.setFont('helvetica','normal');doc.splitTextToSize(String(v||'—'),CW).forEach(ln=>{np(6);doc.text(ln,M,y);y+=5;});y+=2;}
+  function bdg(l,v){np(7);doc.setTextColor(...BK);doc.setFontSize(8);doc.setFont('helvetica','normal');doc.text(l,M+2,y);const c={ok:[26,122,66],abgenutzt:[138,90,0],beschaedigt:[154,28,28]},lb={ok:'i.O.',abgenutzt:'abgenutzt',beschaedigt:'beschädigt'};if(v&&c[v]){doc.setFillColor(...c[v]);doc.roundedRect(M+55,y-4,24,5,1,1,'F');doc.setTextColor(255,255,255);doc.setFontSize(7);doc.text(lb[v],M+55+12,y,{align:'center'});}y+=6;}
+  function dv(){np(4);doc.setDrawColor(...LB);doc.line(M,y,W-M,y);y+=4;}
+  hd();
+  sec('Mieterdaten');row('Mieter/in',S.g.mieter);row('Straße',S.g.strasse);row('PLZ/Ort',S.g.plz);row('MV-Nr.',S.g.mv);row('Datum',S.g.datum);
+  dv();sec('Mietobjekt');row('Obj.-Nr.',S.g.obj);row('Nutzungsart',S.g.nutz);row('Vertreter Mieter',S.g.vertr);row('Vermieter',S.g.verm);
+  dv();sec('Ausstattung');rowF('Einheiten',(S.g.einh||[]).join(', '));rowF('Heizung',(S.g.heizg||[]).join(', '));rowF('Elektro',(S.g.elek||[]).join(', '));
+  dv();sec('Türen');S.doors.forEach(d=>bdg(d.l,d.v));
+  doc.addPage();y=M;hd();sec('Schlüsselübergabe');row('Datum',S.g.sdatum);np(10);
+  const kC=[['Art',50],['Erh.',15],['Üb.',15],['Nr.',20],['Diff.',15],['Bem.',35]];let kx=M;
+  doc.setFillColor(...BL);doc.rect(M,y,CW,6,'F');doc.setTextColor(255,255,255);doc.setFontSize(7);doc.setFont('helvetica','bold');
+  kC.forEach(([h,w])=>{doc.text(h,kx+1,y+4);kx+=w;});y+=6;
+  S.keys.forEach((k,i)=>{np(6);if(i%2===0){doc.setFillColor(245,248,251);doc.rect(M,y,CW,5.5,'F');}kx=M;doc.setTextColor(...BK);doc.setFontSize(7);doc.setFont('helvetica','normal');[k.a,k.e,k.u,k.n,k.d,k.b].forEach((v,ci)=>{doc.text(String(v||''),kx+1,y+4);kx+=kC[ci][1];});y+=5.5;});
+  doc.addPage();y=M;hd();sec('Verbrauchszähler');
+  const zC=[['Standort',45],['Art',35],['Zähler-Nr.',45],['Stand',35]];let zx=M;
+  doc.setFillColor(...BL);doc.rect(M,y,CW,6,'F');doc.setTextColor(255,255,255);doc.setFontSize(7);doc.setFont('helvetica','bold');
+  zC.forEach(([h,w])=>{doc.text(h,zx+1,y+4);zx+=w;});y+=6;
+  S.ctr.forEach((c,i)=>{if(!c.a&&!c.s)return;np(6);if(i%2===0){doc.setFillColor(245,248,251);doc.rect(M,y,CW,5.5,'F');}zx=M;doc.setTextColor(...BK);doc.setFontSize(7);doc.setFont('helvetica','normal');[c.s,c.a,c.n,c.st].forEach((v,ci)=>{doc.text(String(v||''),zx+1,y+4);zx+=zC[ci][1];});y+=5.5;});
+  dv();sec('Heizkostenverteiler');
+  const hC=[['Standort',30],['Gerät',28],['K-Wert',23],['Memory',23],['Aktuell',23],['Stichtag',23]];let hx=M;
+  doc.setFillColor(...BL);doc.rect(M,y,CW,6,'F');doc.setTextColor(255,255,255);doc.setFontSize(7);doc.setFont('helvetica','bold');
+  hC.forEach(([h,w])=>{doc.text(h,hx+1,y+4);hx+=w;});y+=6;
+  S.heiz.forEach((h,i)=>{if(!h.s&&!h.g)return;np(6);if(i%2===0){doc.setFillColor(245,248,251);doc.rect(M,y,CW,5.5,'F');}hx=M;doc.setTextColor(...BK);doc.setFontSize(7);doc.setFont('helvetica','normal');[h.s,h.g,h.k,h.m,h.a,h.c].forEach((v,ci)=>{doc.text(String(v||''),hx+1,y+4);hx+=hC[ci][1];});y+=5.5;});
+  S.rooms.forEach(r=>{
+    doc.addPage();y=M;hd();const ri=S.rooms.indexOf(r);sec('Raum: '+r.n);
+    ['Boden','Decke','Wände','Fenster','Türen','Heizkörper'].forEach(el=>bdg(el,r.d['r'+ri+'_'+el.replace(/\s/g,'_')]));dv();
+    [['bod','Bodenart'],['dec','Deckenart'],['wan','Wandart'],['fen','Fensterart'],['tur','Türart'],['wc','WC'],['bwn','Badewanne'],['dus','Dusche'],['ger','Geräte'],['ofe','Öfen'],['tec','Weitere']].forEach(([f,l])=>{
+      const sel=Object.keys(r.d).filter(k=>k.startsWith('r'+ri+'_'+f+'_')&&r.d[k]).map(k=>k.replace('r'+ri+'_'+f+'_','').replace(/_/g,' '));
+      if(sel.length)rowF(l,sel.join(', '));
+    });
+    if(r.d.bem){dv();rowF('Bemerkungen',r.d.bem);}
+    const rp=S.photos['rm'+ri]||[];
+    if(rp.length){np(15);sec('Fotos – '+r.n);let px=M,py=y;rp.forEach((p,i)=>{if(px+56>W-M){px=M;py+=47;}np(47);try{doc.addImage(p,'JPEG',px,py,55,42);}catch(e){}px+=60;});y=py+47;}
+  });
+  doc.addPage();y=M;hd();sec('Keller / Stellplatz / Garten');
+  row('Keller-Nr.',S.g.knr);row('Keller Datum',S.g.kdat);rowF('Zustand',(S.g.kzus||[]).join(', '));if(S.g.kbem)rowF('Keller Bem.',S.g.kbem);
+  dv();row('Stellplatz-Nr.',S.g.snr);if(S.g.sbem)rowF('Stellplatz Bem.',S.g.sbem);
+  dv();row('Parzelle-Nr.',S.g.gnr);if(S.g.gbem)rowF('Garten Bem.',S.g.gbem);
+  dv();sec('Zusätze & Mängel');
+  if(S.g.einb)rowF('Einbauten',S.g.einb);if(S.g.rueck)rowF('Rückbau',S.g.rueck);if(S.g.inst)rowF('Instandsetzung',S.g.inst);if(S.g.sons)rowF('Sonstige Bem.',S.g.sons);
+  doc.addPage();y=M;hd();sec('Unterschriften');row('Ort',S.g.ort);row('Datum',S.g.udat);row('Uhrzeit',S.g.uhr);dv();
+  ['m','v'].forEach(id=>{
+    const vn=id==='m'?S.g.mvn:S.g.vvn,nn=id==='m'?S.g.mnn:S.g.vnn,gb=id==='m'?S.g.mgb:S.g.vgb,mt=S.sm[id],lb=id==='m'?'Mieter':'Vermieter';
+    np(70);doc.setFillColor(...LB);doc.rect(M,y,CW,6,'F');doc.setTextColor(...BL);doc.setFontSize(9);doc.setFont('helvetica','bold');doc.text(lb,M+2,y+4.5);y+=8;
+    row('Vorname',vn);row('Nachname',nn);row('Geburtsdatum',gb);
+    np(38);doc.setDrawColor(...BL);doc.rect(M,y,CW,32);
+    if(S.sigs[id]){try{doc.addImage(S.sigs[id],'PNG',M+1,y+1,CW-2,30);}catch(e){}}
+    else{doc.setTextColor(...GR);doc.setFontSize(9);doc.setFont('helvetica','italic');doc.text('Keine Unterschrift',W/2,y+16,{align:'center'});}
+    y+=34;
+    if(mt){np(28);doc.setFillColor(240,250,244);doc.rect(M,y,CW,24,'F');doc.setDrawColor(176,216,192);doc.rect(M,y,CW,24);doc.setTextColor(26,122,66);doc.setFontSize(8);doc.setFont('helvetica','bold');doc.text('Zertifiziert',M+2,y+5);doc.setFont('helvetica','normal');doc.setFontSize(7);doc.setTextColor(42,90,58);doc.text('Zeitstempel: '+mt.ts,M+2,y+11);doc.text('SHA-256: '+mt.hash.substring(0,42)+'…',M+2,y+17);y+=26;}
+    dv();
+  });
+  np(16);doc.setFillColor(240,244,248);doc.rect(M,y,CW,14,'F');doc.setTextColor(...BL);doc.setFontSize(8);doc.setFont('helvetica','bold');doc.text('Dokument-Hash (SHA-256)',M+2,y+5);doc.setFont('helvetica','normal');doc.setFontSize(7);doc.setTextColor(...GR);doc.text(S.hash||'—',M+2,y+11,{maxWidth:CW-4});
+  doc.setTextColor(...GR);doc.setFontSize(7);doc.text('Erstellt: '+new Date().toLocaleString('de-DE'),W/2,290,{align:'center'});
+  doc.save('Zustandsprotokoll_'+(S.g.mv||'Export').replace(/\//g,'-')+'_'+new Date().toISOString().slice(0,10)+'.pdf');
+  sv();
+  toast('✅ PDF gespeichert & Daten gesichert');
+}
+const PF=[p0,p1,p2,p3,p4,p5,p6,p7];
+function render(){
+  document.getElementById('scroll').innerHTML=PF[S.page]();
+  document.getElementById('prog').style.width=((S.page+1)/NP*100)+'%';
+  document.getElementById('bbk').style.visibility=S.page===0?'hidden':'visible';
+  document.getElementById('bnx').textContent=S.page===NP-1?'Fertig ✓':'Weiter →';
+  if(S.page===6)setTimeout(initSig,100);
+}
+function nav(d){const n=S.page+d;if(n<0||n>=NP)return;S.page=n;render();document.getElementById('scroll').scrollTo(0,0);}
+document.getElementById('hd').textContent=new Date().toLocaleDateString('de-DE',{day:'2-digit',month:'2-digit',year:'numeric'});
+ld();render();
+</script>
+</body>
+</html>
