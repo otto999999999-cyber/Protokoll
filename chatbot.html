@@ -78,7 +78,7 @@ const FAQ=[
    a:'Ja. Auf der Raumprotokoll-Seite kannst du über „+ Raum" beliebig viele zusätzliche Räume hinzufügen und für jeden einzeln den Zustand erfassen.'},
   {q:'Wie sende ich das Protokoll per E-Mail?',kw:['email','e-mail','senden','versenden','mail'],
    a:'Auf der letzten Seite kannst du unter „E-Mail vorbereiten" einen fertigen E-Mail-Text erzeugen, ihn kopieren oder direkt in deiner Mail-App öffnen lassen.'},
-  {q:'Ich habe ein technisches Problem',kw:['fehler','funktioniert nicht','bug','problem','absturz','kaputt'],
+  {q:'Ich habe ein technisches Problem',kw:['fehler','funktioniert nicht','bug','absturz','kaputt','geht nicht','lädt nicht'],
    a:'Das tut mir leid! Versuche zunächst, die Seite neu zu laden. Bleibt das Problem bestehen, beschreibe mir kurz, was genau nicht funktioniert, oder wende dich an unseren Support.'},
   {q:'Kontakt zum Support',kw:['kontakt','support','hilfe','mensch','mitarbeiter'],
    a:'Du kannst uns per E-Mail unter support@beispiel.de erreichen. Bitte beschreibe dein Anliegen kurz – wir melden uns so schnell wie möglich.'},
@@ -88,6 +88,12 @@ const FAQ=[
    a:'So läuft eine Übergabe typischerweise ab:\n1. Termin zwischen Mieter und Vermieter/Verwalter vereinbaren.\n2. Vor Ort gemeinsam durch alle Räume gehen und den Zustand im Tool erfassen (Boden, Wände, Fenster, Türen etc.).\n3. Zählerstände ablesen sowie Schlüssel zählen und übergeben.\n4. Auffälligkeiten mit Fotos dokumentieren und in den Bemerkungen festhalten.\n5. Beide Parteien unterschreiben digital auf Seite 7.\n6. Protokoll als PDF exportieren und per E-Mail an Mieter und Verwaltung senden.\n\nDamit ist die Übergabe lückenlos und rechtssicher dokumentiert.'},
   {q:'Was passiert bei Mängeln/Schäden?',kw:['mangel','mängel','schaden','schäden','reklamation','beschwerde','was passiert bei schäden','beschädigt'],
    a:'Wird ein Element im Raumprotokoll als „abgenutzt" oder „beschädigt" markiert:\n1. Halte den Schaden zusätzlich in den Bemerkungen und mit Fotos fest.\n2. Nach der Übergabe prüft die Verwaltung den Eintrag und ordnet ihn normaler Abnutzung oder einem zu behebenden Mangel zu.\n3. Bei Bedarf wird eine Instandsetzung veranlasst oder die Kosten mit dem Mieter geklärt.\n4. Der Stand bleibt im unterschriebenen Protokoll und PDF dauerhaft nachvollziehbar.\n\nBei Unklarheiten wende dich an unseren Support.'},
+  {q:'Kündigungsprozess',kw:['kündigung','kündigen','kündigungsfrist','vertrag beenden','mietvertrag kündigen','ausziehen','wie kündige ich'],
+   a:'Allgemeiner Ablauf einer Mietvertragskündigung (die genauen Fristen entnimmst du bitte deinem Mietvertrag):\n1. Kündigung schriftlich einreichen – gesetzliche Regelfrist für Mieter sind 3 Monate zum Monatsende (§573c BGB), falls im Vertrag nichts anderes vereinbart ist.\n2. Rückgabetermin mit Vermieter/Verwaltung abstimmen.\n3. Am Rückgabetermin gemeinsam das Zustandsprotokoll mit diesem Tool erstellen.\n4. Schlüssel vollständig zurückgeben und im Protokoll erfassen.\n5. Nach Prüfung des Protokolls erfolgt die Kautionsabrechnung.\n\nDies ist eine allgemeine Orientierung, keine Rechtsberatung – bei Unsicherheiten bitte den Mietvertrag prüfen oder unseren Support kontaktieren.'},
+  {q:'Zahlungsfristen',kw:['zahlung','zahlungsfrist','miete zahlen','kaution','nebenkosten','fälligkeit','wann muss ich zahlen'],
+   a:'Allgemeine Hinweise zu Zahlungen (maßgeblich sind immer die Angaben in deinem Mietvertrag):\n• Miete: in der Regel spätestens am 3. Werktag des Monats fällig (§556b BGB).\n• Kaution: Höhe und Ratenzahlung (bis zu 3 Monatsmieten, in bis zu 3 Raten) sind im Mietvertrag geregelt.\n• Nebenkostenabrechnung: Vermieter muss spätestens 12 Monate nach Abrechnungszeitraum abrechnen, Nachzahlungen sind dann zeitnah fällig.\n\nBei Fragen zu deiner individuellen Zahlung wende dich bitte an die Hausverwaltung oder unseren Support.'},
+  {q:'Technischer Support-Ablauf',kw:['support ablauf','ticket','störung melden','wie melde ich einen fehler','eskalation','antwortzeit','support prozess','bearbeitungszeit','wie lange dauert','wer hilft mir'],
+   a:'So läuft eine technische Support-Anfrage ab:\n1. Beschreibe kurz, was nicht funktioniert (welche Seite, welche Aktion, ggf. Fehlermeldung).\n2. Gib dein Gerät und deinen Browser an (z.B. iPhone/Safari, Windows/Chrome).\n3. Ein Screenshot hilft uns, das Problem schneller nachzuvollziehen.\n4. Sende die Anfrage per E-Mail an support@beispiel.de – du erhältst i.d.R. innerhalb von 1–2 Werktagen eine Rückmeldung.\n5. Bei dringenden Problemen (z.B. Datenverlust) bitte „dringend" in den Betreff schreiben – wir priorisieren dann entsprechend.'},
   {q:'Danke',kw:['danke','super','klasse','top','perfekt'],
    a:'Gerne! Falls noch etwas unklar ist, frag einfach weiter. 😊'}
 ];
@@ -96,13 +102,26 @@ const FALLBACK=['Das habe ich leider nicht ganz verstanden. Kannst du deine Frag
   'Hmm, das weiß ich nicht genau. Für individuelle Fragen erreichst du unseren Support unter support@beispiel.de.'];
 
 /* ---------- Matching ---------- */
-function normalize(s){return s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^a-z0-9äöüß\s]/g,' ');}
+const STOPWORDS=new Set(['ich','du','er','sie','es','wir','ihr','der','die','das','ein','eine','einen','einem','einer','wie','was','wann','wo','ist','sind','war','wird','muss','kann','mir','mich','dir','dich','zu','im','in','am','an','bei','für','und','oder','mit','auf','ab','es','habe','hat','hab','bitte','mal','denn','doch','noch','auch','nur','schon','meine','mein','meinen']);
+function normalize(s){return s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^a-z0-9äöüß\s]/g,' ').replace(/\s+/g,' ').trim();}
+function contentWords(phrase){const w=normalize(phrase).split(' ').filter(Boolean);const c=w.filter(x=>!STOPWORDS.has(x));return c.length?c:w;}
+function wordPresent(w,tokens){
+  if(tokens.has(w))return true;
+  if(w.length<4)return false;
+  for(const tk of tokens){if(tk.length>=4&&(tk.startsWith(w)||w.startsWith(tk)))return true;}
+  return false;
+}
 function bestMatch(text){
   const t=normalize(text);
+  const tokens=new Set(t.split(' ').filter(Boolean));
   let best=null,bestScore=0;
   FAQ.forEach(f=>{
     let score=0;
-    f.kw.forEach(k=>{if(t.includes(normalize(k)))score+=normalize(k).split(' ').length;});
+    f.kw.forEach(k=>{
+      const cw=contentWords(k);
+      const hits=cw.filter(w=>wordPresent(w,tokens)).length;
+      if(hits===cw.length&&hits>0)score+=hits;
+    });
     if(score>bestScore){bestScore=score;best=f;}
   });
   return bestScore>0?best:null;
