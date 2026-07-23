@@ -80,8 +80,14 @@ const FAQ=[
    a:'Auf der letzten Seite kannst du unter „E-Mail vorbereiten" einen fertigen E-Mail-Text erzeugen, ihn kopieren oder direkt in deiner Mail-App öffnen lassen.'},
   {q:'Ich habe ein technisches Problem',kw:['fehler','funktioniert nicht','bug','problem','absturz','kaputt'],
    a:'Das tut mir leid! Versuche zunächst, die Seite neu zu laden. Bleibt das Problem bestehen, beschreibe mir kurz, was genau nicht funktioniert, oder wende dich an unseren Support.'},
-  {q:'Kontakt zum Support',kw:['kontakt','support','hilfe','mensch','mitarbeiter','beschwerde'],
+  {q:'Kontakt zum Support',kw:['kontakt','support','hilfe','mensch','mitarbeiter'],
    a:'Du kannst uns per E-Mail unter support@beispiel.de erreichen. Bitte beschreibe dein Anliegen kurz – wir melden uns so schnell wie möglich.'},
+  {q:'Kurzanleitung / Schulung',kw:['schulung','schulungsunterlagen','anleitung','tutorial','einstieg','erste schritte','wie benutze ich','einführung'],
+   a:'Kurzanleitung – so gehst du vor:\n1️⃣ Allgemeine Angaben: Mieterdaten, Mietobjekt und Ausstattung eintragen.\n2️⃣ Schlüsselübergabe: Anzahl, Nummern und Zustand der Schlüssel erfassen.\n3️⃣ Zählerstände: Strom-, Gas- und Wasserzähler dokumentieren.\n4️⃣ Heizkostenverteiler: Werte je Raum eintragen.\n5️⃣ Raumprotokoll: Für jeden Raum Zustand, Materialien und Fotos festhalten.\n6️⃣ Keller/Stellplatz/Garten: Zusatzflächen dokumentieren.\n7️⃣ Unterschriften: Mieter und Vermieter unterschreiben digital.\n8️⃣ Abschluss: Zusammenfassung prüfen, PDF herunterladen und per E-Mail versenden.\n\nMit „Weiter" und „Zurück" navigierst du zwischen den Seiten – alle Eingaben werden automatisch lokal gespeichert.'},
+  {q:'Ablauf der Übergabe/Rückgabe',kw:['übergabe ablauf','rückgabe','übergabeprozess','wie läuft die übergabe ab','ablauf','prozess übergabe','termin übergabe','übergabetermin'],
+   a:'So läuft eine Übergabe typischerweise ab:\n1. Termin zwischen Mieter und Vermieter/Verwalter vereinbaren.\n2. Vor Ort gemeinsam durch alle Räume gehen und den Zustand im Tool erfassen (Boden, Wände, Fenster, Türen etc.).\n3. Zählerstände ablesen sowie Schlüssel zählen und übergeben.\n4. Auffälligkeiten mit Fotos dokumentieren und in den Bemerkungen festhalten.\n5. Beide Parteien unterschreiben digital auf Seite 7.\n6. Protokoll als PDF exportieren und per E-Mail an Mieter und Verwaltung senden.\n\nDamit ist die Übergabe lückenlos und rechtssicher dokumentiert.'},
+  {q:'Was passiert bei Mängeln/Schäden?',kw:['mangel','mängel','schaden','schäden','reklamation','beschwerde','was passiert bei schäden','beschädigt'],
+   a:'Wird ein Element im Raumprotokoll als „abgenutzt" oder „beschädigt" markiert:\n1. Halte den Schaden zusätzlich in den Bemerkungen und mit Fotos fest.\n2. Nach der Übergabe prüft die Verwaltung den Eintrag und ordnet ihn normaler Abnutzung oder einem zu behebenden Mangel zu.\n3. Bei Bedarf wird eine Instandsetzung veranlasst oder die Kosten mit dem Mieter geklärt.\n4. Der Stand bleibt im unterschriebenen Protokoll und PDF dauerhaft nachvollziehbar.\n\nBei Unklarheiten wende dich an unseren Support.'},
   {q:'Danke',kw:['danke','super','klasse','top','perfekt'],
    a:'Gerne! Falls noch etwas unklar ist, frag einfach weiter. 😊'}
 ];
@@ -131,9 +137,10 @@ function showTyping(){
 }
 function hideTyping(){const el=document.getElementById('typingInd');if(el)el.remove();}
 
+const CHIP_TOPICS=['Wie exportiere ich ein PDF?','Ablauf der Übergabe/Rückgabe','Was passiert bei Mängeln/Schäden?','Kurzanleitung / Schulung','Kontakt zum Support'];
 function renderChips(){
   chipsEl.innerHTML='';
-  const suggestions=FAQ.filter(f=>f.q!=='Begrüßung'&&f.q!=='Danke').slice(0,4);
+  const suggestions=CHIP_TOPICS.map(q=>FAQ.find(f=>f.q===q)).filter(Boolean);
   suggestions.forEach(f=>{
     const c=document.createElement('div');
     c.className='chip';
