@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#1a5c8f">
+<title>Support-Chatbot</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html{height:100%;overflow:hidden}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#f0f4f8;color:#111;font-size:16px;height:100%;overflow:hidden;position:fixed;width:100%}
+:root{--blue:#1a5c8f;--blue-mid:#2e7ab5;--blue-light:#e8f1f8;--border:#c8d6e0;--white:#fff;--green:#1a7a42;--field:#f2f3f5;--gray:#6b7c8d;--radius:12px}
+#shell{display:flex;flex-direction:column;height:100vh;height:100dvh}
+header{background:var(--blue);color:#fff;padding:env(safe-area-inset-top,12px) 16px 12px;display:flex;align-items:center;gap:10px;flex-shrink:0;min-height:56px}
+header .avatar{width:34px;height:34px;border-radius:50%;background:#fff;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+header .htxt{flex:1}
+header h1{font-size:16px;font-weight:700}
+header .status{font-size:11px;opacity:.85;display:flex;align-items:center;gap:5px}
+header .status .dot{width:7px;height:7px;border-radius:50%;background:#4ade80;display:inline-block}
+#chat{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;padding:14px 12px 10px;display:flex;flex-direction:column;gap:10px}
+.msg{max-width:82%;padding:10px 13px;border-radius:16px;font-size:14.5px;line-height:1.45;white-space:pre-wrap;word-break:break-word}
+.msg.bot{align-self:flex-start;background:var(--white);border:1px solid var(--border);border-bottom-left-radius:4px;color:#111}
+.msg.user{align-self:flex-end;background:var(--blue);color:#fff;border-bottom-right-radius:4px}
+.msg-time{font-size:10px;color:var(--gray);margin-top:2px;padding:0 4px}
+.msg.user + .msg-time{align-self:flex-end;text-align:right}
+.typing{align-self:flex-start;background:var(--white);border:1px solid var(--border);border-bottom-left-radius:4px;padding:12px 16px;border-radius:16px;display:flex;gap:4px}
+.typing span{width:6px;height:6px;border-radius:50%;background:var(--gray);animation:blink 1.2s infinite}
+.typing span:nth-child(2){animation-delay:.2s}
+.typing span:nth-child(3){animation-delay:.4s}
+@keyframes blink{0%,60%,100%{opacity:.3}30%{opacity:1}}
+.chips{display:flex;flex-wrap:wrap;gap:7px;padding:2px 12px 10px;flex-shrink:0}
+.chip{background:var(--blue-light);color:var(--blue);border:1.5px solid var(--border);border-radius:20px;padding:8px 13px;font-size:12.5px;font-weight:600;cursor:pointer;white-space:nowrap}
+.chip:active{opacity:.7}
+.inputbar{background:var(--white);border-top:1px solid var(--border);padding:10px 10px calc(10px + env(safe-area-inset-bottom,0px));display:flex;gap:8px;align-items:flex-end;flex-shrink:0}
+.inputbar textarea{flex:1;border:1.5px solid var(--border);border-radius:20px;padding:11px 16px;font-size:15px;background:var(--field);color:#111;outline:none;resize:none;max-height:100px;font-family:inherit;line-height:1.3}
+.inputbar textarea:focus{border-color:var(--blue-mid);background:#fff}
+.sendbtn{width:42px;height:42px;border-radius:50%;background:var(--blue);color:#fff;border:none;flex-shrink:0;display:flex;align-items:center;justify-content:center;cursor:pointer}
+.sendbtn:active{opacity:.75}
+.sendbtn:disabled{background:var(--gray);opacity:.5}
+.linkbtn{color:var(--blue);text-decoration:underline;cursor:pointer;font-weight:600}
+</style>
+</head>
+<body>
+<div id="shell">
+  <header>
+    <div class="avatar">🤖</div>
+    <div class="htxt">
+      <h1>Support-Chatbot</h1>
+      <div class="status"><span class="dot"></span>Online – Antwort in Sekunden</div>
+    </div>
+  </header>
+  <div id="chat"></div>
+  <div class="chips" id="chips"></div>
+  <div class="inputbar">
+    <textarea id="ta" rows="1" placeholder="Frage eingeben…" onkeydown="onKey(event)" oninput="autoGrow(this)"></textarea>
+    <button class="sendbtn" id="sendBtn" onclick="sendMsg()">➤</button>
+  </div>
+</div>
+<script>
+/* ---------- Wissensbasis ---------- */
+const FAQ=[
+  {q:'Begrüßung',kw:['hallo','hi','hey','moin','guten tag','servus'],
+   a:'Hallo! 👋 Ich bin der Support-Chatbot. Ich helfe dir bei Fragen rund um das Zustandsprotokoll-Tool. Womit kann ich helfen?'},
+  {q:'Was ist das Zustandsprotokoll-Tool?',kw:['was ist','worum geht','zweck','tool','app','protokoll erstellen'],
+   a:'Das Zustandsprotokoll ist ein kostenloses Web-Tool zur Dokumentation der Wohnungsübergabe: Mieterdaten, Schlüssel, Zählerstände, Raumzustände, Fotos und digitale Unterschriften – alles direkt im Browser, ohne Installation.'},
+  {q:'Werden meine Daten gespeichert?',kw:['daten','speichern','datenschutz','server','cloud','sicher'],
+   a:'Alle Eingaben bleiben lokal auf deinem Gerät (im Browser-Speicher). Es gibt keinen Server und keine Cloud-Übertragung. Über den Button „Löschen" kannst du alle Daten jederzeit entfernen.'},
+  {q:'Wie exportiere ich ein PDF?',kw:['pdf','herunterladen','download','export','ausdrucken','drucken'],
+   a:'Auf der letzten Seite („Abschluss") findest du den Button „PDF herunterladen". Damit wird automatisch ein vollständiges PDF mit allen Angaben, Fotos und Unterschriften erstellt und gespeichert.'},
+  {q:'Wie funktioniert die Unterschrift?',kw:['unterschrift','signieren','unterschreiben','signatur'],
+   a:'Auf Seite 7 kannst du mit dem Finger oder der Maus im dafür vorgesehenen Feld unterschreiben. Nach Bestätigung wird die Unterschrift mit Zeitstempel und einem SHA-256-Hash zertifiziert, damit sie nachträglich nicht unbemerkt verändert werden kann.'},
+  {q:'Wie füge ich Fotos hinzu?',kw:['foto','bild','kamera','fotos hinzufügen'],
+   a:'Bei jedem Abschnitt (z.B. Türen, Schlüssel, Räume) gibt es einen Button „📷 Fotos". Damit öffnest du die Kamera oder Galerie deines Geräts und kannst mehrere Bilder auf einmal hinzufügen.'},
+  {q:'Kann ich mehrere Räume anlegen?',kw:['raum','räume','zimmer hinzufügen','neuer raum'],
+   a:'Ja. Auf der Raumprotokoll-Seite kannst du über „+ Raum" beliebig viele zusätzliche Räume hinzufügen und für jeden einzeln den Zustand erfassen.'},
+  {q:'Wie sende ich das Protokoll per E-Mail?',kw:['email','e-mail','senden','versenden','mail'],
+   a:'Auf der letzten Seite kannst du unter „E-Mail vorbereiten" einen fertigen E-Mail-Text erzeugen, ihn kopieren oder direkt in deiner Mail-App öffnen lassen.'},
+  {q:'Ich habe ein technisches Problem',kw:['fehler','funktioniert nicht','bug','problem','absturz','kaputt'],
+   a:'Das tut mir leid! Versuche zunächst, die Seite neu zu laden. Bleibt das Problem bestehen, beschreibe mir kurz, was genau nicht funktioniert, oder wende dich an unseren Support.'},
+  {q:'Kontakt zum Support',kw:['kontakt','support','hilfe','mensch','mitarbeiter','beschwerde'],
+   a:'Du kannst uns per E-Mail unter support@beispiel.de erreichen. Bitte beschreibe dein Anliegen kurz – wir melden uns so schnell wie möglich.'},
+  {q:'Danke',kw:['danke','super','klasse','top','perfekt'],
+   a:'Gerne! Falls noch etwas unklar ist, frag einfach weiter. 😊'}
+];
+const FALLBACK=['Das habe ich leider nicht ganz verstanden. Kannst du deine Frage anders formulieren?',
+  'Dazu habe ich noch keine passende Antwort. Versuch es gerne mit anderen Worten oder wähle eine der Vorschläge unten.',
+  'Hmm, das weiß ich nicht genau. Für individuelle Fragen erreichst du unseren Support unter support@beispiel.de.'];
+
+/* ---------- Matching ---------- */
+function normalize(s){return s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^a-z0-9äöüß\s]/g,' ');}
+function bestMatch(text){
+  const t=normalize(text);
+  let best=null,bestScore=0;
+  FAQ.forEach(f=>{
+    let score=0;
+    f.kw.forEach(k=>{if(t.includes(normalize(k)))score+=normalize(k).split(' ').length;});
+    if(score>bestScore){bestScore=score;best=f;}
+  });
+  return bestScore>0?best:null;
+}
+
+/* ---------- Chat-UI ---------- */
+const chatEl=document.getElementById('chat'),chipsEl=document.getElementById('chips'),ta=document.getElementById('ta'),sendBtn=document.getElementById('sendBtn');
+let history=[];
+
+function timeNow(){return new Date().toLocaleTimeString('de-DE',{hour:'2-digit',minute:'2-digit'});}
+
+function addMsg(role,text){
+  const wrap=document.createElement('div');
+  wrap.className='msg '+role;
+  wrap.textContent=text;
+  chatEl.appendChild(wrap);
+  const t=document.createElement('div');
+  t.className='msg-time';
+  t.style.alignSelf=role==='user'?'flex-end':'flex-start';
+  t.textContent=timeNow();
+  chatEl.appendChild(t);
+  chatEl.scrollTop=chatEl.scrollHeight;
+}
+
+function showTyping(){
+  const el=document.createElement('div');
+  el.className='typing';
+  el.id='typingInd';
+  el.innerHTML='<span></span><span></span><span></span>';
+  chatEl.appendChild(el);
+  chatEl.scrollTop=chatEl.scrollHeight;
+}
+function hideTyping(){const el=document.getElementById('typingInd');if(el)el.remove();}
+
+function renderChips(){
+  chipsEl.innerHTML='';
+  const suggestions=FAQ.filter(f=>f.q!=='Begrüßung'&&f.q!=='Danke').slice(0,4);
+  suggestions.forEach(f=>{
+    const c=document.createElement('div');
+    c.className='chip';
+    c.textContent=f.q;
+    c.onclick=()=>{ta.value=f.q;sendMsg();};
+    chipsEl.appendChild(c);
+  });
+}
+
+function autoGrow(el){el.style.height='auto';el.style.height=Math.min(el.scrollHeight,100)+'px';}
+
+function onKey(e){
+  if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendMsg();}
+}
+
+function sendMsg(){
+  const text=ta.value.trim();
+  if(!text)return;
+  addMsg('user',text);
+  ta.value='';autoGrow(ta);
+  sendBtn.disabled=true;
+  showTyping();
+  setTimeout(()=>{
+    hideTyping();
+    const match=bestMatch(text);
+    const reply=match?match.a:FALLBACK[Math.floor(Math.random()*FALLBACK.length)];
+    addMsg('bot',reply);
+    sendBtn.disabled=false;
+  },500+Math.random()*500);
+}
+
+/* ---------- Init ---------- */
+renderChips();
+addMsg('bot','Hallo! 👋 Ich bin der Support-Chatbot für das Zustandsprotokoll-Tool. Wie kann ich dir helfen?');
+</script>
+</body>
+</html>
