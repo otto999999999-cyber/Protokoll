@@ -124,7 +124,8 @@ const CATS=[
   {key:'it', label:'IT & Technik', emoji:'💻'},
   {key:'hr', label:'Personal & HR', emoji:'👥'},
   {key:'fin',label:'Finanzen & Beschaffung', emoji:'💶'},
-  {key:'org',label:'Organisation & Objekt', emoji:'🏢'}
+  {key:'org',label:'Organisation & Objekt', emoji:'🏢'},
+  {key:'proz',label:'Immobilien-Prozesse', emoji:'🗂️'}
 ];
 
 /* ---------- Wissensbasis ---------- */
@@ -134,7 +135,7 @@ const FAQ=[
   {q:'Begrüßung',cat:'sys',kw:['hallo','hi','hey','moin','guten tag','servus'],
    a:'Hallo! 👋 Ich bin der interne Assistent der Testfirma GmbH. Ich helfe dir bei Fragen zu IT, Personal, Finanzen und Organisation. Wähle unten einen Bereich oder stell direkt deine Frage.'},
   {q:'Was kann der Assistent?',cat:'sys',kw:['was kannst du','was kann der assistent','hilfe','wobei hilfst du','funktionen','themen','übersicht'],
-   a:'Ich beantworte Fragen zu den internen Abläufen der Testfirma GmbH:\n💻 IT & Technik – Passwort, VPN, Hardware, Störungen\n👥 Personal & HR – Urlaub, Krankmeldung, Gehalt, Onboarding\n💶 Finanzen & Beschaffung – Reisekosten, Bestellungen, Rechnungen\n🏢 Organisation & Objekt – Raumbuchung, Zeiterfassung, Zutritt, Zustandsprotokoll\n\nTippe einfach dein Anliegen oder nutze die Bereichs-Buttons unten.'},
+   a:'Ich beantworte Fragen zu den internen Abläufen der Testfirma GmbH:\n💻 IT & Technik – Passwort, VPN, Hardware, Störungen\n👥 Personal & HR – Urlaub, Krankmeldung, Gehalt, Onboarding\n💶 Finanzen & Beschaffung – Reisekosten, Bestellungen, Rechnungen\n🏢 Organisation & Objekt – Raumbuchung, Zeiterfassung, Zutritt, Zustandsprotokoll\n🗂️ Immobilien-Prozesse – Mietvertrag versenden, Kündigungsbestätigung, Übergabe, Abnahme, Kaution\n\nTippe einfach dein Anliegen oder nutze die Bereichs-Buttons unten.'},
   {q:'Wichtige Kontakte',cat:'sys',kw:['kontakt','ansprechpartner','telefonliste','wen frage ich','wer ist zuständig','durchwahl'],
    a:'Zentrale Ansprechpartner der Testfirma GmbH (Platzhalter):\n• IT-Support: it-support@testfirma.de, Tel. -100\n• Personal/HR: hr@testfirma.de, Tel. -200\n• Finanzen/Buchhaltung: buchhaltung@testfirma.de, Tel. -300\n• Empfang/Office: office@testfirma.de, Tel. -0\n\nErreichbarkeit i.d.R. Mo–Fr 08:00–17:00 Uhr.'},
   {q:'Danke',cat:'sys',kw:['danke','super','klasse','top','perfekt'],
@@ -187,8 +188,20 @@ const FAQ=[
    a:'Termine & Besprechungen planen:\n• Nutze den Firmenkalender (Outlook/Kalender-Tool) für Einladungen.\n• Verfügbarkeiten der Kollegen siehst du direkt im Kalender.\n• Für wiederkehrende Termine Serientermine anlegen; Räume gleich mitbuchen.'},
   {q:'Zutritt / Schlüssel / Ausweis',cat:'org',kw:['zutritt','schlüssel','ausweis','zugangskarte','transponder','gebäude','tür öffnen','badge'],
    a:'Zutritt, Ausweis & Schlüssel:\n1. Mitarbeiterausweis/Transponder wird beim Onboarding am Empfang ausgegeben.\n2. Zusätzliche Zutrittsrechte (z.B. Lager, Serverraum) über Antrag im Portal + Freigabe.\n3. Verlust sofort dem Empfang/Office melden (office@testfirma.de, Tel. -0) – Sperrung erfolgt umgehend.'},
-  {q:'Zustandsprotokoll erstellen',cat:'org',kw:['zustandsprotokoll','übergabeprotokoll','wohnungsübergabe','protokoll','objektübergabe','abnahme'],
-   a:'Zustandsprotokoll (Objekt-/Wohnungsübergabe):\nDie Testfirma GmbH nutzt dafür ein eigenes Web-Tool – du erfasst Mieterdaten, Schlüssel, Zählerstände, Raumzustände, Fotos und digitale Unterschriften und exportierst am Ende ein PDF.\n\n👉 Das Tool findest du unter „Zustandsprotokoll" im Intranet bzw. als eigene Seite. Bei inhaltlichen Fragen zum Ausfüllen hilft dir dort die integrierte Anleitung.'}
+  {q:'Zustandsprotokoll erstellen',cat:'org',kw:['zustandsprotokoll','übergabeprotokoll','protokoll','objektübergabe'],
+   a:'Zustandsprotokoll (Objekt-/Wohnungsübergabe):\nDie Testfirma GmbH nutzt dafür ein eigenes Web-Tool – du erfasst Mieterdaten, Schlüssel, Zählerstände, Raumzustände, Fotos und digitale Unterschriften und exportierst am Ende ein PDF.\n\n👉 Das Tool findest du unter „Zustandsprotokoll" im Intranet bzw. als eigene Seite. Bei inhaltlichen Fragen zum Ausfüllen hilft dir dort die integrierte Anleitung.'},
+
+  /* --- Immobilien-Prozesse (aus internen Leitfäden) --- */
+  {q:'Mietvertrag versenden',cat:'proz',kw:['mietvertrag versenden','mietvertrag verschicken','begrüßungsschreiben','mv versenden','vertrag versenden'],
+   a:'Ablauf „Mietvertrag versenden":\n1. Vorbereitung: Unterlagen prüfen (Verw), MV liegt vor, Daten in SAP korrekt (Vertragspartner, Mietbeginn, Miete), beidseitig unterzeichnet.\n2. Durchführung: Begrüßungsschreiben über SAP/OPCC fertigen (Assist), zur Unterschrift vorlegen, in nscale scannen, MV ösen, versenden.\n3. Nacharbeit: Übergabe vorbereiten (Schlüssel, Unterlagen, Kaution + 1. Miete vorhanden). Evtl. Nachtrag.\n\n👉 Zum Schritt-für-Schritt-Abhaken: Tool „Prozess-Checklisten" im Portal.'},
+  {q:'Kündigungsbestätigung',cat:'proz',kw:['kündigungsbestätigung','kündigung bestätigen','kündigung eingegangen','kündigung bearbeiten'],
+   a:'Ablauf „Kündigungsbestätigung":\n1. Vorbereitung: Kündigung prüfen (Assist) – Originalunterschrift, alle Mieter unterzeichnet, Kündigungsausschluss prüfen, Termin Abnahme klären.\n2. Durchführung: Bestätigung über SAP/OPCC fertigen, Unterlagen in gelbe Mappe, Mietspiegel berechnen (Verw), gesicherte Miete prüfen, Unterzeichnung GF, nscale-Scan + Versand.\n3. Nacharbeit: Kopie an Vertrieb und BeKo, Mietspiegel/gesicherte Miete an Vertrieb, Wiedervorlage 4 Wochen vor Abnahme.\n\n👉 Danach weiter mit „Abnahme". Checkliste im Tool „Prozess-Checklisten".'},
+  {q:'Übergabe an Mieter',cat:'proz',kw:['übergabe','wohnungsübergabe','übergabe mieter','wohnung übergeben','einzug'],
+   a:'Ablauf „Übergabe an Mieter" (Grundsatz: KEINE ZAHLUNGEN – KEINE ÜBERGABE):\n1. Vorher: In SAP Zahlungen prüfen (1. Miete, 1. Kautionsrate, Klingelschild), Termin (frühestens 3 Tage vor Vertragsbeginn), Zustands-/Abnahmeprotokoll drucken (OPCC „19"), Schlüssel prüfen.\n2. Währenddessen: 20 Min vorher da sein, Bauzylinder tauschen; Keller prüfen; Zustand aufnehmen; Schlüsselprotokoll + Schlüsselübergabe; jede Protokollseite unterschreiben lassen; Durchdrucke aushändigen.\n3. Danach: Protokoll in nscale scannen, Strom-Leerstand abmelden (Vattenfall), Seiten 01–03 an BeKo, Mängel an SFI, Ausstattung in SAP.\n\n👉 Vollständige Checkliste im Tool „Prozess-Checklisten"; das eigentliche Protokoll im „Zustandsprotokoll".'},
+  {q:'Abnahme / Rückgabe',cat:'proz',kw:['abnahme','rückgabe','wohnung abnehmen','auszug','rückgabeprotokoll','renovierungsaufforderung'],
+   a:'Ablauf „Abnahme / Rückgabe":\n1. Vorlauf: Kündigung/-bestätigung, SAP-Pflege, ggf. Vorabnahme, Abnahmetermin (nicht bei Dunkelheit).\n2. Vorbereitung: MV + Übergabeprotokoll drucken, Paragrafen markieren, Genehmigungen in nscale prüfen, Zylinder/Vorhängeschloss organisieren, Protokolle drucken.\n3. Durchführung: Türen/Fenster/Jalousien prüfen, Schlüssel + Zähler (Fotos!), Heizkostenverteiler, Zustand je Raum, Keller, Unterschrift + Verzugsadresse; danach Fotos aller Räume, Zylinder tauschen (klemmt → SFI).\n4. Nachbereitung: Bilder ablegen, Vattenfall/SAP pflegen, Zählerstände an BeKo, Verzugsanschrift (SAP + Kautionskonto); bei Mängeln Renovierungsaufforderung (2 Wochen Frist), sonst Kautionseinzug/-abrechnung.\n\n👉 Komplette Checkliste im Tool „Prozess-Checklisten".'},
+  {q:'Kautionskonto anlegen',cat:'proz',kw:['kaution','kautionskonto','referenznummer','hausbank','kautionskonto anlegen'],
+   a:'Ablauf „Kautionskonto anlegen + Referenznummer":\n1. Bei der Hausbank München (HBM) anmelden, Reiter „Kautionskonto", Wirtschaftseinheit + Objekt ausfüllen, Konto über „Papier mit Sternchen" anlegen (Eingabe-Assistent: Ja).\n2. Mietnummer = Mietvertragsnummer, Personendaten + alle Vertragspartner pflegen, Grundkaution gem. Vertrag, Fälligkeit = Mietbeginn, Ratenzahlung nur bei Wohnungen.\n3. Daten prüfen → Kautionsnummer generieren → Dokumentendruck (Überweisungsdaten).\n4. In SAP unter Referenznummer hinterlegen, Sicherheitseinbehaltsabrechnung, Ablage Mieterakte.\n\n👉 Schritt-für-Schritt im Tool „Prozess-Checklisten".'}
 ];
 
 const FALLBACK=['Das habe ich leider nicht ganz verstanden. Kannst du deine Frage anders formulieren oder unten einen Bereich wählen?',
@@ -212,7 +225,7 @@ function wordPresent(w,tokens){
   if(tokens.has(w))return true;
   if(w.length<4)return false;
   for(const tk of tokens){if(tk.length>=4&&(tk.startsWith(w)||w.startsWith(tk)))return true;}
-  if(w.length>=5){for(const tk of tokens){if(tk.length>=4&&Math.abs(tk.length-w.length)<=2&&lev(tk,w)<=(w.length>=8?2:1))return true;}}
+  if(w.length>=5){for(const tk of tokens){if(tk.length>=4&&Math.abs(tk.length-w.length)<=2&&lev(tk,w)<=(w.length>=10?2:1))return true;}}
   return false;
 }
 /* strenges Ranking: alle Wörter eines Keywords müssen vorkommen */
