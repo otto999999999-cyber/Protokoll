@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#1a5c8f">
+<title>Onboarding-Checkliste – Testfirma GmbH</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+:root{--blue:#1a5c8f;--blue-light:#e8f1f8;--border:#c8d6e0;--white:#fff;--green:#1a7a42;--field:#f2f3f5;--gray:#6b7c8d}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#f0f4f8;color:#111;min-height:100vh}
+header{background:var(--blue);color:#fff;padding:16px;display:flex;align-items:center;gap:12px}
+header a.back{color:#fff;text-decoration:none;font-size:22px;opacity:.9}
+header h1{font-size:17px;font-weight:700;flex:1}
+.progwrap{background:#1e4a70;height:6px}
+.progfill{background:#5bb3f0;height:6px;width:0;transition:width .3s}
+.wrap{max-width:680px;margin:0 auto;padding:16px 14px 40px}
+.summary{background:var(--white);border:1px solid var(--border);border-radius:14px;padding:14px 16px;margin-bottom:14px;display:flex;align-items:center;justify-content:space-between;gap:12px}
+.summary .big{font-size:26px;font-weight:800;color:var(--blue)}
+.summary .lbl{font-size:12px;color:var(--gray)}
+.summary button{background:var(--field);border:1.5px solid var(--blue);color:var(--blue);border-radius:10px;padding:8px 12px;font-size:13px;font-weight:700;cursor:pointer}
+.phase{background:var(--white);border:1px solid var(--border);border-radius:14px;margin-bottom:12px;overflow:hidden}
+.phase h2{font-size:13px;font-weight:700;color:#fff;background:var(--blue);padding:10px 14px}
+.item{display:flex;align-items:flex-start;gap:11px;padding:12px 14px;border-bottom:1px solid var(--field);cursor:pointer}
+.item:last-child{border-bottom:none}
+.item input{width:22px;height:22px;accent-color:var(--green);flex-shrink:0;margin-top:1px;cursor:pointer}
+.item .txt{font-size:14.5px;line-height:1.4}
+.item .txt small{display:block;color:var(--gray);font-size:12px;margin-top:2px}
+.item.done .txt{text-decoration:line-through;color:var(--gray)}
+.done-banner{display:none;background:var(--green);color:#fff;text-align:center;padding:14px;border-radius:14px;font-weight:700;margin-bottom:12px}
+.done-banner.show{display:block}
+:focus-visible{outline:2.5px solid #5bb3f0;outline-offset:2px}
+@media (prefers-color-scheme: dark){
+  :root{--blue-light:#1d2c3a;--border:#33404f;--white:#1b2430;--field:#232e3b;--gray:#8ba0b3}
+  body{background:#0f1720;color:#e6edf3}
+}
+</style>
+</head>
+<body>
+<header>
+  <a class="back" href="index.html" aria-label="Zurück zum Portal">←</a>
+  <h1>Onboarding-Checkliste</h1>
+</header>
+<div class="progwrap"><div class="progfill" id="prog"></div></div>
+<div class="wrap">
+  <div class="done-banner" id="banner">🎉 Alle Aufgaben erledigt – herzlich willkommen im Team!</div>
+  <div class="summary">
+    <div><div class="big"><span id="doneCount">0</span>/<span id="totalCount">0</span></div><div class="lbl">Aufgaben erledigt</div></div>
+    <button onclick="resetAll()">Zurücksetzen</button>
+  </div>
+  <div id="list"></div>
+</div>
+<script>
+const PHASES=[
+  {t:'Vor dem ersten Tag',items:[
+    {k:'a1',l:'Arbeitsvertrag unterschrieben zurückgeschickt',d:'an hr@testfirma.de'},
+    {k:'a2',l:'Persönliche Daten & Bankverbindung im HR-Portal hinterlegt'},
+    {k:'a3',l:'Startdatum und Uhrzeit mit der Führungskraft bestätigt'}
+  ]},
+  {t:'Erster Tag',items:[
+    {k:'b1',l:'Am Empfang gemeldet und Mitarbeiterausweis erhalten',d:'office@testfirma.de, Tel. -0'},
+    {k:'b2',l:'Arbeitsplatz und Hardware übernommen (Laptop, Zubehör)'},
+    {k:'b3',l:'Firmen-Login & E-Mail eingerichtet, Passwort gesetzt'},
+    {k:'b4',l:'IT-Einweisung erhalten (VPN, WLAN, Portale)'},
+    {k:'b5',l:'Team und Pate/Patin kennengelernt'}
+  ]},
+  {t:'Erste Woche',items:[
+    {k:'c1',l:'Pflichtunterweisung Datenschutz absolviert'},
+    {k:'c2',l:'Pflichtunterweisung Arbeitssicherheit absolviert'},
+    {k:'c3',l:'Zeiterfassung eingerichtet und getestet'},
+    {k:'c4',l:'Einarbeitungsplan mit der Führungskraft durchgesprochen'},
+    {k:'c5',l:'Zugriff auf benötigte Tools & Laufwerke geprüft'}
+  ]},
+  {t:'Erster Monat',items:[
+    {k:'d1',l:'Erstes Feedbackgespräch mit der Führungskraft'},
+    {k:'d2',l:'Interne Abläufe kennengelernt (Anträge, Beschaffung, Support)'},
+    {k:'d3',l:'Offene Fragen im internen Assistenten geklärt',d:'siehe Reiter „Assistent" im Portal'}
+  ]}
+];
+let state={};
+try{state=JSON.parse(localStorage.getItem('tf_onboarding'))||{};}catch(e){state={};}
+function save(){try{localStorage.setItem('tf_onboarding',JSON.stringify(state));}catch(e){}}
+const listEl=document.getElementById('list');
+let total=0;PHASES.forEach(p=>total+=p.items.length);
+function toggle(k){state[k]=!state[k];save();render();}
+function resetAll(){if(confirm('Fortschritt zurücksetzen?')){state={};save();render();}}
+function render(){
+  let done=0;
+  listEl.innerHTML=PHASES.map(p=>{
+    const rows=p.items.map(it=>{
+      const c=!!state[it.k];if(c)done++;
+      return `<div class="item ${c?'done':''}" onclick="toggle('${it.k}')">
+        <input type="checkbox" ${c?'checked':''} onclick="event.stopPropagation();toggle('${it.k}')" aria-label="${it.l}">
+        <div class="txt">${it.l}${it.d?`<small>${it.d}</small>`:''}</div></div>`;
+    }).join('');
+    return `<div class="phase"><h2>${p.t}</h2>${rows}</div>`;
+  }).join('');
+  document.getElementById('doneCount').textContent=done;
+  document.getElementById('totalCount').textContent=total;
+  document.getElementById('prog').style.width=(done/total*100)+'%';
+  document.getElementById('banner').classList.toggle('show',done===total&&total>0);
+}
+render();
+</script>
+</body>
+</html>
