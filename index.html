@@ -3,16 +3,77 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta http-equiv="refresh" content="0; url=chatbot.html">
-<title>Testfirma GmbH – Interner Assistent</title>
-<script>location.replace('chatbot.html');</script>
+<meta name="theme-color" content="#1a5c8f">
+<title>Testfirma GmbH – Intranet-Portal</title>
 <style>
-body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#f0f4f8;color:#1a5c8f;display:flex;align-items:center;justify-content:center;height:100vh;margin:0;text-align:center}
-a{color:#1a5c8f;font-weight:700}
-@media (prefers-color-scheme: dark){body{background:#0f1720;color:#5bb3f0}a{color:#5bb3f0}}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+:root{--blue:#1a5c8f;--blue-mid:#2e7ab5;--blue-light:#e8f1f8;--border:#c8d6e0;--white:#fff;--field:#f2f3f5;--gray:#6b7c8d}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#f0f4f8;color:#111;min-height:100vh}
+header{background:var(--blue);color:#fff;padding:24px 16px;text-align:center}
+header .logo{font-size:34px}
+header h1{font-size:20px;font-weight:800;margin-top:6px}
+header p{font-size:13px;opacity:.85;margin-top:4px}
+.wrap{max-width:760px;margin:0 auto;padding:20px 14px 40px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px}
+.tile{display:flex;flex-direction:column;gap:8px;background:var(--white);border:1px solid var(--border);border-radius:16px;padding:18px 16px;text-decoration:none;color:inherit;box-shadow:0 1px 4px rgba(26,92,143,.06);transition:transform .1s,box-shadow .1s}
+.tile:active{transform:scale(.98)}
+.tile:hover{box-shadow:0 4px 14px rgba(26,92,143,.14)}
+.tile .ico{font-size:30px}
+.tile .t{font-size:15px;font-weight:700;color:var(--blue)}
+.tile .d{font-size:12.5px;color:var(--gray);line-height:1.4}
+.sec{font-size:12px;font-weight:700;color:var(--gray);text-transform:uppercase;letter-spacing:.6px;margin:22px 4px 10px}
+footer{text-align:center;font-size:11px;color:var(--gray);padding:20px}
+a:focus-visible,.tile:focus-visible{outline:2.5px solid #5bb3f0;outline-offset:2px}
+@media (prefers-color-scheme: dark){
+  :root{--blue-light:#1d2c3a;--border:#33404f;--white:#1b2430;--field:#232e3b;--gray:#8ba0b3}
+  body{background:#0f1720;color:#e6edf3}
+  .tile{box-shadow:0 1px 6px rgba(0,0,0,.4)}
+}
 </style>
 </head>
 <body>
-<p>Weiterleitung zum <a href="chatbot.html">Assistenten der Testfirma GmbH</a>…</p>
+<header>
+  <div class="logo">🏢</div>
+  <h1>Testfirma GmbH</h1>
+  <p>Internes Portal – Tools &amp; Assistent</p>
+</header>
+<div class="wrap">
+  <div class="sec">Assistent &amp; Wissen</div>
+  <div class="grid">
+    <a class="tile" href="chatbot.html">
+      <div class="ico">🤖</div><div class="t">Interner Assistent</div>
+      <div class="d">Fragen zu IT, HR, Finanzen &amp; Organisation – plus Witz des Tages.</div>
+    </a>
+    <a class="tile" href="verzeichnis.html">
+      <div class="ico">🔎</div><div class="t">Verzeichnis &amp; Suche</div>
+      <div class="d">Alle Abläufe und Kontakte durchsuchbar auf einen Blick.</div>
+    </a>
+  </div>
+
+  <div class="sec">Formulare &amp; Anträge</div>
+  <div class="grid">
+    <a class="tile" href="formulare.html">
+      <div class="ico">📝</div><div class="t">Anträge &amp; Meldungen</div>
+      <div class="d">Urlaub, Reisekosten, Schadensmeldung – als PDF &amp; per E-Mail.</div>
+    </a>
+    <a class="tile" href="onboarding.html">
+      <div class="ico">✅</div><div class="t">Onboarding-Checkliste</div>
+      <div class="d">Alle Schritte für neue Mitarbeitende, mit Fortschritt.</div>
+    </a>
+  </div>
+
+  <div class="sec">Immobilien-Tools</div>
+  <div class="grid">
+    <a class="tile" href="Code_Github_Zustandsprotokoll.index.html">
+      <div class="ico">📋</div><div class="t">Zustandsprotokoll</div>
+      <div class="d">Wohnungsübergabe komplett dokumentieren, inkl. Unterschrift.</div>
+    </a>
+    <a class="tile" href="immobilien-tools.html">
+      <div class="ico">🏠</div><div class="t">Besichtigung &amp; Mängel</div>
+      <div class="d">Besichtigungsprotokoll und Mängelliste erfassen &amp; als PDF sichern.</div>
+    </a>
+  </div>
+</div>
+<footer>Testfirma GmbH · Internes Portal · Demo-Umgebung</footer>
 </body>
 </html>

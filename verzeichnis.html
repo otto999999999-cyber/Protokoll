@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#1a5c8f">
+<title>Verzeichnis & Suche – Testfirma GmbH</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+:root{--blue:#1a5c8f;--blue-light:#e8f1f8;--border:#c8d6e0;--white:#fff;--field:#f2f3f5;--gray:#6b7c8d}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#f0f4f8;color:#111;min-height:100vh}
+header{background:var(--blue);color:#fff;padding:16px;display:flex;align-items:center;gap:12px}
+header a.back{color:#fff;text-decoration:none;font-size:22px;opacity:.9}
+header h1{font-size:17px;font-weight:700;flex:1}
+.searchbar{position:sticky;top:0;background:#f0f4f8;padding:12px 14px;z-index:5;border-bottom:1px solid var(--border)}
+.searchbar input{width:100%;max-width:680px;margin:0 auto;display:block;border:1.5px solid var(--border);border-radius:22px;padding:12px 18px;font-size:16px;background:var(--white);color:#111;outline:none}
+.searchbar input:focus{border-color:var(--blue)}
+.wrap{max-width:680px;margin:0 auto;padding:12px 14px 40px}
+.cats{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:14px}
+.catbtn{border:1.5px solid var(--border);background:var(--white);color:var(--blue);border-radius:18px;padding:7px 13px;font-size:12.5px;font-weight:600;cursor:pointer}
+.catbtn.active{background:var(--blue);color:#fff;border-color:var(--blue)}
+.entry{background:var(--white);border:1px solid var(--border);border-radius:12px;padding:14px;margin-bottom:10px}
+.entry .tag{display:inline-block;font-size:10px;font-weight:700;color:var(--blue);background:var(--blue-light);border-radius:8px;padding:2px 8px;text-transform:uppercase;letter-spacing:.4px;margin-bottom:6px}
+.entry h3{font-size:15px;font-weight:700;margin-bottom:5px}
+.entry p{font-size:13.5px;line-height:1.5;color:#333;white-space:pre-wrap}
+.count{font-size:12px;color:var(--gray);margin-bottom:12px}
+.empty{text-align:center;color:var(--gray);padding:40px 10px;font-size:14px}
+.ask{display:block;text-align:center;margin-top:16px;color:var(--blue);font-weight:700;text-decoration:none;font-size:14px}
+:focus-visible{outline:2.5px solid #5bb3f0;outline-offset:2px}
+@media (prefers-color-scheme: dark){
+  :root{--blue-light:#1d2c3a;--border:#33404f;--white:#1b2430;--field:#232e3b;--gray:#8ba0b3}
+  body,.searchbar{background:#0f1720;color:#e6edf3}
+  .entry p{color:#c5d2de}
+  .searchbar input{background:#1b2430;color:#e6edf3}
+}
+</style>
+</head>
+<body>
+<header>
+  <a class="back" href="index.html" aria-label="Zurück zum Portal">←</a>
+  <h1>Verzeichnis &amp; Suche</h1>
+</header>
+<div class="searchbar"><input id="q" type="search" placeholder="🔎 Suchen: Urlaub, VPN, Reisekosten, Kontakt…" aria-label="Verzeichnis durchsuchen" oninput="render()"></div>
+<div class="wrap">
+  <div class="cats" id="cats"></div>
+  <div class="count" id="count"></div>
+  <div id="results"></div>
+  <a class="ask" href="chatbot.html">💬 Nichts gefunden? Frag den Assistenten</a>
+</div>
+<script>
+const CATS=[['all','Alle'],['it','IT & Technik'],['hr','Personal & HR'],['fin','Finanzen'],['org','Organisation'],['kontakt','Kontakte']];
+const DATA=[
+  {cat:'kontakt',t:'IT-Support',x:'it-support@testfirma.de · Tel. -100 · Mo–Fr 08:00–17:00',kw:'passwort vpn hardware software störung wlan'},
+  {cat:'kontakt',t:'Personal / HR',x:'hr@testfirma.de · Tel. -200 · Mo–Fr 08:00–17:00',kw:'urlaub krank gehalt onboarding vertrag'},
+  {cat:'kontakt',t:'Finanzen / Buchhaltung',x:'buchhaltung@testfirma.de · Tel. -300',kw:'reisekosten rechnung spesen budget zahlung'},
+  {cat:'kontakt',t:'Empfang / Office',x:'office@testfirma.de · Tel. -0',kw:'ausweis schlüssel zutritt post besucher'},
+  {cat:'it',t:'Passwort zurücksetzen',x:'Auf der Login-Seite „Passwort vergessen" oder im IT-Portal selbst zurücksetzen. Sonst IT-Support (Tel. -100).',kw:'kennwort login gesperrt anmeldung'},
+  {cat:'it',t:'VPN / Remote-Zugang',x:'VPN-Client aus dem IT-Portal installieren, mit Firmen-Login + 2-Faktor-Code anmelden.',kw:'fernzugriff homeoffice netzwerk vpn'},
+  {cat:'it',t:'Hardware anfordern',x:'Antrag im IT-Portal „Hardware-Anforderung", Freigabe durch die Führungskraft, Lieferung in 5–10 Werktagen.',kw:'laptop monitor tastatur gerät'},
+  {cat:'it',t:'Software / Lizenz',x:'Im IT-Portal „Software-Anforderung" mit geschäftlichem Zweck; Freigabe durch die Führungskraft.',kw:'programm lizenz tool app installieren'},
+  {cat:'it',t:'IT-Störung melden',x:'Ticket im IT-Portal oder an it-support@testfirma.de mit Gerät, System und Fehlermeldung. Dringend: Tel. -100.',kw:'fehler ticket defekt absturz problem'},
+  {cat:'it',t:'WLAN / Netzwerk',x:'Mitarbeiter-WLAN „Testfirma-Intern" mit Firmen-Login. Gäste-WLAN am Empfang.',kw:'wifi internet lan gastnetz'},
+  {cat:'hr',t:'Urlaub beantragen',x:'Im HR-Portal unter „Abwesenheit → Urlaub" den Zeitraum eintragen; Genehmigung durch die Führungskraft.',kw:'ferien abwesenheit urlaubsantrag frei'},
+  {cat:'hr',t:'Krankmeldung',x:'Führungskraft vor Arbeitsbeginn informieren, Abwesenheit im HR-Portal eintragen. Ab 3. Tag AU einreichen.',kw:'krank au arbeitsunfähig krankschreibung'},
+  {cat:'hr',t:'Gehaltsabrechnung',x:'Im HR-Portal unter „Dokumente". Auszahlung zum Monatsende. Fragen: buchhaltung@testfirma.de.',kw:'lohn verdienst abrechnung lohnzettel'},
+  {cat:'hr',t:'Arbeitszeit / Zeiterfassung',x:'Erfassung über Terminal oder App. Gleitzeitrahmen 07:00–19:00. Korrekturen im System beantragen.',kw:'stempeln stunden überstunden gleitzeit'},
+  {cat:'hr',t:'Homeoffice / Mobiles Arbeiten',x:'Absprache mit der Führungskraft; Rahmen laut Betriebsvereinbarung. Voraussetzung: VPN-Zugang.',kw:'home office remote telearbeit zuhause'},
+  {cat:'hr',t:'Onboarding neuer Mitarbeiter',x:'HR legt Zugänge & Hardware an; 1. Tag Empfang/Ausweis/IT-Einweisung; Pflichtunterweisungen in Woche 1.',kw:'einarbeitung erster arbeitstag neu einstellung'},
+  {cat:'fin',t:'Reisekostenabrechnung',x:'Im Finanz-Portal „Reisekosten" anlegen, Belege hochladen, Freigabe durch die Führungskraft. Frist: 4 Wochen.',kw:'dienstreise fahrtkosten geschäftsreise'},
+  {cat:'fin',t:'Spesen / Auslagen',x:'Beleg im Finanz-Portal „Auslagenerstattung" hochladen, Zweck angeben. Firmenkarte bevorzugen.',kw:'auslage bewirtung erstattung verauslagt'},
+  {cat:'fin',t:'Bestellung / Beschaffung',x:'Bedarf im Beschaffungs-Portal „Bestellanforderung" erfassen; ab Wertgrenzen Freigabe nötig.',kw:'einkauf material büromaterial lieferant'},
+  {cat:'fin',t:'Rechnung einreichen',x:'Rechnung (PDF) an rechnung@testfirma.de oder ins Finanz-Portal, mit Bestell-/Kostenstellenbezug.',kw:'eingangsrechnung kreditor zahlung'},
+  {cat:'fin',t:'Budgetfreigabe',x:'Bis zur Wertgrenze durch die Führungskraft; größere Beträge zusätzlich durch die Bereichs-/Geschäftsleitung.',kw:'genehmigung kostenfreigabe investition'},
+  {cat:'org',t:'Raum / Meeting buchen',x:'Im Buchungstool freien Raum und Zeitraum reservieren; Ausstattung je Raum angegeben.',kw:'besprechungsraum konferenzraum reservieren'},
+  {cat:'org',t:'Termine & Besprechungen',x:'Firmenkalender für Einladungen nutzen; Verfügbarkeiten sichtbar; Räume gleich mitbuchen.',kw:'kalender planung meeting einladung'},
+  {cat:'org',t:'Zutritt / Schlüssel / Ausweis',x:'Ausweis/Transponder beim Onboarding am Empfang. Zusatzrechte per Antrag. Verlust sofort melden (Tel. -0).',kw:'zugangskarte transponder gebäude badge'},
+  {cat:'org',t:'Zustandsprotokoll erstellen',x:'Eigenes Web-Tool für die Wohnungsübergabe (Mieterdaten, Schlüssel, Zähler, Fotos, Unterschrift, PDF).',kw:'übergabeprotokoll wohnungsübergabe abnahme objekt'}
+];
+let activeCat='all';
+const catsEl=document.getElementById('cats');
+CATS.forEach(([k,l])=>{const b=document.createElement('button');b.className='catbtn'+(k==='all'?' active':'');b.textContent=l;b.type='button';b.onclick=()=>{activeCat=k;[...catsEl.children].forEach(c=>c.classList.toggle('active',c===b));render();};catsEl.appendChild(b);});
+function norm(s){return s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'');}
+function render(){
+  const q=norm(document.getElementById('q').value.trim());
+  const res=DATA.filter(d=>{
+    if(activeCat!=='all'&&d.cat!==activeCat)return false;
+    if(!q)return true;
+    return norm(d.t+' '+d.x+' '+d.kw).includes(q);
+  });
+  const labels={it:'IT & Technik',hr:'Personal & HR',fin:'Finanzen',org:'Organisation',kontakt:'Kontakt'};
+  const rEl=document.getElementById('results');
+  document.getElementById('count').textContent=res.length+(res.length===1?' Eintrag':' Einträge');
+  rEl.innerHTML=res.length?res.map(d=>`<div class="entry"><span class="tag">${labels[d.cat]}</span><h3>${d.t}</h3><p>${d.x}</p></div>`).join('')
+    :`<div class="empty">Kein Treffer für „${document.getElementById('q').value}".<br>Frag stattdessen den Assistenten.</div>`;
+}
+render();
+</script>
+</body>
+</html>

@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#1a5c8f">
+<title>Besichtigung & Mängel – Testfirma GmbH</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+:root{--blue:#1a5c8f;--blue-mid:#2e7ab5;--blue-light:#e8f1f8;--border:#c8d6e0;--white:#fff;--green:#1a7a42;--field:#f2f3f5;--gray:#6b7c8d}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#f0f4f8;color:#111;min-height:100vh}
+header{background:var(--blue);color:#fff;padding:16px;display:flex;align-items:center;gap:12px}
+header a.back{color:#fff;text-decoration:none;font-size:22px;opacity:.9}
+header h1{font-size:17px;font-weight:700;flex:1}
+.tabs{display:flex;background:var(--blue)}
+.tab{flex:1;padding:11px 8px;background:none;border:none;color:rgba(255,255,255,.72);font-size:13px;font-weight:700;cursor:pointer;border-bottom:3px solid transparent}
+.tab.active{color:#fff;border-bottom-color:#5bb3f0}
+.wrap{max-width:680px;margin:0 auto;padding:16px 14px 40px}
+.card{background:var(--white);border:1px solid var(--border);border-radius:14px;overflow:hidden;margin-bottom:14px}
+.card h2{font-size:13px;font-weight:700;color:#fff;background:var(--blue);padding:10px 14px}
+.card .body{padding:14px}
+label{display:block;font-size:13px;color:#444;font-weight:600;margin:12px 0 5px}
+.body>label:first-child{margin-top:0}
+input,select,textarea{width:100%;border:1.5px solid var(--border);border-radius:10px;padding:11px 13px;font-size:16px;background:var(--field);color:#111;outline:none;font-family:inherit}
+input:focus,select:focus,textarea:focus{border-color:var(--blue-mid);background:#fff}
+textarea{resize:vertical;min-height:60px}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.row{border:1px solid var(--border);border-radius:12px;padding:12px;margin-top:10px;position:relative;background:var(--field)}
+.row .del{position:absolute;top:8px;right:8px;background:none;border:none;color:#c0392b;font-size:18px;cursor:pointer}
+.badge{display:inline-block;font-size:11px;font-weight:700;padding:2px 9px;border-radius:10px;margin-top:4px}
+.b-ok{background:#e0f4ea;color:var(--green)}.b-mangel{background:#fdeaea;color:#c0392b}
+.addbtn{width:100%;margin-top:10px;padding:12px;border:1.5px dashed var(--blue-mid);border-radius:10px;background:var(--blue-light);color:var(--blue);font-size:14px;font-weight:700;cursor:pointer}
+.actions{display:flex;flex-direction:column;gap:10px;margin-top:4px}
+.btn{width:100%;padding:14px;border:none;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer}
+.btn.pdf{background:#1a5c3f;color:#fff}
+.btn.clear{background:var(--field);color:var(--blue);border:1.5px solid var(--blue)}
+.hint{font-size:11px;color:var(--gray);text-align:center;margin-top:8px}
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--blue);color:#fff;padding:11px 20px;border-radius:10px;font-size:13px;font-weight:600;opacity:0;transition:opacity .3s;pointer-events:none;z-index:99}
+.toast.show{opacity:1}
+:focus-visible{outline:2.5px solid #5bb3f0;outline-offset:2px}
+@media (prefers-color-scheme: dark){
+  :root{--blue-light:#1d2c3a;--border:#33404f;--white:#1b2430;--field:#232e3b;--gray:#8ba0b3}
+  body{background:#0f1720;color:#e6edf3}
+  input,select,textarea{color:#e6edf3}
+  input:focus,select:focus,textarea:focus{background:#151d27}
+  label{color:#c5d2de}
+}
+</style>
+</head>
+<body>
+<header>
+  <a class="back" href="index.html" aria-label="Zurück zum Portal">←</a>
+  <h1>Besichtigung &amp; Mängel</h1>
+</header>
+<div class="tabs" id="tabs">
+  <button class="tab active" data-t="bes" type="button" onclick="switchT('bes')">🏠 Besichtigung</button>
+  <button class="tab" data-t="man" type="button" onclick="switchT('man')">🔧 Mängelliste</button>
+</div>
+<div class="wrap"><div id="app"></div></div>
+<div class="toast" id="toast"></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script>
+let cur='bes';
+let S={};
+try{S=JSON.parse(localStorage.getItem('tf_immo'))||{};}catch(e){S={};}
+if(!S.bes)S.bes={objekt:'',datum:'',interessent:'',makler:'',gesamt:'gut',bem:'',rooms:[{name:'Wohnzimmer',z:'i.O.',n:''},{name:'Küche',z:'i.O.',n:''},{name:'Bad',z:'i.O.',n:''},{name:'Schlafzimmer',z:'i.O.',n:''}]};
+if(!S.man)S.man={objekt:'',datum:'',erfasser:'',items:[{ort:'',beschr:'',kat:'Sonstiges',prio:'mittel',status:'offen'}]};
+function save(){try{localStorage.setItem('tf_immo',JSON.stringify(S));}catch(e){}}
+function toast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2000);}
+function esc(s){return (s||'').toString().replace(/"/g,'&quot;');}
+function switchT(t){cur=t;[...document.querySelectorAll('.tab')].forEach(b=>b.classList.toggle('active',b.dataset.t===t));render();}
+
+/* --- Besichtigung --- */
+function besRoom(r,i){
+  return `<div class="row"><button class="del" onclick="delRoom(${i})" aria-label="Raum entfernen">✕</button>
+    <label>Raum / Bereich</label><input value="${esc(r.name)}" oninput="S.bes.rooms[${i}].name=this.value;save()">
+    <label>Zustand</label><select onchange="S.bes.rooms[${i}].z=this.value;save();render()">
+      ${['i.O.','Mangel'].map(o=>`<option ${r.z===o?'selected':''}>${o}</option>`).join('')}</select>
+    <span class="badge ${r.z==='i.O.'?'b-ok':'b-mangel'}">${r.z==='i.O.'?'in Ordnung':'Mangel'}</span>
+    <label>Notiz</label><textarea oninput="S.bes.rooms[${i}].n=this.value;save()">${esc(r.n)}</textarea></div>`;
+}
+function delRoom(i){S.bes.rooms.splice(i,1);save();render();}
+function addRoom(){S.bes.rooms.push({name:'',z:'i.O.',n:''});save();render();}
+function renderBes(){
+  const b=S.bes;
+  const rooms=b.rooms.map(besRoom).join('');
+  return `<div class="card"><h2>Besichtigungsprotokoll</h2><div class="body">
+    <label>Objekt / Adresse</label><input value="${esc(b.objekt)}" oninput="S.bes.objekt=this.value;save()" placeholder="Musterstr. 1, 10115 Berlin">
+    <div class="g2"><div><label>Datum</label><input type="date" value="${esc(b.datum)}" onchange="S.bes.datum=this.value;save()"></div>
+    <div><label>Gesamteindruck</label><select onchange="S.bes.gesamt=this.value;save()">${['sehr gut','gut','befriedigend','mangelhaft'].map(o=>`<option ${b.gesamt===o?'selected':''}>${o}</option>`).join('')}</select></div></div>
+    <div class="g2"><div><label>Interessent/in</label><input value="${esc(b.interessent)}" oninput="S.bes.interessent=this.value;save()" placeholder="Name"></div>
+    <div><label>Makler/in</label><input value="${esc(b.makler)}" oninput="S.bes.makler=this.value;save()" placeholder="Name"></div></div>
+    <label>Räume / Bereiche</label>${rooms}
+    <button class="addbtn" onclick="addRoom()">+ Raum hinzufügen</button>
+    <label>Allgemeine Bemerkung</label><textarea oninput="S.bes.bem=this.value;save()">${esc(b.bem)}</textarea>
+    </div></div>
+    <div class="actions"><button class="btn pdf" onclick="pdfBes()">📄 PDF herunterladen</button>
+    <button class="btn clear" onclick="clrBes()">🗑 Zurücksetzen</button></div>
+    <p class="hint">Eingaben werden lokal auf deinem Gerät gespeichert.</p>`;
+}
+function clrBes(){if(confirm('Besichtigung zurücksetzen?')){S.bes={objekt:'',datum:'',interessent:'',makler:'',gesamt:'gut',bem:'',rooms:[]};save();render();}}
+
+/* --- Mängelliste --- */
+function manRow(m,i){
+  return `<div class="row"><button class="del" onclick="delMan(${i})" aria-label="Mangel entfernen">✕</button>
+    <label>Ort / Bereich</label><input value="${esc(m.ort)}" oninput="S.man.items[${i}].ort=this.value;save()" placeholder="z.B. Bad, Decke">
+    <div class="g2"><div><label>Kategorie</label><select onchange="S.man.items[${i}].kat=this.value;save()">${['Wasser','Elektrik','Heizung','Fenster/Türen','Boden/Wand','Sonstiges'].map(o=>`<option ${m.kat===o?'selected':''}>${o}</option>`).join('')}</select></div>
+    <div><label>Priorität</label><select onchange="S.man.items[${i}].prio=this.value;save()">${['gering','mittel','hoch'].map(o=>`<option ${m.prio===o?'selected':''}>${o}</option>`).join('')}</select></div></div>
+    <label>Status</label><select onchange="S.man.items[${i}].status=this.value;save()">${['offen','in Bearbeitung','erledigt'].map(o=>`<option ${m.status===o?'selected':''}>${o}</option>`).join('')}</select>
+    <label>Beschreibung</label><textarea oninput="S.man.items[${i}].beschr=this.value;save()">${esc(m.beschr)}</textarea></div>`;
+}
+function delMan(i){S.man.items.splice(i,1);save();render();}
+function addMan(){S.man.items.push({ort:'',beschr:'',kat:'Sonstiges',prio:'mittel',status:'offen'});save();render();}
+function renderMan(){
+  const m=S.man;
+  return `<div class="card"><h2>Mängelliste</h2><div class="body">
+    <label>Objekt / Adresse</label><input value="${esc(m.objekt)}" oninput="S.man.objekt=this.value;save()" placeholder="Musterstr. 1, 10115 Berlin">
+    <div class="g2"><div><label>Datum</label><input type="date" value="${esc(m.datum)}" onchange="S.man.datum=this.value;save()"></div>
+    <div><label>Erfasst von</label><input value="${esc(m.erfasser)}" oninput="S.man.erfasser=this.value;save()" placeholder="Name"></div></div>
+    <label>Mängel (${m.items.length})</label>${m.items.map(manRow).join('')}
+    <button class="addbtn" onclick="addMan()">+ Mangel hinzufügen</button>
+    </div></div>
+    <div class="actions"><button class="btn pdf" onclick="pdfMan()">📄 PDF herunterladen</button>
+    <button class="btn clear" onclick="clrMan()">🗑 Zurücksetzen</button></div>
+    <p class="hint">Eingaben werden lokal auf deinem Gerät gespeichert.</p>`;
+}
+function clrMan(){if(confirm('Mängelliste zurücksetzen?')){S.man={objekt:'',datum:'',erfasser:'',items:[]};save();render();}}
+
+function render(){document.getElementById('app').innerHTML=cur==='bes'?renderBes():renderMan();}
+
+/* --- PDF --- */
+function pdfHead(doc,title,sub){
+  const W=210,M=18;doc.setFillColor(26,92,143);doc.rect(0,0,W,14,'F');
+  doc.setTextColor(255,255,255);doc.setFontSize(11);doc.setFont('helvetica','bold');doc.text('Testfirma GmbH',M,9);
+  doc.setFontSize(8);doc.setFont('helvetica','normal');doc.text(sub,W-M,9,{align:'right'});
+  doc.setTextColor(26,92,143);doc.setFontSize(15);doc.setFont('helvetica','bold');doc.text(title,M,26);
+}
+function pdfBes(){
+  if(!window.jspdf){toast('PDF lädt noch…');return;}
+  const {jsPDF}=window.jspdf,doc=new jsPDF({unit:'mm',format:'a4'});const M=18,W=210;let y=34;const b=S.bes;
+  pdfHead(doc,'Besichtigungsprotokoll',b.objekt||'');
+  const rowKV=(l,v)=>{doc.setTextColor(107,124,141);doc.setFontSize(9);doc.setFont('helvetica','normal');doc.text(l,M,y);doc.setTextColor(17,17,17);doc.setFont('helvetica','bold');doc.text(String(v||'—'),M+52,y);y+=7;};
+  rowKV('Objekt',b.objekt);rowKV('Datum',b.datum);rowKV('Interessent/in',b.interessent);rowKV('Makler/in',b.makler);rowKV('Gesamteindruck',b.gesamt);
+  y+=3;doc.setDrawColor(26,92,143);doc.line(M,y,W-M,y);y+=7;
+  doc.setTextColor(26,92,143);doc.setFontSize(11);doc.setFont('helvetica','bold');doc.text('Räume / Bereiche',M,y);y+=7;
+  b.rooms.forEach(r=>{if(y>270){doc.addPage();y=20;}
+    doc.setTextColor(17,17,17);doc.setFontSize(10);doc.setFont('helvetica','bold');doc.text(r.name||'—',M,y);
+    doc.setTextColor(r.z==='i.O.'?26:192,r.z==='i.O.'?122:57,r.z==='i.O.'?66:44);doc.setFontSize(9);doc.text(r.z==='i.O.'?'in Ordnung':'Mangel',W-M,y,{align:'right'});y+=5;
+    if(r.n){doc.setTextColor(80,80,80);doc.setFont('helvetica','normal');doc.setFontSize(9);doc.splitTextToSize(r.n,W-M-M).forEach(ln=>{if(y>280){doc.addPage();y=20;}doc.text(ln,M+2,y);y+=5;});}
+    y+=2;});
+  if(b.bem){y+=3;doc.setTextColor(107,124,141);doc.setFontSize(9);doc.text('Bemerkung:',M,y);y+=5;doc.setTextColor(17,17,17);doc.splitTextToSize(b.bem,W-M-M).forEach(ln=>{if(y>280){doc.addPage();y=20;}doc.text(ln,M,y);y+=5;});}
+  doc.save('Besichtigungsprotokoll_'+new Date().toISOString().slice(0,10)+'.pdf');toast('✅ PDF gespeichert');
+}
+function pdfMan(){
+  if(!window.jspdf){toast('PDF lädt noch…');return;}
+  const {jsPDF}=window.jspdf,doc=new jsPDF({unit:'mm',format:'a4'});const M=18,W=210;let y=34;const m=S.man;
+  pdfHead(doc,'Mängelliste',m.objekt||'');
+  const rowKV=(l,v)=>{doc.setTextColor(107,124,141);doc.setFontSize(9);doc.setFont('helvetica','normal');doc.text(l,M,y);doc.setTextColor(17,17,17);doc.setFont('helvetica','bold');doc.text(String(v||'—'),M+52,y);y+=7;};
+  rowKV('Objekt',m.objekt);rowKV('Datum',m.datum);rowKV('Erfasst von',m.erfasser);
+  y+=3;doc.setDrawColor(26,92,143);doc.line(M,y,W-M,y);y+=7;
+  m.items.forEach((it,i)=>{if(y>265){doc.addPage();y=20;}
+    doc.setTextColor(26,92,143);doc.setFontSize(10);doc.setFont('helvetica','bold');doc.text((i+1)+'. '+(it.ort||'—'),M,y);
+    doc.setTextColor(107,124,141);doc.setFontSize(8);doc.setFont('helvetica','normal');doc.text(it.kat+' · Prio: '+it.prio+' · '+it.status,W-M,y,{align:'right'});y+=5;
+    if(it.beschr){doc.setTextColor(17,17,17);doc.setFontSize(9);doc.splitTextToSize(it.beschr,W-M-M).forEach(ln=>{if(y>282){doc.addPage();y=20;}doc.text(ln,M+2,y);y+=5;});}
+    y+=3;});
+  doc.save('Maengelliste_'+new Date().toISOString().slice(0,10)+'.pdf');toast('✅ PDF gespeichert');
+}
+render();
+</script>
+</body>
+</html>

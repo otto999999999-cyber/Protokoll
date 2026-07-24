@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#1a5c8f">
+<title>Anträge & Meldungen – Testfirma GmbH</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+:root{--blue:#1a5c8f;--blue-mid:#2e7ab5;--blue-light:#e8f1f8;--border:#c8d6e0;--white:#fff;--green:#1a7a42;--field:#f2f3f5;--gray:#6b7c8d}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#f0f4f8;color:#111;min-height:100vh}
+header{background:var(--blue);color:#fff;padding:16px;display:flex;align-items:center;gap:12px}
+header a.back{color:#fff;text-decoration:none;font-size:22px;opacity:.9}
+header h1{font-size:17px;font-weight:700;flex:1}
+.tabs{display:flex;background:var(--blue);overflow-x:auto}
+.tab{flex:1;min-width:110px;padding:11px 8px;background:none;border:none;color:rgba(255,255,255,.72);font-size:13px;font-weight:700;cursor:pointer;border-bottom:3px solid transparent;white-space:nowrap}
+.tab.active{color:#fff;border-bottom-color:#5bb3f0}
+.wrap{max-width:680px;margin:0 auto;padding:16px 14px 40px}
+.card{background:var(--white);border:1px solid var(--border);border-radius:14px;overflow:hidden;margin-bottom:14px}
+.card h2{font-size:13px;font-weight:700;color:#fff;background:var(--blue);padding:10px 14px}
+.card .body{padding:14px}
+label{display:block;font-size:13px;color:#444;font-weight:600;margin:12px 0 5px}
+.body>label:first-child{margin-top:0}
+input,select,textarea{width:100%;border:1.5px solid var(--border);border-radius:10px;padding:11px 13px;font-size:16px;background:var(--field);color:#111;outline:none;font-family:inherit}
+input:focus,select:focus,textarea:focus{border-color:var(--blue-mid);background:#fff}
+textarea{resize:vertical;min-height:70px}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.total{background:var(--blue-light);border:1px solid var(--border);border-radius:10px;padding:12px 14px;margin-top:12px;font-size:14px;font-weight:700;color:var(--blue);display:flex;justify-content:space-between}
+.actions{display:flex;flex-direction:column;gap:10px;margin-top:4px}
+.btn{width:100%;padding:14px;border:none;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px}
+.btn.pdf{background:#1a5c3f;color:#fff}
+.btn.mail{background:var(--blue);color:#fff}
+.btn.clear{background:var(--field);color:var(--blue);border:1.5px solid var(--blue)}
+.hint{font-size:11px;color:var(--gray);text-align:center;margin-top:8px}
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--blue);color:#fff;padding:11px 20px;border-radius:10px;font-size:13px;font-weight:600;opacity:0;transition:opacity .3s;pointer-events:none;z-index:99}
+.toast.show{opacity:1}
+:focus-visible{outline:2.5px solid #5bb3f0;outline-offset:2px}
+@media (prefers-color-scheme: dark){
+  :root{--blue-light:#1d2c3a;--border:#33404f;--white:#1b2430;--field:#232e3b;--gray:#8ba0b3}
+  body{background:#0f1720;color:#e6edf3}
+  input,select,textarea{color:#e6edf3}
+  input:focus,select:focus,textarea:focus{background:#1b2430}
+  label{color:#c5d2de}
+}
+</style>
+</head>
+<body>
+<header>
+  <a class="back" href="index.html" aria-label="Zurück zum Portal">←</a>
+  <h1>Anträge &amp; Meldungen</h1>
+</header>
+<div class="tabs" id="tabs"></div>
+<div class="wrap"><div id="form"></div></div>
+<div class="toast" id="toast"></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script>
+const FORMS={
+  urlaub:{title:'Urlaubsantrag',to:'hr@testfirma.de',fields:[
+    {k:'name',l:'Name',ph:'Vor- und Nachname'},
+    {k:'abt',l:'Abteilung',ph:'z.B. Vertrieb'},
+    {k:'art',l:'Art',type:'select',opts:['Erholungsurlaub','Sonderurlaub','Unbezahlter Urlaub']},
+    {k:'von',l:'Von',type:'date',half:true},{k:'bis',l:'Bis',type:'date',half:true},
+    {k:'tage',l:'Arbeitstage',type:'number',ph:'z.B. 5'},
+    {k:'vertretung',l:'Vertretung durch',ph:'Name der Vertretung'},
+    {k:'bem',l:'Bemerkung',type:'textarea',ph:'optional'}
+  ]},
+  reise:{title:'Reisekostenabrechnung',to:'buchhaltung@testfirma.de',fields:[
+    {k:'name',l:'Name',ph:'Vor- und Nachname'},
+    {k:'abt',l:'Abteilung',ph:'z.B. Vertrieb'},
+    {k:'anlass',l:'Anlass / Projekt',ph:'z.B. Kundentermin'},
+    {k:'ziel',l:'Reiseziel',ph:'Ort'},
+    {k:'von',l:'Von',type:'date',half:true},{k:'bis',l:'Bis',type:'date',half:true},
+    {k:'mittel',l:'Verkehrsmittel',type:'select',opts:['Bahn','PKW privat','Mietwagen','Flug','Sonstiges']},
+    {k:'km',l:'Gefahrene km (PKW privat)',type:'number',ph:'0',half:true},
+    {k:'uebern',l:'Übernachtung (€)',type:'number',ph:'0',half:true},
+    {k:'verpfl',l:'Verpflegung (€)',type:'number',ph:'0',half:true},
+    {k:'sonst',l:'Sonstiges (€)',type:'number',ph:'0',half:true},
+    {k:'bem',l:'Bemerkung',type:'textarea',ph:'optional'}
+  ],total:s=>{const km=(+s.km||0)*0.30,sum=km+(+s.uebern||0)+(+s.verpfl||0)+(+s.sonst||0);return['Summe (inkl. 0,30 €/km)',sum.toFixed(2)+' €'];}},
+  schaden:{title:'Schadensmeldung',to:'office@testfirma.de',fields:[
+    {k:'melder',l:'Name (Melder/in)',ph:'Vor- und Nachname'},
+    {k:'datum',l:'Schadensdatum',type:'date'},
+    {k:'ort',l:'Ort / Objekt',ph:'Adresse, Raum'},
+    {k:'kat',l:'Kategorie',type:'select',opts:['Wasser','Elektrik','Heizung','Fenster/Türen','Aufzug','Sonstiges']},
+    {k:'schwere',l:'Dringlichkeit',type:'select',opts:['gering','mittel','dringend']},
+    {k:'beschr',l:'Beschreibung',type:'textarea',ph:'Was ist passiert?'},
+    {k:'massn',l:'Bereits ergriffene Sofortmaßnahme',type:'textarea',ph:'optional'}
+  ]}
+};
+const ORDER=[['urlaub','📅 Urlaub'],['reise','🚄 Reisekosten'],['schaden','🔧 Schaden']];
+let cur='urlaub';
+let store={};
+try{store=JSON.parse(localStorage.getItem('tf_formulare'))||{};}catch(e){store={};}
+function save(){try{localStorage.setItem('tf_formulare',JSON.stringify(store));}catch(e){}}
+function st(){if(!store[cur])store[cur]={};return store[cur];}
+function toast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2200);}
+
+const tabsEl=document.getElementById('tabs');
+ORDER.forEach(([k,l])=>{const b=document.createElement('button');b.className='tab'+(k===cur?' active':'');b.textContent=l;b.type='button';b.onclick=()=>{cur=k;[...tabsEl.children].forEach(c=>c.classList.toggle('active',c===b));render();};tabsEl.appendChild(b);});
+
+function esc(s){return (s||'').toString().replace(/"/g,'&quot;');}
+function render(){
+  const F=FORMS[cur],s=st();
+  let rows='',pend=null;
+  F.fields.forEach(f=>{
+    const v=esc(s[f.k]);
+    let ctrl;
+    if(f.type==='select')ctrl=`<select onchange="upd('${f.k}',this.value)">${f.opts.map(o=>`<option ${s[f.k]===o?'selected':''}>${o}</option>`).join('')}</select>`;
+    else if(f.type==='textarea')ctrl=`<textarea placeholder="${esc(f.ph)}" oninput="upd('${f.k}',this.value)">${v}</textarea>`;
+    else ctrl=`<input type="${f.type||'text'}" placeholder="${esc(f.ph)}" value="${v}" oninput="upd('${f.k}',this.value)">`;
+    const block=`<label>${f.l}</label>${ctrl}`;
+    if(f.half){if(pend){rows+=`<div class="g2"><div>${pend}</div><div>${block}</div></div>`;pend=null;}else pend=block;}
+    else{if(pend){rows+=`<div>${pend}</div>`;pend=null;}rows+=block;}
+  });
+  if(pend)rows+=`<div>${pend}</div>`;
+  let totalHtml='';
+  if(F.total){const[l,v]=F.total(s);totalHtml=`<div class="total"><span>${l}</span><span>${v}</span></div>`;}
+  document.getElementById('form').innerHTML=
+    `<div class="card"><h2>${F.title}</h2><div class="body">${rows}${totalHtml}</div></div>
+     <div class="actions">
+       <button class="btn pdf" onclick="genPDF()">📄 PDF herunterladen</button>
+       <button class="btn mail" onclick="sendMail()">📧 Als E-Mail senden</button>
+       <button class="btn clear" onclick="clr()">🗑 Formular leeren</button>
+     </div>
+     <p class="hint">Empfänger: ${F.to} · Eingaben werden lokal auf deinem Gerät gespeichert.</p>`;
+}
+function upd(k,v){st()[k]=v;save();if(FORMS[cur].total){const[l,val]=FORMS[cur].total(st());const t=document.querySelector('.total');if(t)t.innerHTML=`<span>${l}</span><span>${val}</span>`;}}
+function clr(){if(confirm('Formular wirklich leeren?')){store[cur]={};save();render();}}
+function lines(){
+  const F=FORMS[cur],s=st();const out=[];
+  F.fields.forEach(f=>{const v=s[f.k];if(v)out.push([f.l,v]);});
+  if(F.total){const[l,v]=F.total(s);out.push([l,v]);}
+  return out;
+}
+function sendMail(){
+  const F=FORMS[cur];
+  const body=F.title+' – Testfirma GmbH\n\n'+lines().map(([l,v])=>l+': '+v).join('\n')+'\n\nMit freundlichen Grüßen';
+  window.location.href='mailto:'+F.to+'?subject='+encodeURIComponent(F.title+' – '+((st().name||st().melder)||''))+'&body='+encodeURIComponent(body);
+}
+function genPDF(){
+  const F=FORMS[cur];
+  if(!window.jspdf){toast('PDF-Bibliothek lädt noch…');return;}
+  const {jsPDF}=window.jspdf,doc=new jsPDF({unit:'mm',format:'a4'});
+  const W=210,M=18,BL=[26,92,143],GR=[107,124,141],BK=[17,17,17];let y=16;
+  doc.setFillColor(...BL);doc.rect(0,0,W,14,'F');
+  doc.setTextColor(255,255,255);doc.setFontSize(11);doc.setFont('helvetica','bold');doc.text('Testfirma GmbH',M,9);
+  doc.setFontSize(8);doc.setFont('helvetica','normal');doc.text(F.title,W-M,9,{align:'right'});
+  y=26;doc.setTextColor(...BL);doc.setFontSize(15);doc.setFont('helvetica','bold');doc.text(F.title,M,y);y+=10;
+  lines().forEach(([l,v])=>{
+    if(y>275){doc.addPage();y=20;}
+    doc.setTextColor(...GR);doc.setFontSize(9);doc.setFont('helvetica','normal');doc.text(l,M,y);
+    doc.setTextColor(...BK);doc.setFont('helvetica','bold');
+    const wrapped=doc.splitTextToSize(String(v),W-M-M-52);
+    doc.text(wrapped,M+52,y);y+=Math.max(7,wrapped.length*5.2);
+  });
+  y+=8;doc.setDrawColor(...BL);doc.line(M,y,W-M,y);y+=6;
+  doc.setTextColor(...GR);doc.setFontSize(8);doc.setFont('helvetica','normal');
+  doc.text('Erstellt: '+new Date().toLocaleString('de-DE')+'  ·  Empfänger: '+F.to,M,y);
+  doc.text('Unterschrift: __________________________',M,y+12);
+  doc.save(F.title.replace(/\s/g,'_')+'_'+new Date().toISOString().slice(0,10)+'.pdf');
+  toast('✅ PDF gespeichert');
+}
+render();
+</script>
+</body>
+</html>
