@@ -58,6 +58,27 @@ header .status .dot{width:7px;height:7px;border-radius:50%;background:#4ade80;di
 .witz-btn{width:100%;padding:14px;border:none;border-radius:12px;background:var(--blue);color:#fff;font-size:15px;font-weight:700;cursor:pointer}
 .witz-btn:active{opacity:.8}
 .witz-btn.secondary{background:var(--field);color:var(--blue);border:1.5px solid var(--blue)}
+.hdr-btn{background:rgba(255,255,255,.15);border:none;color:#fff;width:34px;height:34px;border-radius:50%;font-size:18px;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center}
+.hdr-btn:active{opacity:.7}
+.fb-row{align-self:flex-start;display:flex;align-items:center;gap:8px;margin:-4px 0 2px 4px}
+.fb-q{font-size:11px;color:var(--gray)}
+.fb-btn{background:var(--field);border:1px solid var(--border);border-radius:14px;width:32px;height:28px;font-size:14px;cursor:pointer;color:inherit}
+.fb-btn:active{opacity:.7}
+.fb-done{align-self:flex-start;font-size:11px;color:var(--green);margin:-4px 0 2px 4px;font-weight:600}
+.sugg-row{align-self:flex-start;display:flex;flex-direction:column;gap:6px;margin:2px 0 2px 0;max-width:82%}
+.sugg-btn{text-align:left;background:var(--blue-light);color:var(--blue);border:1.5px solid var(--border);border-radius:12px;padding:9px 13px;font-size:13.5px;font-weight:600;cursor:pointer}
+.sugg-btn:active{opacity:.7}
+:focus-visible{outline:2.5px solid #5bb3f0;outline-offset:2px}
+@media (prefers-color-scheme: dark){
+  :root{--blue-light:#1d2c3a;--border:#33404f;--white:#1b2430;--field:#232e3b;--gray:#8ba0b3}
+  body{background:#0f1720;color:#e6edf3}
+  .msg.bot,.witz-text{color:#e6edf3}
+  .inputbar textarea{color:#e6edf3}
+  .inputbar textarea:focus{background:#1b2430}
+  .chip{color:#cfe0ee}
+  .fb-btn{color:#e6edf3}
+  .witz-card{box-shadow:0 2px 12px rgba(0,0,0,.45)}
+}
 </style>
 </head>
 <body>
@@ -68,17 +89,18 @@ header .status .dot{width:7px;height:7px;border-radius:50%;background:#4ade80;di
       <h1>Testfirma GmbH – Interner Assistent</h1>
       <div class="status"><span class="dot"></span>Online – Antwort in Sekunden</div>
     </div>
+    <button class="hdr-btn" id="resetBtn" onclick="resetChat()" aria-label="Gespräch neu starten" title="Gespräch neu starten">↺</button>
   </header>
   <div class="tabs" id="tabs">
     <button class="tab active" data-tab="assist" onclick="switchTab('assist')">💬 Assistent</button>
     <button class="tab" data-tab="witz" onclick="switchTab('witz')">🎭 Witz des Tages</button>
   </div>
   <div id="assistView" class="view">
-    <div id="chat"></div>
-    <div class="chips" id="chips"></div>
+    <div id="chat" role="log" aria-live="polite" aria-atomic="false" aria-label="Chatverlauf"></div>
+    <div class="chips" id="chips" role="group" aria-label="Themenvorschläge"></div>
     <div class="inputbar">
-      <textarea id="ta" rows="1" placeholder="Frage eingeben…" onkeydown="onKey(event)" oninput="autoGrow(this)"></textarea>
-      <button class="sendbtn" id="sendBtn" onclick="sendMsg()">➤</button>
+      <textarea id="ta" rows="1" placeholder="Frage eingeben…" aria-label="Frage eingeben" onkeydown="onKey(event)" oninput="autoGrow(this)"></textarea>
+      <button class="sendbtn" id="sendBtn" onclick="sendMsg()" aria-label="Nachricht senden">➤</button>
     </div>
   </div>
   <div id="witzView" class="view hidden">
@@ -177,35 +199,54 @@ const FALLBACK=['Das habe ich leider nicht ganz verstanden. Kannst du deine Frag
 const STOPWORDS=new Set(['ich','du','er','sie','es','wir','ihr','der','die','das','ein','eine','einen','einem','einer','wie','was','wann','wo','ist','sind','war','wird','muss','kann','mir','mich','dir','dich','zu','im','in','am','an','bei','für','und','oder','mit','auf','ab','es','habe','hat','hab','bitte','mal','denn','doch','noch','auch','nur','schon','meine','mein','meinen','wer','soll','möchte','will','brauche','einen']);
 function normalize(s){return s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^a-z0-9äöüß\s]/g,' ').replace(/\s+/g,' ').trim();}
 function contentWords(phrase){const w=normalize(phrase).split(' ').filter(Boolean);const c=w.filter(x=>!STOPWORDS.has(x));return c.length?c:w;}
+function lev(a,b){
+  const m=a.length,n=b.length;if(!m)return n;if(!n)return m;
+  let prev=Array.from({length:n+1},(_,i)=>i),cur=new Array(n+1);
+  for(let i=1;i<=m;i++){cur[0]=i;
+    for(let j=1;j<=n;j++){const c=a[i-1]===b[j-1]?0:1;cur[j]=Math.min(prev[j]+1,cur[j-1]+1,prev[j-1]+c);}
+    [prev,cur]=[cur,prev];
+  }
+  return prev[n];
+}
 function wordPresent(w,tokens){
   if(tokens.has(w))return true;
   if(w.length<4)return false;
   for(const tk of tokens){if(tk.length>=4&&(tk.startsWith(w)||w.startsWith(tk)))return true;}
+  if(w.length>=5){for(const tk of tokens){if(tk.length>=4&&Math.abs(tk.length-w.length)<=2&&lev(tk,w)<=(w.length>=8?2:1))return true;}}
   return false;
 }
-function bestMatch(text){
-  const t=normalize(text);
-  const tokens=new Set(t.split(' ').filter(Boolean));
-  let best=null,bestScore=0;
-  FAQ.forEach(f=>{
+/* strenges Ranking: alle Wörter eines Keywords müssen vorkommen */
+function rankMatches(text){
+  const tokens=new Set(normalize(text).split(' ').filter(Boolean));
+  return FAQ.map(f=>{
     let score=0;
-    f.kw.forEach(k=>{
-      const cw=contentWords(k);
-      const hits=cw.filter(w=>wordPresent(w,tokens)).length;
-      if(hits===cw.length&&hits>0)score+=hits;
-    });
-    if(score>bestScore){bestScore=score;best=f;}
-  });
-  return bestScore>0?best:null;
+    f.kw.forEach(k=>{const cw=contentWords(k);const hits=cw.filter(w=>wordPresent(w,tokens)).length;if(hits===cw.length&&hits>0)score+=hits;});
+    return {f,score};
+  }).sort((a,b)=>b.score-a.score);
+}
+/* lockeres Ranking für Vorschläge: jedes Teilwort zählt */
+function softRank(text){
+  const tokens=new Set(normalize(text).split(' ').filter(Boolean));
+  return FAQ.filter(f=>f.cat!=='sys').map(f=>{
+    let s=0;
+    f.kw.forEach(k=>contentWords(k).forEach(w=>{if(wordPresent(w,tokens))s++;}));
+    return {f,s};
+  }).sort((a,b)=>b.s-a.s);
 }
 
 /* ---------- Chat-UI ---------- */
 const chatEl=document.getElementById('chat'),chipsEl=document.getElementById('chips'),ta=document.getElementById('ta'),sendBtn=document.getElementById('sendBtn');
 let chipMode='cats';
+let history=loadHistory();
+
+function loadHistory(){try{return JSON.parse(localStorage.getItem('tf_chat'))||[];}catch(e){return [];}}
+function saveHistory(){try{localStorage.setItem('tf_chat',JSON.stringify(history.slice(-120)));}catch(e){}}
+function logFeedback(vote){try{const f=JSON.parse(localStorage.getItem('tf_fb'))||{up:0,down:0};f[vote?'up':'down']++;localStorage.setItem('tf_fb',JSON.stringify(f));}catch(e){}}
 
 function timeNow(){return new Date().toLocaleTimeString('de-DE',{hour:'2-digit',minute:'2-digit'});}
 
-function addMsg(role,text){
+function addMsg(role,text,save){
+  if(save===undefined)save=true;
   const wrap=document.createElement('div');
   wrap.className='msg '+role;
   wrap.textContent=text;
@@ -216,6 +257,32 @@ function addMsg(role,text){
   t.textContent=timeNow();
   chatEl.appendChild(t);
   chatEl.scrollTop=chatEl.scrollHeight;
+  if(save){history.push({r:role,t:text});saveHistory();}
+}
+
+function addFeedback(){
+  const row=document.createElement('div');row.className='fb-row';
+  const q=document.createElement('span');q.className='fb-q';q.textContent='War das hilfreich?';
+  const up=document.createElement('button');up.className='fb-btn';up.type='button';up.textContent='👍';up.setAttribute('aria-label','Antwort war hilfreich');
+  const down=document.createElement('button');down.className='fb-btn';down.type='button';down.textContent='👎';down.setAttribute('aria-label','Antwort war nicht hilfreich');
+  up.onclick=()=>doFb(row,true);down.onclick=()=>doFb(row,false);
+  row.append(q,up,down);chatEl.appendChild(row);chatEl.scrollTop=chatEl.scrollHeight;
+}
+function doFb(row,ok){
+  logFeedback(ok);
+  const d=document.createElement('div');d.className='fb-done';
+  d.textContent=ok?'✓ Danke für dein Feedback!':'✓ Danke! Findest du nichts Passendes, hilft „Wichtige Kontakte".';
+  row.replaceWith(d);chatEl.scrollTop=chatEl.scrollHeight;
+}
+function addSuggestions(intro,faqs){
+  addMsg('bot',intro);
+  const row=document.createElement('div');row.className='sugg-row';
+  faqs.forEach(f=>{const b=document.createElement('button');b.className='sugg-btn';b.type='button';b.textContent=f.q;b.onclick=()=>{ta.value=f.q;sendMsg();};row.appendChild(b);});
+  chatEl.appendChild(row);chatEl.scrollTop=chatEl.scrollHeight;
+}
+function resetChat(){
+  history=[];saveHistory();chatEl.innerHTML='';chipMode='cats';renderChips();
+  addMsg('bot','Neues Gespräch gestartet. 👋 Womit kann ich dir helfen?');
 }
 
 function showTyping(){
@@ -227,7 +294,8 @@ function showTyping(){
 function hideTyping(){const el=document.getElementById('typingInd');if(el)el.remove();}
 
 function mkChip(label,cls,fn){
-  const c=document.createElement('div');
+  const c=document.createElement('button');
+  c.type='button';
   c.className='chip'+(cls?' '+cls:'');
   c.textContent=label;c.onclick=fn;
   chipsEl.appendChild(c);
@@ -264,9 +332,20 @@ function sendMsg(){
       addMsg('bot','😄 '+jokeOfTheDay()+'\n\nMehr davon findest du oben im Reiter „Witz des Tages".');
       sendBtn.disabled=false;return;
     }
-    const match=bestMatch(text);
-    const reply=match?match.a:FALLBACK[Math.floor(Math.random()*FALLBACK.length)];
-    addMsg('bot',reply);
+    const ranked=rankMatches(text);
+    const best=ranked[0];
+    const clearLeader=best.score>=2||(best.score>=1&&(!ranked[1]||best.score>ranked[1].score));
+    if(clearLeader){
+      addMsg('bot',best.f.a);
+      if(best.f.cat!=='sys')addFeedback();
+    }else{
+      const soft=softRank(text).filter(x=>x.s>0).slice(0,3);
+      if(soft.length){
+        addSuggestions('Ich bin nicht ganz sicher, was du meinst. Meintest du vielleicht:',soft.map(x=>x.f));
+      }else{
+        addMsg('bot',FALLBACK[Math.floor(Math.random()*FALLBACK.length)]);
+      }
+    }
     sendBtn.disabled=false;
   },500+Math.random()*500);
 }
@@ -395,7 +474,11 @@ function switchTab(t){
 /* ---------- Init ---------- */
 todayWitz();
 renderChips();
-addMsg('bot','Hallo! 👋 Ich bin der interne Assistent der Testfirma GmbH. Ich helfe dir bei IT, Personal, Finanzen und Organisation. Wähle unten einen Bereich oder stell direkt deine Frage.');
+if(history.length){
+  history.forEach(m=>addMsg(m.r,m.t,false));
+}else{
+  addMsg('bot','Hallo! 👋 Ich bin der interne Assistent der Testfirma GmbH. Ich helfe dir bei IT, Personal, Finanzen und Organisation. Wähle unten einen Bereich oder stell direkt deine Frage.');
+}
 </script>
 </body>
 </html>
