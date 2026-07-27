@@ -7,12 +7,12 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="theme-color" content="#1a5c8f">
-<title>Testfirma GmbH – Interner Assistent</title>
+<title>Chatbot</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 html{height:100%;overflow:hidden}
 body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#f0f4f8;color:#111;font-size:16px;height:100%;overflow:hidden;position:fixed;width:100%}
-:root{--blue:#1a5c8f;--blue-mid:#2e7ab5;--blue-light:#e8f1f8;--border:#c8d6e0;--white:#fff;--green:#1a7a42;--field:#f2f3f5;--gray:#6b7c8d;--radius:12px}
+:root{--blue:#1a5c8f;--blue-mid:#2e7ab5;--blue-light:#e8f1f8;--border:#c8d6e0;--white:#fff;--field:#f2f3f5;--gray:#6b7c8d}
 #shell{display:flex;flex-direction:column;height:100vh;height:100dvh}
 header{background:var(--blue);color:#fff;padding:env(safe-area-inset-top,12px) 16px 12px;display:flex;align-items:center;gap:10px;flex-shrink:0;min-height:56px}
 header .avatar{width:34px;height:34px;border-radius:50%;background:#fff;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
@@ -20,242 +20,60 @@ header .htxt{flex:1}
 header h1{font-size:16px;font-weight:700}
 header .status{font-size:11px;opacity:.85;display:flex;align-items:center;gap:5px}
 header .status .dot{width:7px;height:7px;border-radius:50%;background:#4ade80;display:inline-block}
+.hdr-btn{background:rgba(255,255,255,.15);border:none;color:#fff;width:34px;height:34px;border-radius:50%;font-size:18px;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center}
+.hdr-btn:active{opacity:.7}
 #chat{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;padding:14px 12px 10px;display:flex;flex-direction:column;gap:10px}
 .msg{max-width:82%;padding:10px 13px;border-radius:16px;font-size:14.5px;line-height:1.45;white-space:pre-wrap;word-break:break-word}
 .msg.bot{align-self:flex-start;background:var(--white);border:1px solid var(--border);border-bottom-left-radius:4px;color:#111}
 .msg.user{align-self:flex-end;background:var(--blue);color:#fff;border-bottom-right-radius:4px}
 .msg-time{font-size:10px;color:var(--gray);margin-top:2px;padding:0 4px}
-.msg.user + .msg-time{align-self:flex-end;text-align:right}
 .typing{align-self:flex-start;background:var(--white);border:1px solid var(--border);border-bottom-left-radius:4px;padding:12px 16px;border-radius:16px;display:flex;gap:4px}
 .typing span{width:6px;height:6px;border-radius:50%;background:var(--gray);animation:blink 1.2s infinite}
 .typing span:nth-child(2){animation-delay:.2s}
 .typing span:nth-child(3){animation-delay:.4s}
 @keyframes blink{0%,60%,100%{opacity:.3}30%{opacity:1}}
-.chips{display:flex;flex-wrap:wrap;gap:7px;padding:2px 12px 10px;flex-shrink:0;max-height:160px;overflow-y:auto}
-.chip{background:var(--blue-light);color:var(--blue);border:1.5px solid var(--border);border-radius:20px;padding:8px 13px;font-size:12.5px;font-weight:600;cursor:pointer;white-space:nowrap}
-.chip:active{opacity:.7}
-.chip.cat{background:var(--blue);color:#fff;border-color:var(--blue)}
-.chip.back{background:var(--field);color:var(--gray)}
 .inputbar{background:var(--white);border-top:1px solid var(--border);padding:10px 10px calc(10px + env(safe-area-inset-bottom,0px));display:flex;gap:8px;align-items:flex-end;flex-shrink:0}
 .inputbar textarea{flex:1;border:1.5px solid var(--border);border-radius:20px;padding:11px 16px;font-size:15px;background:var(--field);color:#111;outline:none;resize:none;max-height:100px;font-family:inherit;line-height:1.3}
 .inputbar textarea:focus{border-color:var(--blue-mid);background:#fff}
 .sendbtn{width:42px;height:42px;border-radius:50%;background:var(--blue);color:#fff;border:none;flex-shrink:0;display:flex;align-items:center;justify-content:center;cursor:pointer}
 .sendbtn:active{opacity:.75}
 .sendbtn:disabled{background:var(--gray);opacity:.5}
-.tabs{display:flex;background:var(--blue);border-top:1px solid rgba(255,255,255,.15);flex-shrink:0}
-.tab{flex:1;padding:11px 8px;background:none;border:none;color:rgba(255,255,255,.72);font-size:13px;font-weight:700;cursor:pointer;border-bottom:3px solid transparent}
-.tab.active{color:#fff;border-bottom-color:#5bb3f0}
-.tab:active{opacity:.8}
-.view{flex:1;min-height:0;display:flex;flex-direction:column}
-.view.hidden{display:none}
-.witz-wrap{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:20px 16px calc(20px + env(safe-area-inset-bottom,0px));display:flex;flex-direction:column;align-items:center;gap:16px}
-.witz-card{background:var(--white);border:1px solid var(--border);border-radius:16px;padding:24px 20px;width:100%;max-width:520px;box-shadow:0 2px 12px rgba(26,92,143,.08);margin-top:auto}
-.witz-label{font-size:13px;font-weight:800;color:var(--blue);text-transform:uppercase;letter-spacing:.6px;text-align:center}
-.witz-date{font-size:12px;color:var(--gray);text-align:center;margin-top:3px;margin-bottom:16px}
-.witz-text{font-size:18px;line-height:1.55;color:#111;text-align:center;white-space:pre-wrap;min-height:70px;display:flex;align-items:center;justify-content:center}
-.witz-count{font-size:11px;color:var(--gray);text-align:center;margin-top:16px}
-.witz-actions{width:100%;max-width:520px;display:flex;flex-direction:column;gap:10px;margin-bottom:auto}
-.witz-btn{width:100%;padding:14px;border:none;border-radius:12px;background:var(--blue);color:#fff;font-size:15px;font-weight:700;cursor:pointer}
-.witz-btn:active{opacity:.8}
-.witz-btn.secondary{background:var(--field);color:var(--blue);border:1.5px solid var(--blue)}
-.hdr-btn{background:rgba(255,255,255,.15);border:none;color:#fff;width:34px;height:34px;border-radius:50%;font-size:18px;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center}
-.hdr-btn:active{opacity:.7}
-.fb-row{align-self:flex-start;display:flex;align-items:center;gap:8px;margin:-4px 0 2px 4px}
-.fb-q{font-size:11px;color:var(--gray)}
-.fb-btn{background:var(--field);border:1px solid var(--border);border-radius:14px;width:32px;height:28px;font-size:14px;cursor:pointer;color:inherit}
-.fb-btn:active{opacity:.7}
-.fb-done{align-self:flex-start;font-size:11px;color:var(--green);margin:-4px 0 2px 4px;font-weight:600}
-.sugg-row{align-self:flex-start;display:flex;flex-direction:column;gap:6px;margin:2px 0 2px 0;max-width:82%}
-.sugg-btn{text-align:left;background:var(--blue-light);color:var(--blue);border:1.5px solid var(--border);border-radius:12px;padding:9px 13px;font-size:13.5px;font-weight:600;cursor:pointer}
-.sugg-btn:active{opacity:.7}
 :focus-visible{outline:2.5px solid #5bb3f0;outline-offset:2px}
 @media (prefers-color-scheme: dark){
   :root{--blue-light:#1d2c3a;--border:#33404f;--white:#1b2430;--field:#232e3b;--gray:#8ba0b3}
   body{background:#0f1720;color:#e6edf3}
-  .msg.bot,.witz-text{color:#e6edf3}
+  .msg.bot{color:#e6edf3}
   .inputbar textarea{color:#e6edf3}
-  .inputbar textarea:focus{background:#1b2430}
-  .chip{color:#cfe0ee}
-  .fb-btn{color:#e6edf3}
-  .witz-card{box-shadow:0 2px 12px rgba(0,0,0,.45)}
 }
 </style>
 </head>
 <body>
 <div id="shell">
   <header>
-    <div class="avatar">🏢</div>
+    <div class="avatar">💬</div>
     <div class="htxt">
-      <h1>Testfirma GmbH – Interner Assistent</h1>
-      <div class="status"><span class="dot"></span>Online – Antwort in Sekunden</div>
+      <h1>Chatbot</h1>
+      <div class="status"><span class="dot"></span>Bereit</div>
     </div>
     <button class="hdr-btn" id="resetBtn" onclick="resetChat()" aria-label="Gespräch neu starten" title="Gespräch neu starten">↺</button>
   </header>
-  <div class="tabs" id="tabs">
-    <button class="tab active" data-tab="assist" onclick="switchTab('assist')">💬 Assistent</button>
-    <button class="tab" data-tab="witz" onclick="switchTab('witz')">🎭 Witz des Tages</button>
-  </div>
-  <div id="assistView" class="view">
-    <div id="chat" role="log" aria-live="polite" aria-atomic="false" aria-label="Chatverlauf"></div>
-    <div class="chips" id="chips" role="group" aria-label="Themenvorschläge"></div>
-    <div class="inputbar">
-      <textarea id="ta" rows="1" placeholder="Frage eingeben…" aria-label="Frage eingeben" onkeydown="onKey(event)" oninput="autoGrow(this)"></textarea>
-      <button class="sendbtn" id="sendBtn" onclick="sendMsg()" aria-label="Nachricht senden">➤</button>
-    </div>
-  </div>
-  <div id="witzView" class="view hidden">
-    <div class="witz-wrap">
-      <div class="witz-card">
-        <div class="witz-label">🎭 Witz des Tages</div>
-        <div class="witz-date" id="witzDate"></div>
-        <div class="witz-text" id="witzText"></div>
-        <div class="witz-count" id="witzCount"></div>
-      </div>
-      <div class="witz-actions">
-        <button class="witz-btn" onclick="nextWitz()">😄 Nächster Witz</button>
-        <button class="witz-btn secondary" onclick="todayWitz()">📅 Zurück zum Tageswitz</button>
-      </div>
-    </div>
+  <div id="chat" role="log" aria-live="polite" aria-atomic="false" aria-label="Chatverlauf"></div>
+  <div class="inputbar">
+    <textarea id="ta" rows="1" placeholder="Nachricht eingeben…" aria-label="Nachricht eingeben" onkeydown="onKey(event)" oninput="autoGrow(this)"></textarea>
+    <button class="sendbtn" id="sendBtn" onclick="sendMsg()" aria-label="Nachricht senden">➤</button>
   </div>
 </div>
 <script>
-/* ---------- Kategorien ---------- */
-const CATS=[
-  {key:'it', label:'IT & Technik', emoji:'💻'},
-  {key:'hr', label:'Personal & HR', emoji:'👥'},
-  {key:'fin',label:'Finanzen & Beschaffung', emoji:'💶'},
-  {key:'org',label:'Organisation & Objekt', emoji:'🏢'},
-  {key:'proz',label:'Immobilien-Prozesse', emoji:'🗂️'}
-];
-
-/* ---------- Wissensbasis ---------- */
-/* Hinweis: Alle Prozesse, Systeme und Kontakte sind Platzhalter der fiktiven "Testfirma GmbH". */
-const FAQ=[
-  /* --- Allgemein / System --- */
-  {q:'Begrüßung',cat:'sys',kw:['hallo','hi','hey','moin','guten tag','servus'],
-   a:'Hallo! 👋 Ich bin der interne Assistent der Testfirma GmbH. Ich helfe dir bei Fragen zu IT, Personal, Finanzen und Organisation. Wähle unten einen Bereich oder stell direkt deine Frage.'},
-  {q:'Was kann der Assistent?',cat:'sys',kw:['was kannst du','was kann der assistent','hilfe','wobei hilfst du','funktionen','themen','übersicht'],
-   a:'Ich beantworte Fragen zu den internen Abläufen der Testfirma GmbH:\n💻 IT & Technik – Passwort, VPN, Hardware, Störungen\n👥 Personal & HR – Urlaub, Krankmeldung, Gehalt, Onboarding\n💶 Finanzen & Beschaffung – Reisekosten, Bestellungen, Rechnungen\n🏢 Organisation & Objekt – Raumbuchung, Zeiterfassung, Zutritt, Zustandsprotokoll\n🗂️ Immobilien-Prozesse – Mietvertrag versenden, Kündigungsbestätigung, Übergabe, Abnahme, Kaution\n\nTippe einfach dein Anliegen oder nutze die Bereichs-Buttons unten.'},
-  {q:'Wichtige Kontakte',cat:'sys',kw:['kontakt','ansprechpartner','telefonliste','wen frage ich','wer ist zuständig','durchwahl'],
-   a:'Zentrale Ansprechpartner der Testfirma GmbH (Platzhalter):\n• IT-Support: it-support@testfirma.de, Tel. -100\n• Personal/HR: hr@testfirma.de, Tel. -200\n• Finanzen/Buchhaltung: buchhaltung@testfirma.de, Tel. -300\n• Empfang/Office: office@testfirma.de, Tel. -0\n\nErreichbarkeit i.d.R. Mo–Fr 08:00–17:00 Uhr.'},
-  {q:'Danke',cat:'sys',kw:['danke','super','klasse','top','perfekt'],
-   a:'Gerne! Falls noch etwas unklar ist, frag einfach weiter. 😊'},
-
-  /* --- IT & Technik --- */
-  {q:'Passwort zurücksetzen',cat:'it',kw:['passwort','kennwort','passwort vergessen','passwort zurücksetzen','login geht nicht','anmeldung','gesperrt'],
-   a:'Passwort zurücksetzen:\n1. Auf der Login-Seite auf „Passwort vergessen" klicken – du erhältst einen Reset-Link per E-Mail.\n2. Alternativ im IT-Portal (intranet/it) selbst zurücksetzen.\n3. Klappt beides nicht, wende dich an den IT-Support (it-support@testfirma.de, Tel. -100).\n\nHinweis: Passwörter mind. 12 Zeichen, alle 180 Tage wechseln.'},
-  {q:'VPN / Remote-Zugang',cat:'it',kw:['vpn','remote','fernzugriff','von zuhause','verbindung','netzwerk zugang','einwählen'],
-   a:'VPN / Remote-Zugang einrichten:\n1. VPN-Client aus dem IT-Portal installieren (Anleitung dort hinterlegt).\n2. Mit deinem Firmen-Login und dem 2-Faktor-Code (Authenticator-App) anmelden.\n3. Bei Problemen mit dem 2. Faktor: IT-Support kontaktieren.\n\nOhne aktiven VPN sind interne Systeme von außen nicht erreichbar.'},
-  {q:'Hardware anfordern',cat:'it',kw:['hardware','laptop','notebook','monitor','tastatur','maus','gerät bestellen','neues gerät'],
-   a:'Hardware (Laptop, Monitor, Zubehör) anfordern:\n1. Antrag im IT-Portal unter „Hardware-Anforderung" ausfüllen.\n2. Freigabe durch deine Führungskraft erfolgt digital.\n3. Nach Freigabe bestellt die IT – Lieferung i.d.R. innerhalb von 5–10 Werktagen.\n\nStandard-Ausstattung ist vordefiniert; Sonderwünsche bitte begründen.'},
-  {q:'Software / Lizenz anfordern',cat:'it',kw:['software','programm','lizenz','tool installieren','app anfordern','anwendung'],
-   a:'Software oder Lizenz anfordern:\n1. Im IT-Portal unter „Software-Anforderung" das Programm auswählen oder benennen.\n2. Angabe des geschäftlichen Zwecks; Freigabe durch die Führungskraft.\n3. Freigegebene Standard-Software wird remote installiert.\n\nNicht gelistete Software wird zusätzlich vom Datenschutz/IT-Security geprüft.'},
-  {q:'IT-Störung melden',cat:'it',kw:['störung','it problem','ticket','fehler melden','funktioniert nicht','it support','defekt','absturz','abgestürzt','rechner','pc','computer','kaputt','hängt','geht nicht'],
-   a:'IT-Störung melden (Ticket):\n1. Beschreibe das Problem im IT-Portal unter „Störung melden" – oder per Mail an it-support@testfirma.de.\n2. Gib Gerät, betroffenes System und ggf. Fehlermeldung/Screenshot an.\n3. Du erhältst eine Ticketnummer und Rückmeldung i.d.R. innerhalb von 1 Werktag.\n4. Dringende Ausfälle (kein Zugang, Produktionsstopp): zusätzlich Tel. -100.'},
-  {q:'WLAN / Netzwerk',cat:'it',kw:['wlan','wifi','internet','netzwerk','lan','keine verbindung','gastnetz'],
-   a:'WLAN & Netzwerk:\n• Mitarbeiter-WLAN „Testfirma-Intern": Anmeldung mit Firmen-Login.\n• Gäste-WLAN „Testfirma-Gast": Tageszugang am Empfang oder per QR-Code im Besprechungsraum.\n• Keine Verbindung? Gerät neu verbinden, sonst IT-Störung melden.'},
-
-  /* --- Personal & HR --- */
-  {q:'Urlaub beantragen',cat:'hr',kw:['urlaub','urlaub beantragen','freizeit','ferien','abwesenheit','urlaubsantrag'],
-   a:'Urlaub beantragen:\n1. Im HR-Portal (Self-Service) unter „Abwesenheit → Urlaub" den Zeitraum eintragen.\n2. Antrag geht automatisch an deine Führungskraft zur Genehmigung.\n3. Status (offen/genehmigt) siehst du im Portal; Resturlaub wird dort angezeigt.\n\nBitte Urlaub möglichst frühzeitig einreichen, besonders in der Ferienzeit.'},
-  {q:'Krankmeldung',cat:'hr',kw:['krank','krankmeldung','krankschreibung','au','arbeitsunfähig','fehlen','krank melden'],
-   a:'Krankmeldung:\n1. Informiere deine Führungskraft möglichst vor Arbeitsbeginn (Telefon/E-Mail).\n2. Trage die Abwesenheit im HR-Portal ein.\n3. Ab dem 3. Krankheitstag ist eine ärztliche Bescheinigung (AU) einzureichen – die eAU wird i.d.R. elektronisch übermittelt, ansonsten an hr@testfirma.de.\n\nDie genauen Fristen regelt dein Arbeitsvertrag bzw. die Betriebsvereinbarung.'},
-  {q:'Gehaltsabrechnung',cat:'hr',kw:['gehalt','lohn','gehaltsabrechnung','lohnabrechnung','verdienst','abrechnung gehalt','lohnzettel'],
-   a:'Gehaltsabrechnung:\n• Die monatliche Abrechnung findest du im HR-Portal unter „Dokumente".\n• Auszahlung erfolgt jeweils zum Monatsende.\n• Fragen zu einzelnen Positionen (Steuer, Zuschläge, Abzüge): buchhaltung@testfirma.de oder hr@testfirma.de.'},
-  {q:'Arbeitszeit / Zeiterfassung',cat:'hr',kw:['arbeitszeit','zeiterfassung','stempeln','stunden','überstunden','gleitzeit','kommen gehen'],
-   a:'Arbeitszeit & Zeiterfassung:\n• Erfassung über das Zeiterfassungs-System (Terminal am Eingang oder App).\n• Kommen/Gehen und Pausen werden gebucht; Gleitzeitrahmen i.d.R. 07:00–19:00 Uhr.\n• Korrekturen (vergessenes Stempeln) im System beantragen – Freigabe durch die Führungskraft.\n• Überstunden werden auf dem Gleitzeitkonto geführt.'},
-  {q:'Homeoffice / Mobiles Arbeiten',cat:'hr',kw:['homeoffice','home office','mobiles arbeiten','remote arbeiten','von zuhause arbeiten','telearbeit'],
-   a:'Homeoffice / Mobiles Arbeiten:\n1. Absprache mit der Führungskraft; Rahmen regelt die Betriebsvereinbarung (z.B. bis zu 2 Tage/Woche).\n2. Homeoffice-Tage im HR- oder Zeiterfassungs-System kennzeichnen.\n3. Technische Voraussetzung: eingerichteter VPN-Zugang.\n\nArbeitszeit und Erreichbarkeit gelten wie im Büro.'},
-  {q:'Onboarding neuer Mitarbeiter',cat:'hr',kw:['onboarding','neuer mitarbeiter','einarbeitung','erster arbeitstag','neu im team','einstellung','neue kollegin'],
-   a:'Onboarding neuer Mitarbeitender:\n1. HR legt vor dem Start Zugänge, Arbeitsplatz und Hardware an.\n2. Am 1. Tag: Begrüßung am Empfang, Ausweis/Zutritt, IT-Einweisung.\n3. Einarbeitungsplan und Pate/Patin werden vom Team bereitgestellt.\n4. Pflichtunterweisungen (Datenschutz, Arbeitssicherheit) in der 1. Woche.\n\nFragen: hr@testfirma.de, Tel. -200.'},
-
-  /* --- Finanzen & Beschaffung --- */
-  {q:'Reisekostenabrechnung',cat:'fin',kw:['reisekosten','dienstreise','reise abrechnen','fahrtkosten','reisekostenabrechnung','geschäftsreise'],
-   a:'Reisekostenabrechnung:\n1. Im Finanz-Portal unter „Reisekosten" eine neue Abrechnung anlegen.\n2. Belege (Fahrt, Hotel, Verpflegung) als Foto/Scan hochladen; Pauschalen werden automatisch berechnet.\n3. Freigabe durch die Führungskraft, dann Erstattung durch die Buchhaltung.\n\nBitte innerhalb von 4 Wochen nach Reiseende einreichen.'},
-  {q:'Spesen / Auslagen',cat:'fin',kw:['spesen','auslagen','auslage','bewirtung','kleinbetrag','verauslagt','erstattung','ausgelegt','erstattet','erstatten','privat bezahlt','vorgestreckt'],
-   a:'Spesen / verauslagte Kosten erstatten:\n1. Beleg im Finanz-Portal unter „Auslagenerstattung" hochladen.\n2. Zweck angeben (z.B. Bewirtung mit Teilnehmerliste, Büromaterial).\n3. Nach Freigabe erfolgt die Erstattung mit der nächsten Auszahlungsrunde.\n\nBar-Auslagen bitte nur in Ausnahmefällen; Firmenkarte bevorzugen.'},
-  {q:'Bestellung / Beschaffung',cat:'fin',kw:['bestellung','bestellen','beschaffung','einkauf','material','büromaterial','lieferant','order'],
-   a:'Bestellung / Beschaffung:\n1. Bedarf im Beschaffungs-Portal unter „Bestellanforderung" erfassen.\n2. Ab definierten Wertgrenzen ist eine Budget-/Führungskraftfreigabe nötig.\n3. Der Einkauf bündelt Bestellungen und beauftragt gelistete Lieferanten.\n\nStandardartikel (Büromaterial) sind im Katalog direkt bestellbar.'},
-  {q:'Rechnung einreichen',cat:'fin',kw:['rechnung','eingangsrechnung','rechnung einreichen','rechnung bezahlen','kreditor','zahlung veranlassen'],
-   a:'Eingangsrechnung einreichen:\n1. Rechnung (PDF) an rechnung@testfirma.de senden oder im Finanz-Portal hochladen.\n2. Bestell-/Kostenstellenbezug angeben und sachlich freigeben.\n3. Die Buchhaltung prüft und zahlt innerhalb der Zahlungsfrist (i.d.R. 14–30 Tage, Skonto beachten).'},
-  {q:'Budgetfreigabe',cat:'fin',kw:['budget','freigabe','genehmigung ausgabe','kostenfreigabe','budget beantragen','investition'],
-   a:'Budget- / Ausgabenfreigabe:\n• Ausgaben bis zur festgelegten Wertgrenze gibt die Führungskraft frei.\n• Größere Beträge/Investitionen benötigen zusätzlich die Freigabe der Bereichs- bzw. Geschäftsleitung.\n• Freigaben laufen digital über das Finanz-Portal und werden revisionssicher dokumentiert.'},
-
-  /* --- Organisation & Objekt --- */
-  {q:'Raum / Meeting buchen',cat:'org',kw:['raum buchen','besprechungsraum','meetingraum','konferenzraum','raum reservieren','termin raum'],
-   a:'Besprechungsraum buchen:\n1. Im Kalender/Buchungstool einen freien Raum auswählen und Zeitraum reservieren.\n2. Teilnehmer einladen; Ausstattung (Beamer, Videokonferenz) ist je Raum angegeben.\n3. Nicht benötigte Buchungen bitte stornieren, damit Räume frei werden.'},
-  {q:'Zeiterfassung / Terminplanung',cat:'org',kw:['termin','kalender','planung','besprechung ansetzen','meeting planen','einladung'],
-   a:'Termine & Besprechungen planen:\n• Nutze den Firmenkalender (Outlook/Kalender-Tool) für Einladungen.\n• Verfügbarkeiten der Kollegen siehst du direkt im Kalender.\n• Für wiederkehrende Termine Serientermine anlegen; Räume gleich mitbuchen.'},
-  {q:'Zutritt / Schlüssel / Ausweis',cat:'org',kw:['zutritt','schlüssel','ausweis','zugangskarte','transponder','gebäude','tür öffnen','badge'],
-   a:'Zutritt, Ausweis & Schlüssel:\n1. Mitarbeiterausweis/Transponder wird beim Onboarding am Empfang ausgegeben.\n2. Zusätzliche Zutrittsrechte (z.B. Lager, Serverraum) über Antrag im Portal + Freigabe.\n3. Verlust sofort dem Empfang/Office melden (office@testfirma.de, Tel. -0) – Sperrung erfolgt umgehend.'},
-  {q:'Zustandsprotokoll erstellen',cat:'org',kw:['zustandsprotokoll','übergabeprotokoll','protokoll','objektübergabe'],
-   a:'Zustandsprotokoll (Objekt-/Wohnungsübergabe):\nDie Testfirma GmbH nutzt dafür ein eigenes Web-Tool – du erfasst Mieterdaten, Schlüssel, Zählerstände, Raumzustände, Fotos und digitale Unterschriften und exportierst am Ende ein PDF.\n\n👉 Das Tool findest du unter „Zustandsprotokoll" im Intranet bzw. als eigene Seite. Bei inhaltlichen Fragen zum Ausfüllen hilft dir dort die integrierte Anleitung.'},
-
-  /* --- Immobilien-Prozesse (aus internen Leitfäden) --- */
-  {q:'Mietvertrag versenden',cat:'proz',kw:['mietvertrag versenden','mietvertrag verschicken','begrüßungsschreiben','mv versenden','vertrag versenden'],
-   a:'Ablauf „Mietvertrag versenden":\n1. Vorbereitung: Unterlagen prüfen (Verw), MV liegt vor, Daten in SAP korrekt (Vertragspartner, Mietbeginn, Miete), beidseitig unterzeichnet.\n2. Durchführung: Begrüßungsschreiben über SAP/OPCC fertigen (Assist), zur Unterschrift vorlegen, in nscale scannen, MV ösen, versenden.\n3. Nacharbeit: Übergabe vorbereiten (Schlüssel, Unterlagen, Kaution + 1. Miete vorhanden). Evtl. Nachtrag.\n\n👉 Zum Schritt-für-Schritt-Abhaken: Tool „Prozess-Checklisten" im Portal.'},
-  {q:'Kündigungsbestätigung',cat:'proz',kw:['kündigungsbestätigung','kündigung bestätigen','kündigung eingegangen','kündigung bearbeiten'],
-   a:'Ablauf „Kündigungsbestätigung":\n1. Vorbereitung: Kündigung prüfen (Assist) – Originalunterschrift, alle Mieter unterzeichnet, Kündigungsausschluss prüfen, Termin Abnahme klären.\n2. Durchführung: Bestätigung über SAP/OPCC fertigen, Unterlagen in gelbe Mappe, Mietspiegel berechnen (Verw), gesicherte Miete prüfen, Unterzeichnung GF, nscale-Scan + Versand.\n3. Nacharbeit: Kopie an Vertrieb und BeKo, Mietspiegel/gesicherte Miete an Vertrieb, Wiedervorlage 4 Wochen vor Abnahme.\n\n👉 Danach weiter mit „Abnahme". Checkliste im Tool „Prozess-Checklisten".'},
-  {q:'Übergabe an Mieter',cat:'proz',kw:['übergabe','wohnungsübergabe','übergabe mieter','wohnung übergeben','einzug'],
-   a:'Ablauf „Übergabe an Mieter" (Grundsatz: KEINE ZAHLUNGEN – KEINE ÜBERGABE):\n1. Vorher: In SAP Zahlungen prüfen (1. Miete, 1. Kautionsrate, Klingelschild), Termin (frühestens 3 Tage vor Vertragsbeginn), Zustands-/Abnahmeprotokoll drucken (OPCC „19"), Schlüssel prüfen.\n2. Währenddessen: 20 Min vorher da sein, Bauzylinder tauschen; Keller prüfen; Zustand aufnehmen; Schlüsselprotokoll + Schlüsselübergabe; jede Protokollseite unterschreiben lassen; Durchdrucke aushändigen.\n3. Danach: Protokoll in nscale scannen, Strom-Leerstand abmelden (Vattenfall), Seiten 01–03 an BeKo, Mängel an SFI, Ausstattung in SAP.\n\n👉 Vollständige Checkliste im Tool „Prozess-Checklisten"; das eigentliche Protokoll im „Zustandsprotokoll".'},
-  {q:'Abnahme / Rückgabe',cat:'proz',kw:['abnahme','rückgabe','wohnung abnehmen','auszug','rückgabeprotokoll','renovierungsaufforderung'],
-   a:'Ablauf „Abnahme / Rückgabe":\n1. Vorlauf: Kündigung/-bestätigung, SAP-Pflege, ggf. Vorabnahme, Abnahmetermin (nicht bei Dunkelheit).\n2. Vorbereitung: MV + Übergabeprotokoll drucken, Paragrafen markieren, Genehmigungen in nscale prüfen, Zylinder/Vorhängeschloss organisieren, Protokolle drucken.\n3. Durchführung: Türen/Fenster/Jalousien prüfen, Schlüssel + Zähler (Fotos!), Heizkostenverteiler, Zustand je Raum, Keller, Unterschrift + Verzugsadresse; danach Fotos aller Räume, Zylinder tauschen (klemmt → SFI).\n4. Nachbereitung: Bilder ablegen, Vattenfall/SAP pflegen, Zählerstände an BeKo, Verzugsanschrift (SAP + Kautionskonto); bei Mängeln Renovierungsaufforderung (2 Wochen Frist), sonst Kautionseinzug/-abrechnung.\n\n👉 Komplette Checkliste im Tool „Prozess-Checklisten".'},
-  {q:'Kautionskonto anlegen',cat:'proz',kw:['kaution','kautionskonto','referenznummer','hausbank','kautionskonto anlegen'],
-   a:'Ablauf „Kautionskonto anlegen + Referenznummer":\n1. Bei der Hausbank München (HBM) anmelden, Reiter „Kautionskonto", Wirtschaftseinheit + Objekt ausfüllen, Konto über „Papier mit Sternchen" anlegen (Eingabe-Assistent: Ja).\n2. Mietnummer = Mietvertragsnummer, Personendaten + alle Vertragspartner pflegen, Grundkaution gem. Vertrag, Fälligkeit = Mietbeginn, Ratenzahlung nur bei Wohnungen.\n3. Daten prüfen → Kautionsnummer generieren → Dokumentendruck (Überweisungsdaten).\n4. In SAP unter Referenznummer hinterlegen, Sicherheitseinbehaltsabrechnung, Ablage Mieterakte.\n\n👉 Schritt-für-Schritt im Tool „Prozess-Checklisten".'}
-];
-
-const FALLBACK=['Das habe ich leider nicht ganz verstanden. Kannst du deine Frage anders formulieren oder unten einen Bereich wählen?',
-  'Dazu habe ich noch keine passende Antwort. Versuch es mit anderen Worten oder nutze die Bereichs-Buttons unten.',
-  'Hmm, das weiß ich nicht genau. Für individuelle Anliegen findest du die passenden Kontakte unter „Wichtige Kontakte".'];
-
-/* ---------- Matching ---------- */
-const STOPWORDS=new Set(['ich','du','er','sie','es','wir','ihr','der','die','das','ein','eine','einen','einem','einer','wie','was','wann','wo','ist','sind','war','wird','muss','kann','mir','mich','dir','dich','zu','im','in','am','an','bei','für','und','oder','mit','auf','ab','es','habe','hat','hab','bitte','mal','denn','doch','noch','auch','nur','schon','meine','mein','meinen','wer','soll','möchte','will','brauche','einen']);
-function normalize(s){return s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^a-z0-9äöüß\s]/g,' ').replace(/\s+/g,' ').trim();}
-function contentWords(phrase){const w=normalize(phrase).split(' ').filter(Boolean);const c=w.filter(x=>!STOPWORDS.has(x));return c.length?c:w;}
-function lev(a,b){
-  const m=a.length,n=b.length;if(!m)return n;if(!n)return m;
-  let prev=Array.from({length:n+1},(_,i)=>i),cur=new Array(n+1);
-  for(let i=1;i<=m;i++){cur[0]=i;
-    for(let j=1;j<=n;j++){const c=a[i-1]===b[j-1]?0:1;cur[j]=Math.min(prev[j]+1,cur[j-1]+1,prev[j-1]+c);}
-    [prev,cur]=[cur,prev];
-  }
-  return prev[n];
-}
-function wordPresent(w,tokens){
-  if(tokens.has(w))return true;
-  if(w.length<4)return false;
-  for(const tk of tokens){if(tk.length>=4&&(tk.startsWith(w)||w.startsWith(tk)))return true;}
-  if(w.length>=5){for(const tk of tokens){if(tk.length>=4&&Math.abs(tk.length-w.length)<=2&&lev(tk,w)<=(w.length>=10?2:1))return true;}}
-  return false;
-}
-/* strenges Ranking: alle Wörter eines Keywords müssen vorkommen */
-function rankMatches(text){
-  const tokens=new Set(normalize(text).split(' ').filter(Boolean));
-  return FAQ.map(f=>{
-    let score=0;
-    f.kw.forEach(k=>{const cw=contentWords(k);const hits=cw.filter(w=>wordPresent(w,tokens)).length;if(hits===cw.length&&hits>0)score+=hits;});
-    return {f,score};
-  }).sort((a,b)=>b.score-a.score);
-}
-/* lockeres Ranking für Vorschläge: jedes Teilwort zählt */
-function softRank(text){
-  const tokens=new Set(normalize(text).split(' ').filter(Boolean));
-  return FAQ.filter(f=>f.cat!=='sys').map(f=>{
-    let s=0;
-    f.kw.forEach(k=>contentWords(k).forEach(w=>{if(wordPresent(w,tokens))s++;}));
-    return {f,s};
-  }).sort((a,b)=>b.s-a.s);
-}
+/* ---------- Wissensbasis: leer (auf null Inhalt zurückgesetzt) ---------- */
+const FAQ=[];
+const GREETING='Hallo! 👋';
+const EMPTY_REPLY='Es sind aktuell keine Inhalte hinterlegt.';
 
 /* ---------- Chat-UI ---------- */
-const chatEl=document.getElementById('chat'),chipsEl=document.getElementById('chips'),ta=document.getElementById('ta'),sendBtn=document.getElementById('sendBtn');
-let chipMode='cats';
+const chatEl=document.getElementById('chat'),ta=document.getElementById('ta'),sendBtn=document.getElementById('sendBtn');
 let history=loadHistory();
-
 function loadHistory(){try{return JSON.parse(localStorage.getItem('tf_chat'))||[];}catch(e){return [];}}
 function saveHistory(){try{localStorage.setItem('tf_chat',JSON.stringify(history.slice(-120)));}catch(e){}}
-function logFeedback(vote){try{const f=JSON.parse(localStorage.getItem('tf_fb'))||{up:0,down:0};f[vote?'up':'down']++;localStorage.setItem('tf_fb',JSON.stringify(f));}catch(e){}}
-
 function timeNow(){return new Date().toLocaleTimeString('de-DE',{hour:'2-digit',minute:'2-digit'});}
 
 function addMsg(role,text,save){
@@ -272,32 +90,6 @@ function addMsg(role,text,save){
   chatEl.scrollTop=chatEl.scrollHeight;
   if(save){history.push({r:role,t:text});saveHistory();}
 }
-
-function addFeedback(){
-  const row=document.createElement('div');row.className='fb-row';
-  const q=document.createElement('span');q.className='fb-q';q.textContent='War das hilfreich?';
-  const up=document.createElement('button');up.className='fb-btn';up.type='button';up.textContent='👍';up.setAttribute('aria-label','Antwort war hilfreich');
-  const down=document.createElement('button');down.className='fb-btn';down.type='button';down.textContent='👎';down.setAttribute('aria-label','Antwort war nicht hilfreich');
-  up.onclick=()=>doFb(row,true);down.onclick=()=>doFb(row,false);
-  row.append(q,up,down);chatEl.appendChild(row);chatEl.scrollTop=chatEl.scrollHeight;
-}
-function doFb(row,ok){
-  logFeedback(ok);
-  const d=document.createElement('div');d.className='fb-done';
-  d.textContent=ok?'✓ Danke für dein Feedback!':'✓ Danke! Findest du nichts Passendes, hilft „Wichtige Kontakte".';
-  row.replaceWith(d);chatEl.scrollTop=chatEl.scrollHeight;
-}
-function addSuggestions(intro,faqs){
-  addMsg('bot',intro);
-  const row=document.createElement('div');row.className='sugg-row';
-  faqs.forEach(f=>{const b=document.createElement('button');b.className='sugg-btn';b.type='button';b.textContent=f.q;b.onclick=()=>{ta.value=f.q;sendMsg();};row.appendChild(b);});
-  chatEl.appendChild(row);chatEl.scrollTop=chatEl.scrollHeight;
-}
-function resetChat(){
-  history=[];saveHistory();chatEl.innerHTML='';chipMode='cats';renderChips();
-  addMsg('bot','Neues Gespräch gestartet. 👋 Womit kann ich dir helfen?');
-}
-
 function showTyping(){
   const el=document.createElement('div');
   el.className='typing';el.id='typingInd';
@@ -305,32 +97,9 @@ function showTyping(){
   chatEl.appendChild(el);chatEl.scrollTop=chatEl.scrollHeight;
 }
 function hideTyping(){const el=document.getElementById('typingInd');if(el)el.remove();}
-
-function mkChip(label,cls,fn){
-  const c=document.createElement('button');
-  c.type='button';
-  c.className='chip'+(cls?' '+cls:'');
-  c.textContent=label;c.onclick=fn;
-  chipsEl.appendChild(c);
-}
-function renderChips(){
-  chipsEl.innerHTML='';
-  if(chipMode==='cats'){
-    CATS.forEach(cat=>mkChip(cat.emoji+' '+cat.label,'cat',()=>{
-      chipMode=cat.key;
-      addMsg('bot','Themen zu '+cat.label+' – wähle eins aus oder stell direkt deine Frage:');
-      renderChips();
-    }));
-    mkChip('☎️ Wichtige Kontakte','',()=>{ta.value='Wichtige Kontakte';sendMsg();});
-    mkChip('🎭 Witz des Tages','',()=>switchTab('witz'));
-  }else{
-    mkChip('← Bereiche','back',()=>{chipMode='cats';renderChips();});
-    FAQ.filter(f=>f.cat===chipMode).forEach(f=>mkChip(f.q,'',()=>{ta.value=f.q;sendMsg();}));
-  }
-}
-
 function autoGrow(el){el.style.height='auto';el.style.height=Math.min(el.scrollHeight,100)+'px';}
 function onKey(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendMsg();}}
+function resetChat(){history=[];saveHistory();chatEl.innerHTML='';addMsg('bot',GREETING);}
 
 function sendMsg(){
   const text=ta.value.trim();
@@ -340,158 +109,14 @@ function sendMsg(){
   sendBtn.disabled=true;showTyping();
   setTimeout(()=>{
     hideTyping();
-    const nt=normalize(text);
-    if(nt.includes('witz')||nt.includes('joke')||nt.includes('lach')){
-      addMsg('bot','😄 '+jokeOfTheDay()+'\n\nMehr davon findest du oben im Reiter „Witz des Tages".');
-      sendBtn.disabled=false;return;
-    }
-    const ranked=rankMatches(text);
-    const best=ranked[0];
-    const clearLeader=best.score>=2||(best.score>=1&&(!ranked[1]||best.score>ranked[1].score));
-    if(clearLeader){
-      addMsg('bot',best.f.a);
-      if(best.f.cat!=='sys')addFeedback();
-    }else{
-      const soft=softRank(text).filter(x=>x.s>0).slice(0,3);
-      if(soft.length){
-        addSuggestions('Ich bin nicht ganz sicher, was du meinst. Meintest du vielleicht:',soft.map(x=>x.f));
-      }else{
-        addMsg('bot',FALLBACK[Math.floor(Math.random()*FALLBACK.length)]);
-      }
-    }
+    addMsg('bot',EMPTY_REPLY);
     sendBtn.disabled=false;
-  },500+Math.random()*500);
-}
-
-/* ---------- Witz des Tages: 100 Immobilienwitze ---------- */
-const WITZE=[
-  '„Diese Wohnung hat viel Potenzial", sagt der Makler. Übersetzung: Sie dürfen alles selbst machen.',
-  'Warum nahm der Makler eine Leiter mit zur Besichtigung? Er wollte die Preise hochtreiben.',
-  'Was ist ein Immobilienmakler ohne Handy? Ein Mensch mit überraschend viel Freizeit.',
-  'Warum wohnt der Optimist im Keller? Weil es von dort nur nach oben gehen kann.',
-  '„Ruhige Lage", sagte der Makler – und verschwieg den Friedhof nebenan.',
-  'Warum ist Miete wie ein Bumerang? Am Monatsende kommt sie zuverlässig zurück.',
-  'Der Makler zum kleinen Zimmer: „Gemütlich!" Gemeint ist: Hier passt kein Bett rein.',
-  'Warum bringt der Vermieter nie schlechte Laune mit? Die zieht bei diesen Mieten von allein ein.',
-  '„Charmanter Altbau" heißt übersetzt: Die Heizung stammt aus dem letzten Jahrhundert.',
-  'Warum lieben Makler Treppen? Weil jede Stufe den Quadratmeterpreis erhöht.',
-  'Was ist der Unterschied zwischen einem Makler und einem Wecker? Der Wecker klingelt nur morgens.',
-  '„Ideal für Handwerker" bedeutet: Bringen Sie Werkzeug mit. Viel Werkzeug.',
-  'Der Makler sagt: „Das Bad ist ein Traum." Er meint: Sie müssen davon träumen, so klein ist es.',
-  'Warum zog der Geist nie aus seinem Haus aus? Er hatte einen unbefristeten Mietvertrag.',
-  '„Provisionsfrei" ist das schönste Wort der deutschen Sprache – zumindest für den Mieter.',
-  'Was macht ein Vermieter im Urlaub? Er sucht Orte mit Nebenkostenpotenzial.',
-  'Warum hat das Haus geweint? Es hatte feuchte Wände.',
-  '„Kompakte Küche" heißt: Kühlschrank auf – und Sie stehen schon im Wohnzimmer.',
-  'Der Makler zeigt eine Wohnung ohne Fenster: „Dafür sparen Sie sich das Putzen."',
-  'Warum ist Wohnungssuche wie Online-Dating? Alle Fotos sind bearbeitet.',
-  '„Bezugsfertig" – die einzige Angabe, der man vor Ort nie trauen sollte.',
-  'Was trinkt ein Immobilienmakler? Grundstückssaft mit einem Schuss Provision.',
-  'Warum verkaufte der Makler das Iglu so schnell? Es war ein echt cooles Objekt.',
-  '„Gute Anbindung" bedeutet: Die Autobahn verläuft direkt durchs Schlafzimmer.',
-  'Warum liebt der Vermieter den Winter? Nebenkostenabrechnungs-Saison.',
-  'Der Mieter fragt: „Ist die Wohnung hellhörig?" Der Nachbar antwortet: „Ja!"',
-  '„Loft-Charakter" heißt: Es gibt keine Wände – und das ist Absicht.',
-  'Warum ging der Bauunternehmer nie pleite? Er hatte immer einen soliden Grundstock.',
-  'Was ist das Lieblingsspiel von Maklern? Monopoly – aber sie spielen es ernst.',
-  '„Viel Tageslicht" gilt nur, wenn Sie tagsüber nie zu Hause sind.',
-  'Warum machte der Schornstein Karriere? Er hatte einfach den richtigen Zug.',
-  '„Gepflegte Nachbarschaft" bedeutet: Ihre Gardinen werden genau begutachtet.',
-  'Der Makler sagt: „Das renoviert sich fast von allein." Es hat sich noch nie etwas von allein renoviert.',
-  'Warum wohnt die Zahl Eins gern im Erdgeschoss? Sie spart sich den Fahrstuhl.',
-  '„Ausbaupotenzial im Dach" heißt: Ziehen Sie den Kopf ein.',
-  'Was sagt ein Balkon zum anderen? „Wir hängen echt oft zusammen rum."',
-  'Warum sind Grundrisse ehrlicher als Makler? Sie haben nichts zu verkaufen, nur zu zeigen.',
-  '„Nur 15 Minuten zum Zentrum" – mit dem Hubschrauber vielleicht.',
-  'Warum lächelt der Vermieter beim Auszug? Er denkt schon an die Kaution.',
-  '„Gartenmitbenutzung" bedeutet: Sie dürfen zuschauen, wie andere grillen.',
-  'Der Makler und die Wahrheit trafen sich einmal – rein zufällig.',
-  'Warum ist ein Fundament nie beleidigt? Es lässt einfach nichts an sich heran.',
-  '„Schöner Ausblick" – auf die Wand des Nachbarhauses.',
-  'Was ist ein Penthouse? Ein Dachboden mit besserer PR.',
-  'Warum bekam die Tür den Job? Sie hatte die besten Angeln.',
-  '„Modernisiert 1998" – also modern, für die Verhältnisse von 1998.',
-  'Der Mieter fragt nach dem Keller. Makler: „Der ist tief… im Angebot enthalten."',
-  'Warum sind Besichtigungen wie Blind Dates? Man hofft auf Chemie und findet Schimmel.',
-  '„Individueller Schnitt" heißt: Kein Möbelstück passt an die Wand.',
-  'Warum feiert der Aufzug nie? Er hat einfach zu viele Höhen und Tiefen.',
-  '„Ruhige Seitenstraße" – bis die Müllabfuhr um sechs Uhr kommt.',
-  'Was ist der Lieblingstanz eines Maklers? Der Preis-Walzer: zwei Schritte hoch, keiner zurück.',
-  'Warum wohnt der Pessimist im obersten Stock? Damit er weiß, wie weit es nach unten geht.',
-  '„Große Fensterfronten" bedeutet: Kaufen Sie schon mal Vorhänge auf Vorrat.',
-  'Der Makler verspricht „viel Stauraum". Gemeint ist der Platz unter dem Bett.',
-  'Warum ist die Kaution wie ein Zaubertrick? Sie verschwindet und taucht nie wieder ganz auf.',
-  '„Zentral und trotzdem grün" – es steht eine Topfpflanze im Treppenhaus.',
-  'Warum hatte das Reihenhaus keine Geheimnisse? Die Wände waren einfach zu dünn.',
-  '„Souterrain-Wohnung" – Sie wohnen dort, wo andere ihr Fahrrad abstellen.',
-  'Was sagt der Makler beim Erdbeben? „Fühlen Sie, wie lebendig die Lage ist!"',
-  'Warum ging der Türgriff zur Therapie? Er fühlte sich ständig benutzt.',
-  '„Frisch gestrichen" – bitte lehnen Sie sich nirgends an.',
-  'Warum liebt der Makler Nebel? Dann sieht man den Zustand des Dachs nicht.',
-  '„Wohnung mit Geschichte" heißt: Die Leitungen erzählen Ihnen bald ihre eigene.',
-  'Was ist ein Quadratmeter in der Großstadt? Ein kleines Vermögen mit Bodenbelag.',
-  'Warum wurde der Grundriss ausgezeichnet? Er war einfach gut aufgestellt.',
-  '„Abstellkammer" ist der schönere Name für „Zimmer, das kein Fenster gefunden hat".',
-  'Warum ist der Vermieter ein guter Gärtner? Er lässt die Mieten prächtig wachsen.',
-  '„Bad mit Wanne" – die Wanne sehen Sie, wenn Sie sich sehr klein machen.',
-  'Der Makler sagt: „Hier können Sie sich entfalten." In der Diele. Im Stehen.',
-  'Warum hat der Fahrstuhl immer recht? Er lässt sich auf kein Niveau herab, das ihm nicht passt.',
-  '„Ökologisch gebaut" heißt: Wir haben das Dämmen vergessen, nennen es aber atmungsaktiv.',
-  'Warum war das Dachfenster so beliebt? Es hatte den Durchblick nach oben.',
-  '„Ruhige Mieter im Haus" – sie sind alle schon ausgezogen.',
-  'Was macht ein Makler beim Zahnarzt? Er lobt die „gemütliche Praxisgröße".',
-  'Warum ist ein Neubau wie ein Smartphone? Kaum bezogen, ist das nächste Modell schon teurer.',
-  '„Charmante Dachschräge" – Ihr Kopf lernt schnell, sich zu ducken.',
-  'Warum hat der Keller nie Langeweile? Da unten ist immer etwas am Gären.',
-  '„Familienfreundlich" bedeutet: Die Nachbarn haben lautere Kinder als Sie.',
-  'Der Mieter fragt: „Ist Heizung inklusive?" Makler: „Die Vorfreude auf jeden Fall."',
-  'Warum liebt der Vermieter Mathematik? Wegen der schönen Prozentrechnung bei der Mieterhöhung.',
-  '„Guter Zustand" – für ein Haus, das schon einiges gesehen hat.',
-  'Warum ging die Wohnung zum Friseur? Sie brauchte dringend einen frischen Schnitt.',
-  '„Nähe zum Park" – der Parkplatz zählt doch auch als Park, oder?',
-  'Was ist der Traum jedes Maklers? Eine Wohnung, die sich selbst besichtigt.',
-  'Warum ist die Türklingel so gesellig? Sie geht auf jeden Besuch sofort ein.',
-  '„Voll möbliert" – mit einem Stuhl und ganz viel Fantasie.',
-  'Warum hat der Dachboden Höhenangst? Er weiß, wie tief unten der Keller liegt.',
-  '„Ruhiges Wohnen im Grünen" – bis der Rasenmäher des Nachbarn erwacht.',
-  'Der Makler zeigt auf einen Fleck: „Das ist Patina." Der Mieter sieht: Schimmel.',
-  'Warum sind Immobilienpreise wie Luftballons? Ein kleiner Pieks, und alle bekommen Panik.',
-  '„Sanierungsbedürftig" ist Maklerdeutsch für „bringen Sie ein Vermögen mit".',
-  'Warum wohnt das Komma so gern in Maklerpreisen? Weil danach immer viele Nullen kommen.',
-  '„Effizienter Grundriss" heißt: Vom Herd aus erreichen Sie auch das Bett.',
-  'Warum ist der Fensterputzer immer gut gelaunt? Er sieht alles im besten Licht.',
-  '„Interessante Raumaufteilung" – niemand weiß, wo das Wohnzimmer anfängt.',
-  'Warum machte der Balkon Urlaub? Er wollte auch mal so richtig freihängen.',
-  '„Zentrale Innenstadtlage" – Sie hören jede Straßenbahn ganz persönlich.',
-  'Warum verkaufte der Makler seinen Kompass? Bei ihm war jede Richtung „die Sonnenseite".',
-  '„Ihr neues Zuhause wartet auf Sie" – und die Miete wartet gleich mit.',
-];
-function dayOfYear(d){const s=new Date(d.getFullYear(),0,0);return Math.floor((d-s)/86400000);}
-function jokeIndexToday(){return dayOfYear(new Date())%WITZE.length;}
-function jokeOfTheDay(){return WITZE[jokeIndexToday()];}
-let witzIdx=0;
-function renderWitz(){
-  document.getElementById('witzText').textContent=WITZE[witzIdx];
-  document.getElementById('witzDate').textContent=new Date().toLocaleDateString('de-DE',{weekday:'long',day:'2-digit',month:'long',year:'numeric'});
-  document.getElementById('witzCount').textContent='Immobilienwitz Nr. '+(witzIdx+1)+' von '+WITZE.length;
-}
-function todayWitz(){witzIdx=jokeIndexToday();renderWitz();}
-function nextWitz(){witzIdx=(witzIdx+1)%WITZE.length;renderWitz();}
-function switchTab(t){
-  const a=document.getElementById('assistView'),w=document.getElementById('witzView');
-  document.querySelectorAll('.tab').forEach(b=>b.classList.toggle('active',b.dataset.tab===t));
-  if(t==='witz'){a.classList.add('hidden');w.classList.remove('hidden');}
-  else{w.classList.add('hidden');a.classList.remove('hidden');}
+  },400+Math.random()*300);
 }
 
 /* ---------- Init ---------- */
-todayWitz();
-renderChips();
-if(history.length){
-  history.forEach(m=>addMsg(m.r,m.t,false));
-}else{
-  addMsg('bot','Hallo! 👋 Ich bin der interne Assistent der Testfirma GmbH. Ich helfe dir bei IT, Personal, Finanzen und Organisation. Wähle unten einen Bereich oder stell direkt deine Frage.');
-}
+if(history.length){history.forEach(m=>addMsg(m.r,m.t,false));}
+else{addMsg('bot',GREETING);}
 </script>
 </body>
 </html>
