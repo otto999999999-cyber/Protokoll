@@ -57,7 +57,27 @@ header .status .dot{width:7px;height:7px;border-radius:50%;background:#4ade80;di
   .inputbar textarea{color:#e6edf3}
   .chip{color:#cfe0ee}
   .fb-btn{color:#e6edf3}
+  .witz-text{color:#e6edf3}
+  .witz-card{box-shadow:0 2px 12px rgba(0,0,0,.45)}
 }
+.tabs{display:flex;background:var(--blue);border-top:1px solid rgba(255,255,255,.15);flex-shrink:0}
+.tab{flex:1;padding:11px 8px;background:none;border:none;color:rgba(255,255,255,.72);font-size:13px;font-weight:700;cursor:pointer;border-bottom:3px solid transparent}
+.tab.active{color:#fff;border-bottom-color:#5bb3f0}
+.tab:active{opacity:.8}
+.view{flex:1;min-height:0;display:flex;flex-direction:column}
+.view.hidden{display:none}
+.chip.cat{background:var(--blue);color:#fff;border-color:var(--blue)}
+.chip.back{background:var(--field);color:var(--gray)}
+.witz-wrap{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:20px 16px calc(20px + env(safe-area-inset-bottom,0px));display:flex;flex-direction:column;align-items:center;gap:16px}
+.witz-card{background:var(--white);border:1px solid var(--border);border-radius:16px;padding:24px 20px;width:100%;max-width:520px;box-shadow:0 2px 12px rgba(26,92,143,.08);margin-top:auto}
+.witz-label{font-size:13px;font-weight:800;color:var(--blue);text-transform:uppercase;letter-spacing:.6px;text-align:center}
+.witz-date{font-size:12px;color:var(--gray);text-align:center;margin-top:3px;margin-bottom:16px}
+.witz-text{font-size:18px;line-height:1.55;color:#111;text-align:center;white-space:pre-wrap;min-height:70px;display:flex;align-items:center;justify-content:center}
+.witz-count{font-size:11px;color:var(--gray);text-align:center;margin-top:16px}
+.witz-actions{width:100%;max-width:520px;display:flex;flex-direction:column;gap:10px;margin-bottom:auto}
+.witz-btn{width:100%;padding:14px;border:none;border-radius:12px;background:var(--blue);color:#fff;font-size:15px;font-weight:700;cursor:pointer}
+.witz-btn:active{opacity:.8}
+.witz-btn.secondary{background:var(--field);color:var(--blue);border:1.5px solid var(--blue)}
 </style>
 </head>
 <body>
@@ -70,11 +90,31 @@ header .status .dot{width:7px;height:7px;border-radius:50%;background:#4ade80;di
     </div>
     <button class="hdr-btn" id="resetBtn" onclick="resetChat()" aria-label="Gespräch neu starten" title="Gespräch neu starten">↺</button>
   </header>
-  <div id="chat" role="log" aria-live="polite" aria-atomic="false" aria-label="Chatverlauf"></div>
-  <div class="chips" id="chips" role="group" aria-label="Themenvorschläge"></div>
-  <div class="inputbar">
-    <textarea id="ta" rows="1" placeholder="Frage eingeben…" aria-label="Frage eingeben" onkeydown="onKey(event)" oninput="autoGrow(this)"></textarea>
-    <button class="sendbtn" id="sendBtn" onclick="sendMsg()" aria-label="Nachricht senden">➤</button>
+  <div class="tabs" id="tabs">
+    <button class="tab active" data-tab="assist" type="button" onclick="switchTab('assist')">💬 Assistent</button>
+    <button class="tab" data-tab="witz" type="button" onclick="switchTab('witz')">🎭 Witz des Tages</button>
+  </div>
+  <div id="assistView" class="view">
+    <div id="chat" role="log" aria-live="polite" aria-atomic="false" aria-label="Chatverlauf"></div>
+    <div class="chips" id="chips" role="group" aria-label="Themenvorschläge"></div>
+    <div class="inputbar">
+      <textarea id="ta" rows="1" placeholder="Frage eingeben…" aria-label="Frage eingeben" onkeydown="onKey(event)" oninput="autoGrow(this)"></textarea>
+      <button class="sendbtn" id="sendBtn" onclick="sendMsg()" aria-label="Nachricht senden">➤</button>
+    </div>
+  </div>
+  <div id="witzView" class="view hidden">
+    <div class="witz-wrap">
+      <div class="witz-card">
+        <div class="witz-label">🎭 Witz des Tages</div>
+        <div class="witz-date" id="witzDate"></div>
+        <div class="witz-text" id="witzText"></div>
+        <div class="witz-count" id="witzCount"></div>
+      </div>
+      <div class="witz-actions">
+        <button class="witz-btn" type="button" onclick="nextWitz()">😄 Nächster Witz</button>
+        <button class="witz-btn secondary" type="button" onclick="todayWitz()">📅 Zurück zum Tageswitz</button>
+      </div>
+    </div>
   </div>
 </div>
 <script>
@@ -85,7 +125,7 @@ const FILEHINT='\n\n📁 Datei/Details: '+REF;
 /* ---------- Wissensbasis: Abläufe der Wohnraumverwaltung ---------- */
 const FAQ=[
   {q:'Begrüßung',cat:'sys',kw:['hallo','hi','hey','moin','guten tag','servus'],
-   a:'Hallo! 👋 Ich bin der Ablauf-Assistent der Wohnraumverwaltung. Ich erkläre die Abläufe zu Abnahme, Kautionskonto und Kautionsauflösung.\n\nWähle unten ein Thema oder stell direkt deine Frage. Die vollständigen Checklisten liegen unter:\n📁 '+REF},
+   a:'Hallo! 👋 Ich bin der Ablauf-Assistent der Wohnraumverwaltung – von Neuvermietung über Abnahme und Kaution bis Forderungen & Recht.\n\nWähle unten eine Kategorie oder stell direkt deine Frage. Die vollständigen Checklisten liegen unter:\n📁 '+REF},
   {q:'Was kann der Assistent?',cat:'sys',kw:['was kannst du','was kann der assistent','hilfe','wobei hilfst du','themen','übersicht','welche abläufe'],
    a:'Ich erkläre folgende Abläufe der Verwaltung:\n• Mietvertrag versenden\n• Kündigungsbestätigung\n• Abnahme (Rückgabe der Wohnung)\n• Abnahmeprotokoll vorbereiten\n• Kautionskonto anlegen + Referenznummer\n• Kaution auflösen (Teil-/Gesamtauflösung)\n• Sicherheitseinbehalt (SE) bestimmen\n• Vertragsaktivierung\n• MV/NT-Pflege nach Gegenzeichnung\n• Renovierungsaufforderung (ReNo)\n• Kostenschätzung\n• Arbeitsmappen (Mappenfarben)\n• Aufhebungsvereinbarungen\n• Buchung von Titeln (Forderungen gegen uns)\n• Hinweise für Abnahmen\n• Mietvertragsbearbeitung (ohne BauO)\n• Mahnlisten-Abkürzungen\n• Indexpflege & Lastschrift-Sperren\n\nDie zugehörigen Dateien findest du im Netzlaufwerk:\n📁 '+REF},
   {q:'Wo finde ich die Dateien?',cat:'ref',kw:['datei','dateien','pfad','ablage','wo finde ich','laufwerk','ordner','unterlagen','vorlage','checkliste datei'],
@@ -213,12 +253,29 @@ function addSuggestions(intro,faqs){
   faqs.forEach(f=>{const b=document.createElement('button');b.className='sugg-btn';b.type='button';b.textContent=f.q;b.onclick=()=>{ta.value=f.q;sendMsg();};row.appendChild(b);});
   chatEl.appendChild(row);chatEl.scrollTop=chatEl.scrollHeight;
 }
-const CHIP_TOPICS=['Mietvertrag versenden','Kündigungsbestätigung','Vertragsaktivierung','MV/NT-Pflege nach Gegenzeichnung','Abnahme (Rückgabe)','Abnahmeprotokoll vorbereiten','Kautionskonto anlegen + Referenznummer','Kaution auflösen (Teil-/Gesamt)','Sicherheitseinbehalt (SE) bestimmen','Renovierungsaufforderung (ReNo)','Kostenschätzung','Arbeitsmappen (Mappenfarben)','Aufhebungsvereinbarungen','Buchung von Titeln (Forderungen gegen uns)','Hinweise für Abnahmen','Mietvertragsbearbeitung (ohne BauO)','Mahnlisten-Abkürzungen','Indexpflege & Lastschrift-Sperren','Wo finde ich die Dateien?'];
-function mkChip(label,fn){const c=document.createElement('button');c.type='button';c.className='chip';c.textContent=label;c.onclick=fn;chipsEl.appendChild(c);}
-function renderChips(){chipsEl.innerHTML='';CHIP_TOPICS.forEach(q=>mkChip(q,()=>{ta.value=q;sendMsg();}));}
+const CATS=[
+  {key:'neu', label:'Neuvermietung & Vertrag', emoji:'📄', topics:['Mietvertrag versenden','Mietvertragsbearbeitung (ohne BauO)','Vertragsaktivierung','MV/NT-Pflege nach Gegenzeichnung']},
+  {key:'abn', label:'Kündigung & Abnahme', emoji:'📋', topics:['Kündigungsbestätigung','Abnahmeprotokoll vorbereiten','Abnahme (Rückgabe)','Hinweise für Abnahmen','Aufhebungsvereinbarungen']},
+  {key:'kau', label:'Kaution', emoji:'💰', topics:['Kautionskonto anlegen + Referenznummer','Kaution auflösen (Teil-/Gesamt)','Sicherheitseinbehalt (SE) bestimmen']},
+  {key:'reno',label:'Nach Auszug / Instandsetzung', emoji:'🛠️', topics:['Renovierungsaufforderung (ReNo)','Kostenschätzung']},
+  {key:'recht',label:'Forderungen & Recht', emoji:'⚖️', topics:['Buchung von Titeln (Forderungen gegen uns)','Mahnlisten-Abkürzungen']},
+  {key:'orga',label:'Organisation & Ablage', emoji:'🗂️', topics:['Arbeitsmappen (Mappenfarben)','Indexpflege & Lastschrift-Sperren','Wo finde ich die Dateien?']}
+];
+let chipMode='cats';
+function mkChip(label,cls,fn){const c=document.createElement('button');c.type='button';c.className='chip'+(cls?' '+cls:'');c.textContent=label;c.onclick=fn;chipsEl.appendChild(c);}
+function renderChips(){
+  chipsEl.innerHTML='';
+  if(chipMode==='cats'){
+    CATS.forEach(cat=>mkChip(cat.emoji+' '+cat.label,'cat',()=>{chipMode=cat.key;addMsg('bot','Themen zu „'+cat.label+'" – wähle eins aus oder stell direkt deine Frage:');renderChips();}));
+  }else{
+    mkChip('← Kategorien','back',()=>{chipMode='cats';renderChips();});
+    const cat=CATS.find(c=>c.key===chipMode);
+    if(cat)cat.topics.forEach(q=>mkChip(q,'',()=>{ta.value=q;sendMsg();}));
+  }
+}
 function autoGrow(el){el.style.height='auto';el.style.height=Math.min(el.scrollHeight,100)+'px';}
 function onKey(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendMsg();}}
-function resetChat(){history=[];saveHistory();chatEl.innerHTML='';renderChips();addMsg('bot',FAQ[0].a);}
+function resetChat(){history=[];saveHistory();chatEl.innerHTML='';chipMode='cats';renderChips();addMsg('bot',FAQ[0].a);}
 
 function sendMsg(){
   const text=ta.value.trim();
@@ -228,6 +285,11 @@ function sendMsg(){
   sendBtn.disabled=true;showTyping();
   setTimeout(()=>{
     hideTyping();
+    const nt=normalize(text);
+    if(nt.includes('witz')||nt.includes('joke')||nt.includes('lach')){
+      addMsg('bot','😄 '+jokeOfTheDay()+'\n\nMehr davon findest du oben im Reiter „Witz des Tages".');
+      sendBtn.disabled=false;return;
+    }
     const ranked=rankMatches(text);
     const best=ranked[0];
     const clearLeader=best.score>=2||(best.score>=1&&(!ranked[1]||best.score>ranked[1].score));
@@ -243,8 +305,131 @@ function sendMsg(){
   },450+Math.random()*350);
 }
 
+const WITZE=[
+  '„Diese Wohnung hat viel Potenzial", sagt der Makler. Übersetzung: Sie dürfen alles selbst machen.',
+  'Warum nahm der Makler eine Leiter mit zur Besichtigung? Er wollte die Preise hochtreiben.',
+  'Was ist ein Immobilienmakler ohne Handy? Ein Mensch mit überraschend viel Freizeit.',
+  'Warum wohnt der Optimist im Keller? Weil es von dort nur nach oben gehen kann.',
+  '„Ruhige Lage", sagte der Makler – und verschwieg den Friedhof nebenan.',
+  'Warum ist Miete wie ein Bumerang? Am Monatsende kommt sie zuverlässig zurück.',
+  'Der Makler zum kleinen Zimmer: „Gemütlich!" Gemeint ist: Hier passt kein Bett rein.',
+  'Warum bringt der Vermieter nie schlechte Laune mit? Die zieht bei diesen Mieten von allein ein.',
+  '„Charmanter Altbau" heißt übersetzt: Die Heizung stammt aus dem letzten Jahrhundert.',
+  'Warum lieben Makler Treppen? Weil jede Stufe den Quadratmeterpreis erhöht.',
+  'Was ist der Unterschied zwischen einem Makler und einem Wecker? Der Wecker klingelt nur morgens.',
+  '„Ideal für Handwerker" bedeutet: Bringen Sie Werkzeug mit. Viel Werkzeug.',
+  'Der Makler sagt: „Das Bad ist ein Traum." Er meint: Sie müssen davon träumen, so klein ist es.',
+  'Warum zog der Geist nie aus seinem Haus aus? Er hatte einen unbefristeten Mietvertrag.',
+  '„Provisionsfrei" ist das schönste Wort der deutschen Sprache – zumindest für den Mieter.',
+  'Was macht ein Vermieter im Urlaub? Er sucht Orte mit Nebenkostenpotenzial.',
+  'Warum hat das Haus geweint? Es hatte feuchte Wände.',
+  '„Kompakte Küche" heißt: Kühlschrank auf – und Sie stehen schon im Wohnzimmer.',
+  'Der Makler zeigt eine Wohnung ohne Fenster: „Dafür sparen Sie sich das Putzen."',
+  'Warum ist Wohnungssuche wie Online-Dating? Alle Fotos sind bearbeitet.',
+  '„Bezugsfertig" – die einzige Angabe, der man vor Ort nie trauen sollte.',
+  'Was trinkt ein Immobilienmakler? Grundstückssaft mit einem Schuss Provision.',
+  'Warum verkaufte der Makler das Iglu so schnell? Es war ein echt cooles Objekt.',
+  '„Gute Anbindung" bedeutet: Die Autobahn verläuft direkt durchs Schlafzimmer.',
+  'Warum liebt der Vermieter den Winter? Nebenkostenabrechnungs-Saison.',
+  'Der Mieter fragt: „Ist die Wohnung hellhörig?" Der Nachbar antwortet: „Ja!"',
+  '„Loft-Charakter" heißt: Es gibt keine Wände – und das ist Absicht.',
+  'Warum ging der Bauunternehmer nie pleite? Er hatte immer einen soliden Grundstock.',
+  'Was ist das Lieblingsspiel von Maklern? Monopoly – aber sie spielen es ernst.',
+  '„Viel Tageslicht" gilt nur, wenn Sie tagsüber nie zu Hause sind.',
+  'Warum machte der Schornstein Karriere? Er hatte einfach den richtigen Zug.',
+  '„Gepflegte Nachbarschaft" bedeutet: Ihre Gardinen werden genau begutachtet.',
+  'Der Makler sagt: „Das renoviert sich fast von allein." Es hat sich noch nie etwas von allein renoviert.',
+  'Warum wohnt die Zahl Eins gern im Erdgeschoss? Sie spart sich den Fahrstuhl.',
+  '„Ausbaupotenzial im Dach" heißt: Ziehen Sie den Kopf ein.',
+  'Was sagt ein Balkon zum anderen? „Wir hängen echt oft zusammen rum."',
+  'Warum sind Grundrisse ehrlicher als Makler? Sie haben nichts zu verkaufen, nur zu zeigen.',
+  '„Nur 15 Minuten zum Zentrum" – mit dem Hubschrauber vielleicht.',
+  'Warum lächelt der Vermieter beim Auszug? Er denkt schon an die Kaution.',
+  '„Gartenmitbenutzung" bedeutet: Sie dürfen zuschauen, wie andere grillen.',
+  'Der Makler und die Wahrheit trafen sich einmal – rein zufällig.',
+  'Warum ist ein Fundament nie beleidigt? Es lässt einfach nichts an sich heran.',
+  '„Schöner Ausblick" – auf die Wand des Nachbarhauses.',
+  'Was ist ein Penthouse? Ein Dachboden mit besserer PR.',
+  'Warum bekam die Tür den Job? Sie hatte die besten Angeln.',
+  '„Modernisiert 1998" – also modern, für die Verhältnisse von 1998.',
+  'Der Mieter fragt nach dem Keller. Makler: „Der ist tief… im Angebot enthalten."',
+  'Warum sind Besichtigungen wie Blind Dates? Man hofft auf Chemie und findet Schimmel.',
+  '„Individueller Schnitt" heißt: Kein Möbelstück passt an die Wand.',
+  'Warum feiert der Aufzug nie? Er hat einfach zu viele Höhen und Tiefen.',
+  '„Ruhige Seitenstraße" – bis die Müllabfuhr um sechs Uhr kommt.',
+  'Was ist der Lieblingstanz eines Maklers? Der Preis-Walzer: zwei Schritte hoch, keiner zurück.',
+  'Warum wohnt der Pessimist im obersten Stock? Damit er weiß, wie weit es nach unten geht.',
+  '„Große Fensterfronten" bedeutet: Kaufen Sie schon mal Vorhänge auf Vorrat.',
+  'Der Makler verspricht „viel Stauraum". Gemeint ist der Platz unter dem Bett.',
+  'Warum ist die Kaution wie ein Zaubertrick? Sie verschwindet und taucht nie wieder ganz auf.',
+  '„Zentral und trotzdem grün" – es steht eine Topfpflanze im Treppenhaus.',
+  'Warum hatte das Reihenhaus keine Geheimnisse? Die Wände waren einfach zu dünn.',
+  '„Souterrain-Wohnung" – Sie wohnen dort, wo andere ihr Fahrrad abstellen.',
+  'Was sagt der Makler beim Erdbeben? „Fühlen Sie, wie lebendig die Lage ist!"',
+  'Warum ging der Türgriff zur Therapie? Er fühlte sich ständig benutzt.',
+  '„Frisch gestrichen" – bitte lehnen Sie sich nirgends an.',
+  'Warum liebt der Makler Nebel? Dann sieht man den Zustand des Dachs nicht.',
+  '„Wohnung mit Geschichte" heißt: Die Leitungen erzählen Ihnen bald ihre eigene.',
+  'Was ist ein Quadratmeter in der Großstadt? Ein kleines Vermögen mit Bodenbelag.',
+  'Warum wurde der Grundriss ausgezeichnet? Er war einfach gut aufgestellt.',
+  '„Abstellkammer" ist der schönere Name für „Zimmer, das kein Fenster gefunden hat".',
+  'Warum ist der Vermieter ein guter Gärtner? Er lässt die Mieten prächtig wachsen.',
+  '„Bad mit Wanne" – die Wanne sehen Sie, wenn Sie sich sehr klein machen.',
+  'Der Makler sagt: „Hier können Sie sich entfalten." In der Diele. Im Stehen.',
+  'Warum hat der Fahrstuhl immer recht? Er lässt sich auf kein Niveau herab, das ihm nicht passt.',
+  '„Ökologisch gebaut" heißt: Wir haben das Dämmen vergessen, nennen es aber atmungsaktiv.',
+  'Warum war das Dachfenster so beliebt? Es hatte den Durchblick nach oben.',
+  '„Ruhige Mieter im Haus" – sie sind alle schon ausgezogen.',
+  'Was macht ein Makler beim Zahnarzt? Er lobt die „gemütliche Praxisgröße".',
+  'Warum ist ein Neubau wie ein Smartphone? Kaum bezogen, ist das nächste Modell schon teurer.',
+  '„Charmante Dachschräge" – Ihr Kopf lernt schnell, sich zu ducken.',
+  'Warum hat der Keller nie Langeweile? Da unten ist immer etwas am Gären.',
+  '„Familienfreundlich" bedeutet: Die Nachbarn haben lautere Kinder als Sie.',
+  'Der Mieter fragt: „Ist Heizung inklusive?" Makler: „Die Vorfreude auf jeden Fall."',
+  'Warum liebt der Vermieter Mathematik? Wegen der schönen Prozentrechnung bei der Mieterhöhung.',
+  '„Guter Zustand" – für ein Haus, das schon einiges gesehen hat.',
+  'Warum ging die Wohnung zum Friseur? Sie brauchte dringend einen frischen Schnitt.',
+  '„Nähe zum Park" – der Parkplatz zählt doch auch als Park, oder?',
+  'Was ist der Traum jedes Maklers? Eine Wohnung, die sich selbst besichtigt.',
+  'Warum ist die Türklingel so gesellig? Sie geht auf jeden Besuch sofort ein.',
+  '„Voll möbliert" – mit einem Stuhl und ganz viel Fantasie.',
+  'Warum hat der Dachboden Höhenangst? Er weiß, wie tief unten der Keller liegt.',
+  '„Ruhiges Wohnen im Grünen" – bis der Rasenmäher des Nachbarn erwacht.',
+  'Der Makler zeigt auf einen Fleck: „Das ist Patina." Der Mieter sieht: Schimmel.',
+  'Warum sind Immobilienpreise wie Luftballons? Ein kleiner Pieks, und alle bekommen Panik.',
+  '„Sanierungsbedürftig" ist Maklerdeutsch für „bringen Sie ein Vermögen mit".',
+  'Warum wohnt das Komma so gern in Maklerpreisen? Weil danach immer viele Nullen kommen.',
+  '„Effizienter Grundriss" heißt: Vom Herd aus erreichen Sie auch das Bett.',
+  'Warum ist der Fensterputzer immer gut gelaunt? Er sieht alles im besten Licht.',
+  '„Interessante Raumaufteilung" – niemand weiß, wo das Wohnzimmer anfängt.',
+  'Warum machte der Balkon Urlaub? Er wollte auch mal so richtig freihängen.',
+  '„Zentrale Innenstadtlage" – Sie hören jede Straßenbahn ganz persönlich.',
+  'Warum verkaufte der Makler seinen Kompass? Bei ihm war jede Richtung „die Sonnenseite".',
+  '„Ihr neues Zuhause wartet auf Sie" – und die Miete wartet gleich mit.',
+];
+
+/* ---------- Witz des Tages ---------- */
+function dayOfYear(d){const s=new Date(d.getFullYear(),0,0);return Math.floor((d-s)/86400000);}
+function jokeIndexToday(){return dayOfYear(new Date())%WITZE.length;}
+function jokeOfTheDay(){return WITZE[jokeIndexToday()];}
+let witzIdx=0;
+function renderWitz(){
+  document.getElementById('witzText').textContent=WITZE[witzIdx];
+  document.getElementById('witzDate').textContent=new Date().toLocaleDateString('de-DE',{weekday:'long',day:'2-digit',month:'long',year:'numeric'});
+  document.getElementById('witzCount').textContent='Immobilienwitz Nr. '+(witzIdx+1)+' von '+WITZE.length;
+}
+function todayWitz(){witzIdx=jokeIndexToday();renderWitz();}
+function nextWitz(){witzIdx=(witzIdx+1)%WITZE.length;renderWitz();}
+function switchTab(t){
+  const a=document.getElementById('assistView'),w=document.getElementById('witzView');
+  document.querySelectorAll('.tab').forEach(b=>b.classList.toggle('active',b.dataset.tab===t));
+  if(t==='witz'){a.classList.add('hidden');w.classList.remove('hidden');}
+  else{w.classList.add('hidden');a.classList.remove('hidden');}
+}
+
 /* ---------- Init ---------- */
 renderChips();
+todayWitz();
 if(history.length){history.forEach(m=>addMsg(m.r,m.t,false));}
 else{addMsg('bot',FAQ[0].a);}
 </script>
