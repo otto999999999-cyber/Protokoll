@@ -7,12 +7,12 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="theme-color" content="#1a5c8f">
-<title>Chatbot</title>
+<title>Ablauf-Assistent – Wohnraumverwaltung</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 html{height:100%;overflow:hidden}
 body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#f0f4f8;color:#111;font-size:16px;height:100%;overflow:hidden;position:fixed;width:100%}
-:root{--blue:#1a5c8f;--blue-mid:#2e7ab5;--blue-light:#e8f1f8;--border:#c8d6e0;--white:#fff;--field:#f2f3f5;--gray:#6b7c8d}
+:root{--blue:#1a5c8f;--blue-mid:#2e7ab5;--blue-light:#e8f1f8;--border:#c8d6e0;--white:#fff;--green:#1a7a42;--field:#f2f3f5;--gray:#6b7c8d}
 #shell{display:flex;flex-direction:column;height:100vh;height:100dvh}
 header{background:var(--blue);color:#fff;padding:env(safe-area-inset-top,12px) 16px 12px;display:flex;align-items:center;gap:10px;flex-shrink:0;min-height:56px}
 header .avatar{width:34px;height:34px;border-radius:50%;background:#fff;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
@@ -23,7 +23,7 @@ header .status .dot{width:7px;height:7px;border-radius:50%;background:#4ade80;di
 .hdr-btn{background:rgba(255,255,255,.15);border:none;color:#fff;width:34px;height:34px;border-radius:50%;font-size:18px;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center}
 .hdr-btn:active{opacity:.7}
 #chat{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;padding:14px 12px 10px;display:flex;flex-direction:column;gap:10px}
-.msg{max-width:82%;padding:10px 13px;border-radius:16px;font-size:14.5px;line-height:1.45;white-space:pre-wrap;word-break:break-word}
+.msg{max-width:88%;padding:10px 13px;border-radius:16px;font-size:14.5px;line-height:1.45;white-space:pre-wrap;word-break:break-word}
 .msg.bot{align-self:flex-start;background:var(--white);border:1px solid var(--border);border-bottom-left-radius:4px;color:#111}
 .msg.user{align-self:flex-end;background:var(--blue);color:#fff;border-bottom-right-radius:4px}
 .msg-time{font-size:10px;color:var(--gray);margin-top:2px;padding:0 4px}
@@ -32,6 +32,17 @@ header .status .dot{width:7px;height:7px;border-radius:50%;background:#4ade80;di
 .typing span:nth-child(2){animation-delay:.2s}
 .typing span:nth-child(3){animation-delay:.4s}
 @keyframes blink{0%,60%,100%{opacity:.3}30%{opacity:1}}
+.chips{display:flex;flex-wrap:wrap;gap:7px;padding:2px 12px 10px;flex-shrink:0;max-height:150px;overflow-y:auto}
+.chip{background:var(--blue-light);color:var(--blue);border:1.5px solid var(--border);border-radius:20px;padding:8px 13px;font-size:12.5px;font-weight:600;cursor:pointer;white-space:nowrap}
+.chip:active{opacity:.7}
+.fb-row{align-self:flex-start;display:flex;align-items:center;gap:8px;margin:-4px 0 2px 4px}
+.fb-q{font-size:11px;color:var(--gray)}
+.fb-btn{background:var(--field);border:1px solid var(--border);border-radius:14px;width:32px;height:28px;font-size:14px;cursor:pointer;color:inherit}
+.fb-btn:active{opacity:.7}
+.fb-done{align-self:flex-start;font-size:11px;color:var(--green);margin:-4px 0 2px 4px;font-weight:600}
+.sugg-row{align-self:flex-start;display:flex;flex-direction:column;gap:6px;margin:2px 0;max-width:88%}
+.sugg-btn{text-align:left;background:var(--blue-light);color:var(--blue);border:1.5px solid var(--border);border-radius:12px;padding:9px 13px;font-size:13.5px;font-weight:600;cursor:pointer}
+.sugg-btn:active{opacity:.7}
 .inputbar{background:var(--white);border-top:1px solid var(--border);padding:10px 10px calc(10px + env(safe-area-inset-bottom,0px));display:flex;gap:8px;align-items:flex-end;flex-shrink:0}
 .inputbar textarea{flex:1;border:1.5px solid var(--border);border-radius:20px;padding:11px 16px;font-size:15px;background:var(--field);color:#111;outline:none;resize:none;max-height:100px;font-family:inherit;line-height:1.3}
 .inputbar textarea:focus{border-color:var(--blue-mid);background:#fff}
@@ -44,62 +55,128 @@ header .status .dot{width:7px;height:7px;border-radius:50%;background:#4ade80;di
   body{background:#0f1720;color:#e6edf3}
   .msg.bot{color:#e6edf3}
   .inputbar textarea{color:#e6edf3}
+  .chip{color:#cfe0ee}
+  .fb-btn{color:#e6edf3}
 }
 </style>
 </head>
 <body>
 <div id="shell">
   <header>
-    <div class="avatar">💬</div>
+    <div class="avatar">🗂️</div>
     <div class="htxt">
-      <h1>Chatbot</h1>
-      <div class="status"><span class="dot"></span>Bereit</div>
+      <h1>Ablauf-Assistent</h1>
+      <div class="status"><span class="dot"></span>Wohnraumverwaltung</div>
     </div>
     <button class="hdr-btn" id="resetBtn" onclick="resetChat()" aria-label="Gespräch neu starten" title="Gespräch neu starten">↺</button>
   </header>
   <div id="chat" role="log" aria-live="polite" aria-atomic="false" aria-label="Chatverlauf"></div>
+  <div class="chips" id="chips" role="group" aria-label="Themenvorschläge"></div>
   <div class="inputbar">
-    <textarea id="ta" rows="1" placeholder="Nachricht eingeben…" aria-label="Nachricht eingeben" onkeydown="onKey(event)" oninput="autoGrow(this)"></textarea>
+    <textarea id="ta" rows="1" placeholder="Frage eingeben…" aria-label="Frage eingeben" onkeydown="onKey(event)" oninput="autoGrow(this)"></textarea>
     <button class="sendbtn" id="sendBtn" onclick="sendMsg()" aria-label="Nachricht senden">➤</button>
   </div>
 </div>
 <script>
-/* ---------- Wissensbasis: leer (auf null Inhalt zurückgesetzt) ---------- */
-const FAQ=[];
-const GREETING='Hallo! 👋';
-const EMPTY_REPLY='Es sind aktuell keine Inhalte hinterlegt.';
+/* Zentraler Verweis auf die Ablage der Ablauf-Dokumente */
+const REF='V:\\4_Wohnraumverwaltung\\Verwaltung 2.0\\Abläufe';
+const FILEHINT='\n\n📁 Datei/Details: '+REF;
+
+/* ---------- Wissensbasis: Abläufe der Wohnraumverwaltung ---------- */
+const FAQ=[
+  {q:'Begrüßung',cat:'sys',kw:['hallo','hi','hey','moin','guten tag','servus'],
+   a:'Hallo! 👋 Ich bin der Ablauf-Assistent der Wohnraumverwaltung. Ich erkläre die Abläufe zu Abnahme, Kautionskonto und Kautionsauflösung.\n\nWähle unten ein Thema oder stell direkt deine Frage. Die vollständigen Checklisten liegen unter:\n📁 '+REF},
+  {q:'Was kann der Assistent?',cat:'sys',kw:['was kannst du','was kann der assistent','hilfe','wobei hilfst du','themen','übersicht','welche abläufe'],
+   a:'Ich erkläre folgende Abläufe der Verwaltung:\n• Abnahme (Rückgabe der Wohnung)\n• Kautionskonto anlegen + Referenznummer\n• Kaution auflösen (Teil-/Gesamtauflösung)\n• Sicherheitseinbehalt (SE) bestimmen\n\nDie zugehörigen Dateien findest du im Netzlaufwerk:\n📁 '+REF},
+  {q:'Wo finde ich die Dateien?',cat:'ref',kw:['datei','dateien','pfad','ablage','wo finde ich','laufwerk','ordner','unterlagen','vorlage','checkliste datei'],
+   a:'Die vollständigen Ablauf-Dokumente und Checklisten der Verwaltung liegen im Netzlaufwerk:\n\n📁 '+REF+'\n\nDort findest du u.a. die Checklisten zu Abnahme, Kautionskonto-Anlage und Kautionsauflösung.'},
+
+  {q:'Abnahme (Rückgabe)',cat:'proz',kw:['abnahme','rückgabe','rücknahme','abnahmeprotokoll','wohnung abnehmen','auszug','abnahmetermin'],
+   a:'Ablauf „Abnahme" (Rückgabe der Wohnung):\n\nVorbereitung (Assist):\n• Unterlagen zusammenstellen: Mietvertrag, Sanierungen/Modernisierungen der letzten 5 Jahre, erteilte Genehmigungen, Übergabeprotokoll, Fotos\n• Abnahmeprotokoll fertigen / Zähler klären\n• Bauschließung / Kellerschloss aus der Bauabteilung besorgen\n• ggf. Fahrzeug buchen / Fahrplan / Zeitdauer\n• geprüft (Verw)\n\nAbnahmetag (Verw):\n• Kurze Objektbesichtigung (Eingang, Außenfläche, Klingel, Briefkästen, Aufzug, Treppenhaus)\n• Sichtung der Mieteinheit auf Mängel anhand der Unterlagen\n• Prüfung Technik (DLE, Hebeanlage, Rauchwarnmelder, …)\n• Gängigkeit von Türen, Fenstern, Jalousien prüfen\n• Schlosstausch inkl. Schlüsselprüfung (ACHTUNG: auch Briefkasten!)\n\nNachbearbeitung:\n• Rücknahmeergebnis bekanntgeben an Vertrieb, BeKo (ggf. Müll abmelden), Eigentümer, externe Dienstleister (Verw)\n• Abnahmeprotokoll anhand Checkliste bearbeiten (Assist)\n• Schlüsselaufbewahrung (Assist)\n• geprüft (AbtL)'+FILEHINT},
+
+  {q:'Kautionskonto anlegen + Referenznummer',cat:'proz',kw:['kautionskonto anlegen','referenznummer','kaution anlegen','hausbank','kautionskonto','konto anlegen'],
+   a:'Ablauf „Kautionskonto anlegen + Referenznummer":\n1. Bei der Hausbank München (HBM) anmelden; Startseite → links Reiter „Kautionskonto".\n2. Wirtschaftseinheit + Objekt ausfüllen; über „Papier mit Sternchen" (oben links) Konto anlegen; Eingabe-Assistent: Ja.\n3. Kontoart + Kautionskontonummer unverändert lassen; Mietnummer = Mietvertragsnummer, Verfügungshinweis bleibt offen.\n4. Personendaten pflegen (Anrede, Vor-, Nachname, Geburtsdatum, Adresse); alle Vertragspartner anlegen.\n5. Grundkaution gem. Vertrag; Überzahlung – keine Eintragung; Fälligkeit = Mietbeginn; Ratenzahlung nur bei Wohnungen; Bankverbindung – keine Eintragung.\n6. Daten prüfen → Enter → Kautionsnummer generieren; Dokumentendruck (Überweisungsdaten).\n7. In SAP unter Referenznummer hinterlegen; Sicherheitseinbehaltsabrechnung; Ablage Mieterakte.'+FILEHINT},
+
+  {q:'Kaution auflösen (Teil-/Gesamt)',cat:'proz',kw:['kaution auflösen','kautionsauflösung','teilauflösung','gesamtauflösung','kaution auszahlen','auszahlung kaution','kaution abrechnen','auflösen','auflösung','auszahlung','lösen','löse','zurückzahlen'],
+   a:'Ablauf „Kaution auflösen":\n\nTeilauflösung (Wohnung):\n1. In SAP Mieter aufrufen; prüfen, ob Reno geleistet; HKA/BKA auf Guthaben/Nachforderung prüfen → Sicherheitseinbehalt (SE) festlegen.\n2. Reiter Partner: Verzugsanschrift prüfen (sonst in nscale unter Protokolle/Ableseprotokoll oder Verwalter fragen).\n3. Reiter Kautionen → Referenznummer kopieren; bei HM-Kautionen einloggen → Kautionsbuchungen → Auflösungen; Referenznummer einfügen.\n4. Teilauszahlung (alles außer SE), Betrag anpassen; Auflösung immer zum heutigen Tag.\n5. Buchungsdaten bearbeiten (Sternchen): Bankverbindung + Verwendungszweck (MV-Nr. + Teilkaution) → Übernehmen.\n6. Strg+P, Ansicht ausdrucken, mit Kautionsabrechnungsstempel stempeln.\n7. Schreiben in SAP: OPCC → Verwaltung 03-Kautionen → „Kautionsabrechnung mit SE und OP"; offene Posten prüfen; drucken und unterschreiben lassen.\n\nGesamtauflösung (Stellplatz, Keller, Garten):\nWie Teilauflösung, jedoch Gesamtauszahlung; Betrag prüfen; Schreiben „Kaution Abrechnung" (OPCC → Verwaltung 03-Kautionen); drucken und unterschreiben lassen.'+FILEHINT},
+
+  {q:'Sicherheitseinbehalt (SE) bestimmen',cat:'proz',kw:['sicherheitseinbehalt','se bestimmen','se','einbehalt','sicherheits einbehalt'],
+   a:'Sicherheitseinbehalt (SE) bestimmen:\n1. Mieter in SAP aufrufen.\n2. Schuldet der Mieter Reno? → Reno-Schreiben erstellen, warten bis die Arbeiten ausgeführt sind, dann SE. Keine Reno? → direkt SE.\n3. Heiz- und Betriebskostenabrechnungen der letzten Jahre prüfen:\n   • Guthaben → ca. 150–200 EUR einbehalten.\n   • Nachzahlung → 30 % auf die offene Forderung.\n4. Prüfen, ob Betriebskosten/HK angepasst wurden, ggf. anpassen.\n5. SE bestimmen.'+FILEHINT},
+
+  {q:'Danke',cat:'sys',kw:['danke','super','klasse','top','perfekt'],
+   a:'Gerne! Falls noch etwas unklar ist, frag einfach weiter. 😊'}
+];
+const FALLBACK=['Das habe ich leider nicht ganz verstanden. Kannst du deine Frage anders formulieren oder unten ein Thema wählen?',
+  'Dazu habe ich noch keine passende Antwort. Versuch es mit anderen Worten oder nutze die Themen-Buttons unten.',
+  'Hmm, das weiß ich nicht genau. Die vollständigen Abläufe findest du unter: '+REF];
+
+/* ---------- Matching ---------- */
+const STOPWORDS=new Set(['ich','du','er','sie','es','wir','ihr','der','die','das','ein','eine','einen','einem','einer','wie','was','wann','wo','ist','sind','war','wird','muss','kann','mir','mich','dir','dich','zu','im','in','am','an','bei','für','und','oder','mit','auf','ab','habe','hat','hab','bitte','mal','denn','doch','noch','auch','nur','schon','meine','mein','meinen','wer','soll','möchte','will','brauche']);
+function normalize(s){return s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^a-z0-9äöüß\s]/g,' ').replace(/\s+/g,' ').trim();}
+function contentWords(phrase){const w=normalize(phrase).split(' ').filter(Boolean);const c=w.filter(x=>!STOPWORDS.has(x));return c.length?c:w;}
+function lev(a,b){/* Damerau (OSA): Buchstabendreher = 1 Fehler */
+  const m=a.length,n=b.length;if(!m)return n;if(!n)return m;
+  const d=[];for(let i=0;i<=m;i++){d[i]=new Array(n+1);d[i][0]=i;}for(let j=0;j<=n;j++)d[0][j]=j;
+  for(let i=1;i<=m;i++)for(let j=1;j<=n;j++){
+    const c=a[i-1]===b[j-1]?0:1;
+    d[i][j]=Math.min(d[i-1][j]+1,d[i][j-1]+1,d[i-1][j-1]+c);
+    if(i>1&&j>1&&a[i-1]===b[j-2]&&a[i-2]===b[j-1])d[i][j]=Math.min(d[i][j],d[i-2][j-2]+1);
+  }
+  return d[m][n];}
+function wordPresent(w,tokens){
+  if(tokens.has(w))return true;
+  if(w.length<4)return false;
+  for(const tk of tokens){if(tk.length>=4&&(tk.startsWith(w)||w.startsWith(tk)))return true;}
+  if(w.length>=5){for(const tk of tokens){if(tk.length>=4&&Math.abs(tk.length-w.length)<=2&&lev(tk,w)<=(w.length>=10?2:1))return true;}}
+  return false;
+}
+function rankMatches(text){
+  const tokens=new Set(normalize(text).split(' ').filter(Boolean));
+  return FAQ.map(f=>{let score=0;f.kw.forEach(k=>{const cw=contentWords(k);const hits=cw.filter(w=>wordPresent(w,tokens)).length;if(hits===cw.length&&hits>0)score+=hits;});return {f,score};}).sort((a,b)=>b.score-a.score);
+}
+function softRank(text){
+  const tokens=new Set(normalize(text).split(' ').filter(Boolean));
+  return FAQ.filter(f=>f.cat==='proz'||f.cat==='ref').map(f=>{let s=0;f.kw.forEach(k=>contentWords(k).forEach(w=>{if(wordPresent(w,tokens))s++;}));return {f,s};}).sort((a,b)=>b.s-a.s);
+}
 
 /* ---------- Chat-UI ---------- */
-const chatEl=document.getElementById('chat'),ta=document.getElementById('ta'),sendBtn=document.getElementById('sendBtn');
+const chatEl=document.getElementById('chat'),chipsEl=document.getElementById('chips'),ta=document.getElementById('ta'),sendBtn=document.getElementById('sendBtn');
 let history=loadHistory();
-function loadHistory(){try{return JSON.parse(localStorage.getItem('tf_chat'))||[];}catch(e){return [];}}
-function saveHistory(){try{localStorage.setItem('tf_chat',JSON.stringify(history.slice(-120)));}catch(e){}}
+function loadHistory(){try{return JSON.parse(localStorage.getItem('va_chat'))||[];}catch(e){return [];}}
+function saveHistory(){try{localStorage.setItem('va_chat',JSON.stringify(history.slice(-120)));}catch(e){}}
+function logFeedback(v){try{const f=JSON.parse(localStorage.getItem('va_fb'))||{up:0,down:0};f[v?'up':'down']++;localStorage.setItem('va_fb',JSON.stringify(f));}catch(e){}}
 function timeNow(){return new Date().toLocaleTimeString('de-DE',{hour:'2-digit',minute:'2-digit'});}
 
 function addMsg(role,text,save){
   if(save===undefined)save=true;
-  const wrap=document.createElement('div');
-  wrap.className='msg '+role;
-  wrap.textContent=text;
-  chatEl.appendChild(wrap);
-  const t=document.createElement('div');
-  t.className='msg-time';
-  t.style.alignSelf=role==='user'?'flex-end':'flex-start';
-  t.textContent=timeNow();
-  chatEl.appendChild(t);
+  const wrap=document.createElement('div');wrap.className='msg '+role;wrap.textContent=text;chatEl.appendChild(wrap);
+  const t=document.createElement('div');t.className='msg-time';t.style.alignSelf=role==='user'?'flex-end':'flex-start';t.textContent=timeNow();chatEl.appendChild(t);
   chatEl.scrollTop=chatEl.scrollHeight;
   if(save){history.push({r:role,t:text});saveHistory();}
 }
-function showTyping(){
-  const el=document.createElement('div');
-  el.className='typing';el.id='typingInd';
-  el.innerHTML='<span></span><span></span><span></span>';
-  chatEl.appendChild(el);chatEl.scrollTop=chatEl.scrollHeight;
-}
+function showTyping(){const el=document.createElement('div');el.className='typing';el.id='typingInd';el.innerHTML='<span></span><span></span><span></span>';chatEl.appendChild(el);chatEl.scrollTop=chatEl.scrollHeight;}
 function hideTyping(){const el=document.getElementById('typingInd');if(el)el.remove();}
+function addFeedback(){
+  const row=document.createElement('div');row.className='fb-row';
+  const q=document.createElement('span');q.className='fb-q';q.textContent='War das hilfreich?';
+  const up=document.createElement('button');up.className='fb-btn';up.type='button';up.textContent='👍';up.setAttribute('aria-label','Antwort war hilfreich');
+  const down=document.createElement('button');down.className='fb-btn';down.type='button';down.textContent='👎';down.setAttribute('aria-label','Antwort war nicht hilfreich');
+  up.onclick=()=>doFb(row,true);down.onclick=()=>doFb(row,false);
+  row.append(q,up,down);chatEl.appendChild(row);chatEl.scrollTop=chatEl.scrollHeight;
+}
+function doFb(row,ok){logFeedback(ok);const d=document.createElement('div');d.className='fb-done';d.textContent=ok?'✓ Danke für dein Feedback!':'✓ Danke! Die vollständigen Abläufe findest du im Netzlaufwerk.';row.replaceWith(d);chatEl.scrollTop=chatEl.scrollHeight;}
+function addSuggestions(intro,faqs){
+  addMsg('bot',intro);
+  const row=document.createElement('div');row.className='sugg-row';
+  faqs.forEach(f=>{const b=document.createElement('button');b.className='sugg-btn';b.type='button';b.textContent=f.q;b.onclick=()=>{ta.value=f.q;sendMsg();};row.appendChild(b);});
+  chatEl.appendChild(row);chatEl.scrollTop=chatEl.scrollHeight;
+}
+const CHIP_TOPICS=['Abnahme (Rückgabe)','Kautionskonto anlegen + Referenznummer','Kaution auflösen (Teil-/Gesamt)','Sicherheitseinbehalt (SE) bestimmen','Wo finde ich die Dateien?'];
+function mkChip(label,fn){const c=document.createElement('button');c.type='button';c.className='chip';c.textContent=label;c.onclick=fn;chipsEl.appendChild(c);}
+function renderChips(){chipsEl.innerHTML='';CHIP_TOPICS.forEach(q=>mkChip(q,()=>{ta.value=q;sendMsg();}));}
 function autoGrow(el){el.style.height='auto';el.style.height=Math.min(el.scrollHeight,100)+'px';}
 function onKey(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendMsg();}}
-function resetChat(){history=[];saveHistory();chatEl.innerHTML='';addMsg('bot',GREETING);}
+function resetChat(){history=[];saveHistory();chatEl.innerHTML='';renderChips();addMsg('bot',FAQ[0].a);}
 
 function sendMsg(){
   const text=ta.value.trim();
@@ -109,14 +186,25 @@ function sendMsg(){
   sendBtn.disabled=true;showTyping();
   setTimeout(()=>{
     hideTyping();
-    addMsg('bot',EMPTY_REPLY);
+    const ranked=rankMatches(text);
+    const best=ranked[0];
+    const clearLeader=best.score>=2||(best.score>=1&&(!ranked[1]||best.score>ranked[1].score));
+    if(clearLeader){
+      addMsg('bot',best.f.a);
+      if(best.f.cat==='proz'||best.f.cat==='ref')addFeedback();
+    }else{
+      const soft=softRank(text).filter(x=>x.s>0).slice(0,3);
+      if(soft.length)addSuggestions('Ich bin nicht ganz sicher, was du meinst. Meintest du vielleicht:',soft.map(x=>x.f));
+      else addMsg('bot',FALLBACK[Math.floor(Math.random()*FALLBACK.length)]);
+    }
     sendBtn.disabled=false;
-  },400+Math.random()*300);
+  },450+Math.random()*350);
 }
 
 /* ---------- Init ---------- */
+renderChips();
 if(history.length){history.forEach(m=>addMsg(m.r,m.t,false));}
-else{addMsg('bot',GREETING);}
+else{addMsg('bot',FAQ[0].a);}
 </script>
 </body>
 </html>
