@@ -7,7 +7,10 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="theme-color" content="#1a5c8f">
+<meta name="author" content="Karl Opelt">
 <title>Ablauf-Assistent – Wohnraumverwaltung</title>
+<!-- © 2026 Karl Opelt · Ablauf-Assistent · Alle Rechte vorbehalten -->
+
 <style>
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 html{height:100%;overflow:hidden}
@@ -76,7 +79,7 @@ header .status .dot{width:7px;height:7px;border-radius:50%;background:#4ade80;bo
 .chip.cat{background:var(--grad);color:#fff;border:none;box-shadow:0 4px 14px rgba(37,99,235,.3)}
 .chip.back{background:var(--surface-2);color:var(--muted)}
 /* input */
-.inputbar{background:var(--surface);border-top:1px solid var(--border);padding:12px 12px calc(12px + env(safe-area-inset-bottom,0px));display:flex;gap:10px;align-items:flex-end;flex-shrink:0}
+.inputbar{background:var(--surface);border-top:1px solid var(--border);padding:12px;display:flex;gap:10px;align-items:flex-end;flex-shrink:0}
 .inputbar textarea{flex:1;border:1.5px solid var(--border);border-radius:22px;padding:12px 18px;font-size:15px;background:var(--surface-2);color:var(--text);outline:none;resize:none;max-height:120px;font-family:inherit;line-height:1.35;transition:border-color .15s,box-shadow .15s,background .15s}
 .inputbar textarea:focus{border-color:var(--brand);background:var(--surface);box-shadow:0 0 0 4px var(--ring)}
 .sendbtn{width:46px;height:46px;border-radius:16px;background:var(--grad);color:#fff;border:none;flex-shrink:0;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:17px;box-shadow:0 6px 18px rgba(37,99,235,.35);transition:transform .15s,filter .15s}
@@ -128,6 +131,8 @@ header .status .dot{width:7px;height:7px;border-radius:50%;background:#4ade80;bo
 .fb-grp{display:inline-flex;align-items:center;gap:8px}
 .fb-copy{width:auto!important;padding:0 11px;font-size:12px;font-weight:600;color:var(--brand-ink)}
 .fb-copy.fb-copied{color:#16a34a;border-color:#16a34a}
+/* Copyright-Fußzeile */
+.foot{flex-shrink:0;text-align:center;font-size:10.5px;line-height:1.4;color:var(--muted);padding:6px 10px calc(6px + env(safe-area-inset-bottom,0px));background:var(--surface);border-top:1px solid var(--border)}
 /* Desktop: als gerahmte App-Karte zentrieren */
 @media (min-width:680px){
   body{display:flex;align-items:center;justify-content:center;padding:24px;inset:0}
@@ -171,6 +176,7 @@ header .status .dot{width:7px;height:7px;border-radius:50%;background:#4ade80;bo
       </div>
     </div>
   </div>
+  <div class="foot">© 2026 Karl Opelt · Ablauf-Assistent</div>
 </div>
 <script>
 /* Zentraler Verweis auf die Ablage der Ablauf-Dokumente */
