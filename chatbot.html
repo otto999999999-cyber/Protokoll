@@ -100,9 +100,23 @@ header .status .dot{width:7px;height:7px;border-radius:50%;background:#4ade80;bo
 .witz-btn:hover{filter:brightness(1.05)}
 .witz-btn:active{transform:scale(.98)}
 .witz-btn.secondary{background:var(--surface);color:var(--brand);border:1.5px solid var(--border);box-shadow:var(--shadow-sm)}
+/* Mietrecht-Urteile */
+.urt-wrap{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:16px 14px calc(20px + env(safe-area-inset-bottom,0px));display:flex;flex-direction:column;gap:12px}
+.urt-intro{font-size:12.5px;line-height:1.55;color:var(--muted);text-align:center;max-width:600px;margin:2px auto 6px;padding:0 4px}
+.urt-card{background:var(--surface);border:1px solid var(--border);border-radius:18px;padding:15px 16px;width:100%;max-width:620px;margin:0 auto;box-shadow:var(--shadow-md)}
+.urt-top{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-bottom:9px}
+.urt-az{font-size:11.5px;font-weight:700;color:#fff;background:var(--grad);padding:3px 9px;border-radius:8px}
+.urt-date{font-size:11.5px;color:var(--muted);font-weight:600}
+.urt-tag{margin-left:auto;font-size:10px;font-weight:800;padding:3px 10px;border-radius:20px;text-transform:uppercase;letter-spacing:.05em}
+.urt-tag.v{background:rgba(22,163,74,.14);color:#16a34a}
+.urt-tag.m{background:rgba(37,99,235,.16);color:var(--brand)}
+.urt-tag.p{background:rgba(217,119,6,.17);color:#d97706}
+.urt-title{font-size:15px;font-weight:700;color:var(--text);line-height:1.35;letter-spacing:-.01em;margin-bottom:6px}
+.urt-body{font-size:13.5px;line-height:1.55;color:var(--text)}
+.urt-body b{color:var(--brand-ink)}
 /* scrollbars */
-#chat::-webkit-scrollbar,.chips::-webkit-scrollbar,.witz-wrap::-webkit-scrollbar{width:8px}
-#chat::-webkit-scrollbar-thumb,.chips::-webkit-scrollbar-thumb,.witz-wrap::-webkit-scrollbar-thumb{background:rgba(100,116,139,.25);border-radius:8px}
+#chat::-webkit-scrollbar,.chips::-webkit-scrollbar,.witz-wrap::-webkit-scrollbar,.urt-wrap::-webkit-scrollbar{width:8px}
+#chat::-webkit-scrollbar-thumb,.chips::-webkit-scrollbar-thumb,.witz-wrap::-webkit-scrollbar-thumb,.urt-wrap::-webkit-scrollbar-thumb{background:rgba(100,116,139,.25);border-radius:8px}
 /* dark */
 @media (prefers-color-scheme: dark){
   :root{
@@ -152,7 +166,8 @@ header .status .dot{width:7px;height:7px;border-radius:50%;background:#4ade80;bo
   </header>
   <div class="tabs" id="tabs">
     <button class="tab active" data-tab="assist" type="button" onclick="switchTab('assist')">💬 Assistent</button>
-    <button class="tab" data-tab="witz" type="button" onclick="switchTab('witz')">🎭 Witz des Tages</button>
+    <button class="tab" data-tab="urteil" type="button" onclick="switchTab('urteil')">⚖️ Urteile</button>
+    <button class="tab" data-tab="witz" type="button" onclick="switchTab('witz')">🎭 Witz</button>
   </div>
   <div id="assistView" class="view">
     <div id="chat" role="log" aria-live="polite" aria-atomic="false" aria-label="Chatverlauf"></div>
@@ -175,6 +190,9 @@ header .status .dot{width:7px;height:7px;border-radius:50%;background:#4ade80;bo
         <button class="witz-btn secondary" type="button" onclick="todayWitz()">📅 Zurück zum Tageswitz</button>
       </div>
     </div>
+  </div>
+  <div id="urteilView" class="view hidden">
+    <div class="urt-wrap" id="urtWrap"></div>
   </div>
   <div class="foot">Bot &amp; Software © 2026 Karl Opelt</div>
 </div>
@@ -547,15 +565,60 @@ function renderWitz(){
 function todayWitz(){witzIdx=jokeIndexToday();renderWitz();}
 function nextWitz(){witzIdx=(witzIdx+1)%WITZE.length;renderWitz();}
 function switchTab(t){
-  const a=document.getElementById('assistView'),w=document.getElementById('witzView');
+  const map={assist:'assistView',urteil:'urteilView',witz:'witzView'};
   document.querySelectorAll('.tab').forEach(b=>b.classList.toggle('active',b.dataset.tab===t));
-  if(t==='witz'){a.classList.add('hidden');w.classList.remove('hidden');}
-  else{w.classList.add('hidden');a.classList.remove('hidden');}
+  for(const k in map){
+    document.getElementById(map[k]).classList.toggle('hidden',k!==t);
+  }
+}
+
+/* ---------- Mietrecht-Urteile (letzte ~24 Monate) ---------- */
+/* p = Praxis-Kennzeichnung: 'v' eher vermieterfreundlich, 'm' eher mieterfreundlich, 'p' Vermieterpflicht/Haftung */
+const URTEILE=[
+ {az:'VIII ZR 228/23',datum:'28.01.2026',p:'v',pl:'Für Vermieter',
+  t:'Untervermietung mit Gewinn ist kein „berechtigtes Interesse"',
+  b:'Wer eine Wohnung untervermieten will, nur um damit Gewinn zu erzielen, hat kein berechtigtes Interesse nach §553 BGB. Der Vermieter darf die Erlaubnis in diesem Fall verweigern.'},
+ {az:'VIII ZR 11/24',datum:'07.10.2025',p:'m',pl:'Für Mieter',
+  t:'Untervermietung nach Auszug eines Mitmieters',
+  b:'Ziehen aus einer gemeinsam gemieteten Wohnung einzelne Mitmieter aus, können die verbleibenden Mieter ein berechtigtes Interesse (§553 BGB) an der Untervermietung des frei gewordenen Zimmers haben – etwa um den weggefallenen Mietanteil auszugleichen.'},
+ {az:'VIII ZR 289/23',datum:'24.09.2025',p:'v',pl:'Für Vermieter',
+  t:'Eigenbedarf auch bei geplantem Umbau und späterem Verkauf',
+  b:'Eine Eigenbedarfskündigung (§573 Abs.2 Nr.2 BGB) kann wirksam sein, obwohl die Wohnung später umgebaut, zusammengelegt oder verkauft werden soll. Es genügt ein ernsthafter, nachvollziehbarer Nutzungswunsch – eine Notlage ist nicht nötig.'},
+ {az:'VIII ZR 250/23',datum:'06.08.2025',p:'p',pl:'Vermieterpflicht',
+  t:'Haftung bei Glätte – auch auf Gemeinschaftsflächen',
+  b:'Der Vermieter haftet dem Mieter für Sturzschäden durch Glätte auf dem Zugangsweg, selbst wenn dieser im Gemeinschaftseigentum der WEG liegt. Ein beauftragter Winterdienst ist Erfüllungsgehilfe (§278 BGB) – sein Versäumnis wird dem Vermieter zugerechnet.'},
+ {az:'VIII ZR 287/23',datum:'23.07.2025',p:'v',pl:'Für Vermieter',
+  t:'Schonfristzahlung heilt nur die fristlose, nicht die ordentliche Kündigung',
+  b:'Zahlt der Mieter die Rückstände innerhalb der Schonfrist (§569 Abs.3 Nr.2 BGB), wird nur die fristlose Kündigung unwirksam. Eine zugleich ausgesprochene ordentliche Kündigung wegen desselben Zahlungsverzugs bleibt bestehen.'},
+ {az:'VIII ZR 256/23',datum:'14.05.2025',p:'m',pl:'Für Mieter',
+  t:'Verzug mit Mietsicherheit rechtfertigt keine fristlose Kündigung',
+  b:'Bleibt der Mieter mit einer als Sicherheit vereinbarten Bankbürgschaft (§551 BGB) im Rückstand, rechtfertigt das keine fristlose Kündigung nach §569 Abs.2a BGB. Diese Norm greift nur bei Verzug mit einer Barkaution.'},
+ {az:'VIII ZR 36/23',datum:'27.11.2024',p:'v',pl:'Für Vermieter',
+  t:'Mietpreisbremse: Ausnahme auch bei Irrtum über den Modernisierungsumfang',
+  b:'Ein Vermieter darf die nach der Mietpreisbremse zulässige Miete überschreiten, wenn eine (einfache) Modernisierung vorlag – selbst wenn er vorvertraglich falsch angab, es sei die erste Vermietung nach umfassender Modernisierung. „Umfassend" ist nur, was einem Neubau gleichkommt.'},
+ {az:'VIII ZR 184/23',datum:'10.07.2024',p:'v',pl:'Für Vermieter',
+  t:'Aufrechnung mit verjährten Schadensersatzansprüchen gegen die Kaution',
+  b:'Der Vermieter darf bei der Kautionsabrechnung auch mit bereits verjährten Schadensersatzforderungen wegen Beschädigung der Mietsache aufrechnen. Die Ausübung der Ersetzungsbefugnis innerhalb der 6-Monats-Frist ist reine Förmelei.'}
+];
+function renderUrteile(){
+  const wrap=document.getElementById('urtWrap');
+  var html='<div class="urt-intro">⚖️ Wichtige BGH-Entscheidungen zum Wohnraummietrecht (Stand: '+URTEILE[0].datum.slice(6)+', letzte rund 24 Monate). Kurzüberblick – keine Rechtsberatung; verbindlich ist allein der Urteilstext des BGH.</div>';
+  html+=URTEILE.map(function(u){
+    return '<div class="urt-card">'
+      +'<div class="urt-top"><span class="urt-az">BGH '+esc(u.az)+'</span>'
+      +'<span class="urt-date">'+esc(u.datum)+'</span>'
+      +'<span class="urt-tag '+u.p+'">'+esc(u.pl)+'</span></div>'
+      +'<div class="urt-title">'+esc(u.t)+'</div>'
+      +'<div class="urt-body">'+esc(u.b)+'</div>'
+      +'</div>';
+  }).join('');
+  wrap.innerHTML=html;
 }
 
 /* ---------- Init ---------- */
 renderChips();
 todayWitz();
+renderUrteile();
 if(history.length){history.forEach(m=>addMsg(m.r,m.t,false));}
 else{addMsg('bot',FAQ[0].a);}
 </script>
