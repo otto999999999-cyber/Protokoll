@@ -113,6 +113,26 @@ header .status .dot{width:7px;height:7px;border-radius:50%;background:#4ade80;bo
   }
   .msg.user,.chip.cat,.sendbtn,.witz-btn:not(.secondary){color:#fff}
 }
+/* Formatierte Bot-Antworten */
+.msg.bot{white-space:normal}
+.msg.bot>*:first-child{margin-top:0}
+.msg.bot>*:last-child{margin-bottom:0}
+.ml-sp{height:7px}
+.ml-h{font-weight:750;letter-spacing:-.01em;margin:11px 0 3px}
+.ml-p{margin:4px 0}
+.ml-li{position:relative;padding-left:16px;margin:4px 0}
+.ml-li::before{content:"";position:absolute;left:2px;top:8px;width:6px;height:6px;border-radius:50%;background:var(--brand)}
+.ml-step{display:flex;gap:9px;align-items:flex-start;margin:5px 0}
+.ml-num{flex:0 0 auto;min-width:21px;height:21px;padding:0 5px;border-radius:7px;background:var(--grad);color:#fff;font-size:11.5px;font-weight:700;display:inline-flex;align-items:center;justify-content:center;margin-top:1px}
+/* Aktionen: Kopieren + Feedback */
+.fb-grp{display:inline-flex;align-items:center;gap:8px}
+.fb-copy{width:auto!important;padding:0 11px;font-size:12px;font-weight:600;color:var(--brand-ink)}
+.fb-copy.fb-copied{color:#16a34a;border-color:#16a34a}
+/* Desktop: als gerahmte App-Karte zentrieren */
+@media (min-width:680px){
+  body{display:flex;align-items:center;justify-content:center;padding:24px;inset:0}
+  #shell{height:calc(100dvh - 48px);max-height:880px;border-radius:22px;overflow:hidden;box-shadow:var(--shadow-lg);border:1px solid var(--border)}
+}
 </style>
 </head>
 <body>
@@ -306,24 +326,46 @@ function saveHistory(){try{localStorage.setItem('va_chat',JSON.stringify(history
 function logFeedback(v){try{const f=JSON.parse(localStorage.getItem('va_fb'))||{up:0,down:0};f[v?'up':'down']++;localStorage.setItem('va_fb',JSON.stringify(f));}catch(e){}}
 function timeNow(){return new Date().toLocaleTimeString('de-DE',{hour:'2-digit',minute:'2-digit'});}
 
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function fmtBot(text){
+  return esc(text).split('\n').map(function(raw){
+    var t=raw.trim();
+    if(!t)return '<div class="ml-sp"></div>';
+    if(/^[•·]/.test(t))return '<div class="ml-li">'+t.replace(/^[•·]\s*/,'')+'</div>';
+    var m=t.match(/^(\d{1,2})[.)]\s+(.+)$/);
+    if(m)return '<div class="ml-step"><span class="ml-num">'+m[1]+'</span><span>'+m[2]+'</span></div>';
+    if(t.length<=70&&/:$/.test(t))return '<div class="ml-h">'+t+'</div>';
+    return '<div class="ml-p">'+t+'</div>';
+  }).join('');
+}
 function addMsg(role,text,save){
   if(save===undefined)save=true;
-  const wrap=document.createElement('div');wrap.className='msg '+role;wrap.textContent=text;chatEl.appendChild(wrap);
+  const wrap=document.createElement('div');wrap.className='msg '+role;
+  if(role==='bot')wrap.innerHTML=fmtBot(text);else wrap.textContent=text;
+  chatEl.appendChild(wrap);
   const t=document.createElement('div');t.className='msg-time';t.style.alignSelf=role==='user'?'flex-end':'flex-start';t.textContent=timeNow();chatEl.appendChild(t);
   chatEl.scrollTop=chatEl.scrollHeight;
   if(save){history.push({r:role,t:text});saveHistory();}
 }
 function showTyping(){const el=document.createElement('div');el.className='typing';el.id='typingInd';el.innerHTML='<span></span><span></span><span></span>';chatEl.appendChild(el);chatEl.scrollTop=chatEl.scrollHeight;}
 function hideTyping(){const el=document.getElementById('typingInd');if(el)el.remove();}
-function addFeedback(){
+function addActions(text){
   const row=document.createElement('div');row.className='fb-row';
-  const q=document.createElement('span');q.className='fb-q';q.textContent='War das hilfreich?';
+  const cp=document.createElement('button');cp.className='fb-btn fb-copy';cp.type='button';cp.textContent='📋 Kopieren';cp.setAttribute('aria-label','Antwort kopieren');cp.onclick=function(){copyText(text,cp);};
+  const grp=document.createElement('span');grp.className='fb-grp';
+  const q=document.createElement('span');q.className='fb-q';q.textContent='· War das hilfreich?';
   const up=document.createElement('button');up.className='fb-btn';up.type='button';up.textContent='👍';up.setAttribute('aria-label','Antwort war hilfreich');
   const down=document.createElement('button');down.className='fb-btn';down.type='button';down.textContent='👎';down.setAttribute('aria-label','Antwort war nicht hilfreich');
-  up.onclick=()=>doFb(row,true);down.onclick=()=>doFb(row,false);
-  row.append(q,up,down);chatEl.appendChild(row);chatEl.scrollTop=chatEl.scrollHeight;
+  up.onclick=function(){doFb(grp,true);};down.onclick=function(){doFb(grp,false);};
+  grp.append(q,up,down);row.append(cp,grp);chatEl.appendChild(row);chatEl.scrollTop=chatEl.scrollHeight;
 }
-function doFb(row,ok){logFeedback(ok);const d=document.createElement('div');d.className='fb-done';d.textContent=ok?'✓ Danke für dein Feedback!':'✓ Danke! Die vollständigen Abläufe findest du im Netzlaufwerk.';row.replaceWith(d);chatEl.scrollTop=chatEl.scrollHeight;}
+function copyText(t,btn){
+  var done=function(){var o=btn.textContent;btn.textContent='✓ Kopiert';btn.classList.add('fb-copied');setTimeout(function(){btn.textContent=o;btn.classList.remove('fb-copied');},1500);};
+  if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(t).then(done).catch(function(){fallbackCopy(t,done);});}
+  else fallbackCopy(t,done);
+}
+function fallbackCopy(t,done){try{var ta=document.createElement('textarea');ta.value=t;ta.style.position='fixed';ta.style.opacity='0';document.body.appendChild(ta);ta.focus();ta.select();document.execCommand('copy');document.body.removeChild(ta);done();}catch(e){}}
+function doFb(grp,ok){logFeedback(ok);const d=document.createElement('span');d.className='fb-done';d.textContent=ok?'✓ Danke!':'✓ Danke – Details siehe Netzlaufwerk.';grp.replaceWith(d);chatEl.scrollTop=chatEl.scrollHeight;}
 function addSuggestions(intro,faqs){
   addMsg('bot',intro);
   const row=document.createElement('div');row.className='sugg-row';
@@ -373,7 +415,7 @@ function sendMsg(){
     const clearLeader=best.score>=2||(best.score>=1&&(!ranked[1]||best.score>ranked[1].score));
     if(clearLeader){
       addMsg('bot',best.f.a);
-      if(best.f.cat==='proz'||best.f.cat==='ref')addFeedback();
+      if(best.f.cat==='proz'||best.f.cat==='ref')addActions(best.f.a);
     }else{
       const soft=softRank(text).filter(x=>x.s>0).slice(0,3);
       if(soft.length)addSuggestions('Ich bin nicht ganz sicher, was du meinst. Meintest du vielleicht:',soft.map(x=>x.f));
