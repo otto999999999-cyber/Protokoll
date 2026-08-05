@@ -73,6 +73,7 @@ header .status .dot{width:7px;height:7px;border-radius:50%;background:#4ade80;bo
 .fb-report-input:focus{outline:none;border-color:var(--brand)}
 .fb-report-send{align-self:flex-start;width:auto!important;height:auto;padding:7px 13px;font-size:12px;font-weight:700;color:#fff;background:var(--grad);border:none}
 .fb-report-send:hover{filter:brightness(1.05);transform:translateY(-1px)}
+.fb-report-hint{font-size:11px;color:var(--muted)}
 /* suggestions */
 .sugg-row{align-self:flex-start;display:flex;flex-direction:column;gap:8px;margin:2px 0;max-width:86%}
 .sugg-btn{text-align:left;background:var(--surface);color:var(--brand-ink);border:1px solid var(--border);border-radius:14px;padding:11px 15px;font-size:13.5px;font-weight:600;cursor:pointer;transition:all .15s;box-shadow:var(--shadow-sm)}
@@ -206,9 +207,8 @@ header .status .dot{width:7px;height:7px;border-radius:50%;background:#4ade80;bo
 /* Zentraler Verweis auf die Ablage der Ablauf-Dokumente */
 const REF='V:\\4_Wohnraumverwaltung\\Verwaltung 2.0\\Abläufe';
 const FILEHINT='\n\n📁 Datei/Details: '+REF;
-/* Support-/Feedback-Postfach für die „War das hilfreich?"-Meldung.
-   Bitte durch die interne Support-Adresse ersetzen (z.B. support@…). */
-const SUPPORT_MAIL='support@example.com';
+/* Support-/Feedback-Postfach für die „War das hilfreich?"-Meldung. */
+const SUPPORT_MAIL='opelt@berlinhaus.com';
 
 /* ---------- Wissensbasis: Abläufe der Wohnraumverwaltung ---------- */
 const FAQ=[
@@ -421,9 +421,10 @@ function doFb(grp,ok,question,topic,answer){
   const box=document.createElement('div');box.className='fb-report';
   const lbl=document.createElement('div');lbl.className='fb-report-lbl';lbl.textContent='Danke! Was hat gefehlt oder war falsch? (optional)';
   const inp=document.createElement('textarea');inp.className='fb-report-input';inp.rows=2;inp.setAttribute('aria-label','Was hat gefehlt oder war falsch?');inp.placeholder='z.B. Antwort unvollständig, falscher Ansprechpartner, veraltet …';
-  const send=document.createElement('button');send.className='fb-btn fb-report-send';send.type='button';send.textContent='✉️ An den Support melden';
-  send.onclick=function(){sendSupportFeedback(question,topic,answer,inp.value);box.replaceWith(mkFbDone('✓ Support-E-Mail geöffnet – bitte noch absenden. Danke!'));chatEl.scrollTop=chatEl.scrollHeight;};
-  box.append(lbl,inp,send);grp.replaceWith(box);inp.focus();chatEl.scrollTop=chatEl.scrollHeight;
+  const send=document.createElement('button');send.className='fb-btn fb-report-send';send.type='button';send.textContent='✉️ An Opelt senden';
+  send.onclick=function(){sendSupportFeedback(question,topic,answer,inp.value);box.replaceWith(mkFbDone('✓ E-Mail an Opelt geöffnet – bitte noch absenden. Danke!'));chatEl.scrollTop=chatEl.scrollHeight;};
+  const hint=document.createElement('div');hint.className='fb-report-hint';hint.textContent='Feedback bitte an Opelt senden ('+SUPPORT_MAIL+').';
+  box.append(lbl,inp,send,hint);grp.replaceWith(box);inp.focus();chatEl.scrollTop=chatEl.scrollHeight;
 }
 function sendSupportFeedback(question,topic,answer,comment){
   const subj='Feedback Ablauf-Assistent: '+(topic||question||'Rückmeldung');
