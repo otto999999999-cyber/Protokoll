@@ -416,22 +416,25 @@ function fallbackCopy(t,done){try{var ta=document.createElement('textarea');ta.v
 function mkFbDone(txt){const d=document.createElement('span');d.className='fb-done';d.textContent=txt;return d;}
 function doFb(grp,ok,question,topic,answer){
   logFeedback(ok);
-  if(ok){grp.replaceWith(mkFbDone('✓ Danke!'));chatEl.scrollTop=chatEl.scrollHeight;return;}
-  // Negatives Feedback: Meldung an den Support anbieten
+  // Sowohl bei 👍 als auch bei 👎 eine optionale Rückmeldung an Opelt anbieten
   const box=document.createElement('div');box.className='fb-report';
-  const lbl=document.createElement('div');lbl.className='fb-report-lbl';lbl.textContent='Danke! Was hat gefehlt oder war falsch? (optional)';
-  const inp=document.createElement('textarea');inp.className='fb-report-input';inp.rows=2;inp.setAttribute('aria-label','Was hat gefehlt oder war falsch?');inp.placeholder='z.B. Antwort unvollständig, falscher Ansprechpartner, veraltet …';
+  const lbl=document.createElement('div');lbl.className='fb-report-lbl';
+  lbl.textContent=ok?'Schön, dass es geholfen hat! Magst du Opelt kurz Bescheid geben? (optional)':'Danke! Was hat gefehlt oder war falsch? (optional)';
+  const inp=document.createElement('textarea');inp.className='fb-report-input';inp.rows=2;
+  inp.setAttribute('aria-label',ok?'Positive Rückmeldung (optional)':'Was hat gefehlt oder war falsch?');
+  inp.placeholder=ok?'z.B. sehr hilfreich, gut erklärt …':'z.B. Antwort unvollständig, falscher Ansprechpartner, veraltet …';
   const send=document.createElement('button');send.className='fb-btn fb-report-send';send.type='button';send.textContent='✉️ An Opelt senden';
-  send.onclick=function(){sendSupportFeedback(question,topic,answer,inp.value);box.replaceWith(mkFbDone('✓ E-Mail an Opelt geöffnet – bitte noch absenden. Danke!'));chatEl.scrollTop=chatEl.scrollHeight;};
+  send.onclick=function(){sendSupportFeedback(ok,question,topic,answer,inp.value);box.replaceWith(mkFbDone('✓ E-Mail an Opelt geöffnet – bitte noch absenden. Danke!'));chatEl.scrollTop=chatEl.scrollHeight;};
   const hint=document.createElement('div');hint.className='fb-report-hint';hint.textContent='Feedback bitte an Opelt senden ('+SUPPORT_MAIL+').';
-  box.append(lbl,inp,send,hint);grp.replaceWith(box);inp.focus();chatEl.scrollTop=chatEl.scrollHeight;
+  box.append(lbl,inp,send,hint);grp.replaceWith(box);chatEl.scrollTop=chatEl.scrollHeight;
 }
-function sendSupportFeedback(question,topic,answer,comment){
-  const subj='Feedback Ablauf-Assistent: '+(topic||question||'Rückmeldung');
-  var body='Rückmeldung aus dem Ablauf-Assistenten (👎)\n\n';
+function sendSupportFeedback(ok,question,topic,answer,comment){
+  const mark=ok?'👍 hilfreich':'👎 nicht hilfreich';
+  const subj='Feedback Ablauf-Assistent ('+(ok?'👍':'👎')+'): '+(topic||question||'Rückmeldung');
+  var body='Rückmeldung aus dem Ablauf-Assistenten ('+mark+')\n\n';
   body+='Frage / Suche: '+(question||'-')+'\n';
   body+='Zugeordnetes Thema: '+(topic||'-')+'\n\n';
-  if(comment&&comment.trim())body+='Was hat gefehlt / war falsch:\n'+comment.trim()+'\n\n';
+  if(comment&&comment.trim())body+='Kommentar:\n'+comment.trim()+'\n\n';
   body+='------------------------------\nAngezeigte Antwort:\n'+(answer||'');
   window.location.href='mailto:'+encodeURIComponent(SUPPORT_MAIL)+'?subject='+encodeURIComponent(subj)+'&body='+encodeURIComponent(body);
 }
