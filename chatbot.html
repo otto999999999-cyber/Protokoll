@@ -626,6 +626,12 @@ function switchTab(t){
 /* ---------- Mietrecht-Urteile (letzte ~24 Monate) ---------- */
 /* p = Praxis-Kennzeichnung: 'v' eher vermieterfreundlich, 'm' eher mieterfreundlich, 'p' Vermieterpflicht/Haftung */
 const URTEILE=[
+ {az:'VIII ZR 125/23',datum:'01.07.2026',p:'v',pl:'Für Vermieter',
+  t:'Mietpreisbremse: Hinweis auf die Vormiete genügt der Auskunftspflicht',
+  b:'Beruft sich der Vermieter zur Rechtfertigung der Miethöhe auf die zulässige Vormiete (§556e BGB), genügt für die vorvertragliche Auskunft (§556g Abs.1a BGB) der Hinweis im Mietvertrag auf die Höhe der zuletzt geschuldeten Vormiete. Der BGH hob ein anderslautendes Urteil des LG Berlin auf und verwies die Sache zurück.'},
+ {az:'VIII ZR 6/24',datum:'20.05.2026',p:'v',pl:'Für Vermieter',
+  t:'Betriebskosten: keine Pflicht zu Vergleichsangeboten vor Beauftragung',
+  b:'Das Wirtschaftlichkeitsgebot ist nicht schon deshalb verletzt, weil der Vermieter vor der Beauftragung einer Leistung keine Vergleichsangebote eingeholt hat. Auch ein bereits vor Mietbeginn geschlossener (ungünstiger) Vertrag begründet für sich genommen noch keinen Verstoß.'},
  {az:'VIII ZR 228/23',datum:'28.01.2026',p:'v',pl:'Für Vermieter',
   t:'Untervermietung mit Gewinn ist kein „berechtigtes Interesse"',
   b:'Wer eine Wohnung untervermieten will, nur um damit Gewinn zu erzielen, hat kein berechtigtes Interesse nach §553 BGB. Der Vermieter darf die Erlaubnis in diesem Fall verweigern.'},
@@ -644,6 +650,9 @@ const URTEILE=[
  {az:'VIII ZR 256/23',datum:'14.05.2025',p:'m',pl:'Für Mieter',
   t:'Verzug mit Mietsicherheit rechtfertigt keine fristlose Kündigung',
   b:'Bleibt der Mieter mit einer als Sicherheit vereinbarten Bankbürgschaft (§551 BGB) im Rückstand, rechtfertigt das keine fristlose Kündigung nach §569 Abs.2a BGB. Diese Norm greift nur bei Verzug mit einer Barkaution.'},
+ {az:'VIII ZR 280/23',datum:'26.03.2025',p:'p',pl:'Modernisierung',
+  t:'Modernisierungsumlage: Einsparung genügt, Instandhaltungsanteil abziehen',
+  b:'Für eine energetische Modernisierung (§555b Nr.1 BGB) genügt eine messbare, dauerhafte Endenergie-Einsparung – auf deren Größenordnung kommt es nicht an. Von den Gesamtkosten muss der Vermieter aber zwingend den Anteil abziehen, der auf bloße Instandhaltung/Instandsetzung entfällt (ersparte Instandhaltungskosten).'},
  {az:'VIII ZR 36/23',datum:'27.11.2024',p:'v',pl:'Für Vermieter',
   t:'Mietpreisbremse: Ausnahme auch bei Irrtum über den Modernisierungsumfang',
   b:'Ein Vermieter darf die nach der Mietpreisbremse zulässige Miete überschreiten, wenn eine (einfache) Modernisierung vorlag – selbst wenn er vorvertraglich falsch angab, es sei die erste Vermietung nach umfassender Modernisierung. „Umfassend" ist nur, was einem Neubau gleichkommt.'},
