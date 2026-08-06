@@ -659,16 +659,28 @@ const URTEILE=[
  {az:'VIII ZR 280/23',datum:'26.03.2025',p:'p',pl:'Modernisierung',
   t:'Modernisierungsumlage: Einsparung genügt, Instandhaltungsanteil abziehen',
   b:'Für eine energetische Modernisierung (§555b Nr.1 BGB) genügt eine messbare, dauerhafte Endenergie-Einsparung – auf deren Größenordnung kommt es nicht an. Von den Gesamtkosten muss der Vermieter aber zwingend den Anteil abziehen, der auf bloße Instandhaltung/Instandsetzung entfällt (ersparte Instandhaltungskosten).'},
+ {az:'VIII ZR 16/23',datum:'18.12.2024',p:'m',pl:'Für Mieter',
+  t:'Mietpreisbremse: nur tatsächlich geschuldete Staffeln zählen',
+  b:'Für die berücksichtigungsfähige Vormiete zählen nur die tatsächlich geschuldeten Mietstaffeln. Künftige Staffeln einer Staffelmietvereinbarung, die bis zum Ende des Vormietverhältnisses nicht mehr wirksam geworden sind, bleiben außer Betracht.'},
  {az:'VIII ZR 36/23',datum:'27.11.2024',p:'v',pl:'Für Vermieter',
   t:'Mietpreisbremse: Ausnahme auch bei Irrtum über den Modernisierungsumfang',
   b:'Ein Vermieter darf die nach der Mietpreisbremse zulässige Miete überschreiten, wenn eine (einfache) Modernisierung vorlag – selbst wenn er vorvertraglich falsch angab, es sei die erste Vermietung nach umfassender Modernisierung. „Umfassend" ist nur, was einem Neubau gleichkommt.'},
  {az:'VIII ZR 184/23',datum:'10.07.2024',p:'v',pl:'Für Vermieter',
   t:'Aufrechnung mit verjährten Schadensersatzansprüchen gegen die Kaution',
-  b:'Der Vermieter darf bei der Kautionsabrechnung auch mit bereits verjährten Schadensersatzforderungen wegen Beschädigung der Mietsache aufrechnen. Die Ausübung der Ersetzungsbefugnis innerhalb der 6-Monats-Frist ist reine Förmelei.'}
+  b:'Der Vermieter darf bei der Kautionsabrechnung auch mit bereits verjährten Schadensersatzforderungen wegen Beschädigung der Mietsache aufrechnen. Die Ausübung der Ersetzungsbefugnis innerhalb der 6-Monats-Frist ist reine Förmelei.'},
+ {az:'VIII ZR 229/22',datum:'19.07.2023',p:'v',pl:'Für Vermieter',
+  t:'Mietpreisbremse: Rückgriff auf die Vor-Vormiete möglich',
+  b:'Unterlag bereits die Vormiete der Mietpreisbremse, zählt nur die damals rechtlich zulässige Miete. Zur Rechtfertigung der Miethöhe kann dann auf eine (zulässige) Vor-Vormiete zurückgegriffen werden – die Prüfung reicht ggf. über mehrere Mietverhältnisse zurück.'},
+ {az:'VIII ZR 300/21',datum:'28.09.2022',p:'v',pl:'Für Vermieter',
+  t:'Mietpreisbremse gilt nicht für Mieterhöhung im laufenden Mietverhältnis',
+  b:'Die Vorschriften der Mietpreisbremse (§§556d ff. BGB) erfassen nur die Miethöhe bei Mietbeginn. Auf eine während des laufenden Mietverhältnisses einvernehmlich geschlossene Mieterhöhungsvereinbarung sind sie nicht anwendbar.'},
+ {az:'VIII ZR 374/18',datum:'19.08.2020',p:'m',pl:'Für Mieter',
+  t:'Vormiete nur aus dem unmittelbar vorhergehenden Mietverhältnis',
+  b:'Als geschützte Vormiete (§556e Abs.1 BGB) zählt nur die Miete aus dem unmittelbar vorhergehenden Wohnraummietverhältnis. Frühere oder anderweitige Mietverhältnisse sind für den Vormietenschutz nicht maßgeblich.'}
 ];
 function renderUrteile(){
   const wrap=document.getElementById('urtWrap');
-  var html='<div class="urt-intro">⚖️ Wichtige BGH-Entscheidungen zum Wohnraummietrecht (Stand: '+URTEILE[0].datum.slice(6)+', letzte rund 24 Monate). Kurzüberblick – keine Rechtsberatung; verbindlich ist allein der Urteilstext des BGH.</div>';
+  var html='<div class="urt-intro">⚖️ Wichtige BGH-Entscheidungen zum Wohnraummietrecht – aktuelle Urteile und zentrale Leitentscheidungen (Stand: '+URTEILE[0].datum.slice(6)+'). Kurzüberblick – keine Rechtsberatung; verbindlich ist allein der Urteilstext des BGH.</div>';
   html+=URTEILE.map(function(u){
     return '<div class="urt-card">'
       +'<div class="urt-top"><span class="urt-az">BGH '+esc(u.az)+'</span>'
