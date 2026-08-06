@@ -879,6 +879,7 @@ todayWitz();
 renderUrteile();
 /* Feedback-Auswertung: über #auswertung oder 5× Tippen auf die Fußzeile */
 if(location.hash==='#auswertung')openAuswertung();
+window.addEventListener('hashchange',function(){if(location.hash==='#auswertung')openAuswertung();});
 (function(){var foot=document.querySelector('.foot');if(!foot)return;var taps=0,timer=null;foot.addEventListener('click',function(){taps++;clearTimeout(timer);timer=setTimeout(function(){taps=0;},1600);if(taps>=5){taps=0;openAuswertung();}});})();
 if(history.length){
   history.forEach(m=>{
