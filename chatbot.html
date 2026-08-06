@@ -2,7 +2,7 @@
 <html lang="de">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="mobile-web-app-capable" content="yes">
@@ -78,6 +78,11 @@ header .status .dot{width:7px;height:7px;border-radius:50%;background:#4ade80;bo
 .sugg-row{align-self:flex-start;display:flex;flex-direction:column;gap:8px;margin:2px 0;max-width:86%}
 .sugg-btn{text-align:left;background:var(--surface);color:var(--brand-ink);border:1px solid var(--border);border-radius:14px;padding:11px 15px;font-size:13.5px;font-weight:600;cursor:pointer;transition:all .15s;box-shadow:var(--shadow-sm)}
 .sugg-btn:hover{transform:translateY(-1px);border-color:var(--brand);box-shadow:var(--shadow-md)}
+/* „weiter mit …" Querverweise */
+.rel-row{align-self:flex-start;display:flex;flex-wrap:wrap;align-items:center;gap:7px;margin:-2px 0 4px 6px;max-width:92%}
+.rel-lbl{font-size:11.5px;color:var(--muted);font-weight:600}
+.rel-chip{background:var(--grad-soft);color:var(--brand);border:1px solid var(--border);border-radius:999px;padding:6px 12px;font-size:12px;font-weight:600;cursor:pointer;transition:all .15s}
+.rel-chip:hover{transform:translateY(-1px);border-color:var(--brand);box-shadow:var(--shadow-sm)}
 /* chips */
 .chips{display:flex;flex-wrap:wrap;gap:8px;padding:6px 14px 12px;flex-shrink:0;max-height:170px;overflow-y:auto}
 .chip{background:var(--surface);color:var(--brand-ink);border:1px solid var(--border);border-radius:999px;padding:9px 15px;font-size:12.5px;font-weight:600;cursor:pointer;white-space:nowrap;transition:all .15s;box-shadow:var(--shadow-sm)}
@@ -121,6 +126,14 @@ header .status .dot{width:7px;height:7px;border-radius:50%;background:#4ade80;bo
 .urt-title{font-size:15px;font-weight:700;color:var(--text);line-height:1.35;letter-spacing:-.01em;margin-bottom:6px}
 .urt-body{font-size:13.5px;line-height:1.55;color:var(--text)}
 .urt-body b{color:var(--brand-ink)}
+.urt-controls{width:100%;max-width:620px;margin:0 auto 2px;display:flex;flex-direction:column;gap:9px}
+.urt-search{width:100%;border:1px solid var(--border);border-radius:12px;padding:10px 13px;font:inherit;font-size:13.5px;color:var(--text);background:var(--surface);box-shadow:var(--shadow-sm)}
+.urt-search:focus{outline:none;border-color:var(--brand)}
+.urt-filters{display:flex;flex-wrap:wrap;gap:7px}
+.urt-filter{background:var(--surface);color:var(--muted);border:1px solid var(--border);border-radius:999px;padding:6px 13px;font-size:12px;font-weight:600;cursor:pointer;transition:all .15s}
+.urt-filter:hover{border-color:var(--brand)}
+.urt-filter.active{background:var(--grad);color:#fff;border-color:transparent}
+.urt-empty{text-align:center;color:var(--muted);font-size:13px;padding:18px 8px}
 /* scrollbars */
 #chat::-webkit-scrollbar,.chips::-webkit-scrollbar,.witz-wrap::-webkit-scrollbar,.urt-wrap::-webkit-scrollbar{width:8px}
 #chat::-webkit-scrollbar-thumb,.chips::-webkit-scrollbar-thumb,.witz-wrap::-webkit-scrollbar-thumb,.urt-wrap::-webkit-scrollbar-thumb{background:rgba(100,116,139,.25);border-radius:8px}
@@ -171,12 +184,12 @@ header .status .dot{width:7px;height:7px;border-radius:50%;background:#4ade80;bo
     </div>
     <button class="hdr-btn" id="resetBtn" onclick="resetChat()" aria-label="Gespräch neu starten" title="Gespräch neu starten">↺</button>
   </header>
-  <div class="tabs" id="tabs">
-    <button class="tab active" data-tab="assist" type="button" onclick="switchTab('assist')">💬 Assistent</button>
-    <button class="tab" data-tab="urteil" type="button" onclick="switchTab('urteil')">⚖️ Urteile</button>
-    <button class="tab" data-tab="witz" type="button" onclick="switchTab('witz')">🎭 Witz</button>
+  <div class="tabs" id="tabs" role="tablist" aria-label="Ansicht wählen">
+    <button class="tab active" id="tab-assist" role="tab" aria-selected="true" aria-controls="assistView" data-tab="assist" type="button" onclick="switchTab('assist')">💬 Assistent</button>
+    <button class="tab" id="tab-urteil" role="tab" aria-selected="false" aria-controls="urteilView" data-tab="urteil" type="button" onclick="switchTab('urteil')">⚖️ Urteile</button>
+    <button class="tab" id="tab-witz" role="tab" aria-selected="false" aria-controls="witzView" data-tab="witz" type="button" onclick="switchTab('witz')">🎭 Witz</button>
   </div>
-  <div id="assistView" class="view">
+  <div id="assistView" class="view" role="tabpanel" aria-labelledby="tab-assist">
     <div id="chat" role="log" aria-live="polite" aria-atomic="false" aria-label="Chatverlauf"></div>
     <div class="chips" id="chips" role="group" aria-label="Themenvorschläge"></div>
     <div class="inputbar">
@@ -184,7 +197,7 @@ header .status .dot{width:7px;height:7px;border-radius:50%;background:#4ade80;bo
       <button class="sendbtn" id="sendBtn" onclick="sendMsg()" aria-label="Nachricht senden">➤</button>
     </div>
   </div>
-  <div id="witzView" class="view hidden">
+  <div id="witzView" class="view hidden" role="tabpanel" aria-labelledby="tab-witz">
     <div class="witz-wrap">
       <div class="witz-card">
         <div class="witz-label">🎭 Witz des Tages</div>
@@ -198,7 +211,7 @@ header .status .dot{width:7px;height:7px;border-radius:50%;background:#4ade80;bo
       </div>
     </div>
   </div>
-  <div id="urteilView" class="view hidden">
+  <div id="urteilView" class="view hidden" role="tabpanel" aria-labelledby="tab-urteil">
     <div class="urt-wrap" id="urtWrap"></div>
   </div>
   <div class="foot">Bot &amp; Software © 2026 Karl Opelt</div>
@@ -337,7 +350,7 @@ const FAQ=[
    a:'Was ist „Conny" (früher wenigermiete.de) – „aus abgetretenem Recht"?\n\nConny hilft Mietern, Ansprüche aus der Mietpreisbremse durchzusetzen. Besonderheit: Der Mieter tritt seinen Anspruch an Conny ab – dadurch wird Conny selbst Forderungsinhaber und geht im eigenen Namen gegen den Vermieter vor.\n\nAblauf:\n1. Der Mieter meldet sich bei Conny und gibt Daten ein: Anschrift, Miethöhe, Wohnfläche, Mietvertrag, Einzugsdatum. Conny prüft, ob die Mietpreisbremse verletzt sein könnte.\n2. Abtretung: Hält Conny die Miete für zu hoch, unterschreibt der Mieter eine Abtretungserklärung (Forderungsabtretung nach §398 BGB). Ab dann ist Conny – nicht mehr der Mieter – Inhaber des Rückzahlungsanspruchs.\n3. Conny schreibt den Vermieter an und fordert regelmäßig: Auskunft über die Vormiete, Auskunft über Modernisierungen, Rückzahlung überzahlter Miete und Feststellung der zulässigen Miethöhe (§§556d ff. BGB).\n4. Der Vermieter prüft: Gilt die Mietpreisbremse überhaupt? Gibt es Ausnahmen (Neubau, umfassende Modernisierung)? Greift die Vormietenregelung (§556e Abs.1 BGB)? Liegen Modernisierungen nach §556e Abs.2 BGB vor? Oft entscheidet genau diese Prüfung den ganzen Rechtsstreit.\n5. Keine Einigung → Klage: Conny selbst (nicht der Mieter) erhebt Klage. Im Rubrum steht dann z.B. „Conny GmbH aus abgetretenem Recht des Herrn/der Frau …".\n\nWas heißt „aus abgetretenem Recht"?\nDer Anspruch gehörte ursprünglich dem Mieter; durch die Abtretung (§398 BGB) ist Conny neuer Inhaber. Conny macht also nicht einen eigenen, sondern den ursprünglichen Anspruch des Mieters geltend – die Forderung „wandert" vom Mieter zu Conny.\n\nWichtig für die Verwaltung:\n• Post „aus abgetretenem Recht" ernst nehmen und die Mietpreisbremse-Prüfung sorgfältig vornehmen (Vormiete §556e Abs.1, Modernisierung §556e Abs.2, Neubau/umfassende Modernisierung als Ausnahmen).\n• Auskunftsverlangen und Fristen beachten – eine unzutreffende/unterlassene Auskunft kann nachteilig sein.'},
 
   {q:'Was ist dieser Assistent?',cat:'sys',kw:['was ist dieser assistent','was ist das','worum geht es','einführung','onboarding','neu hier','über den assistenten','wozu ist das','was macht der assistent','für neue mitarbeiter'],
-   a:'Ablauf-Assistent der Wohnraumverwaltung – kurz erklärt:\n\nIch erkläre dir die wichtigsten Verwaltungs-Abläufe Schritt für Schritt – von der Neuvermietung bis zur Wohnungsabnahme. Statt lange in Ordnern zu suchen, tippst du dein Anliegen ein (z.B. „Kaution auflösen", „Abnahme", „Mahnkennzeichen T") oder wählst unten eine Kategorie.\n\nThemen (rund 31 Abläufe in 7 Bereichen):\n📄 Neuvermietung & Vertrag\n📋 Kündigung & Abnahme\n💰 Kaution\n🛠️ Nach Auszug / Instandsetzung\n⚖️ Forderungen & Recht\n🗂️ Organisation & Ablage\n💻 IT & System\n(plus 🎭 Witz des Tages)\n\nSo nutzt du mich:\n• Kategorie antippen oder Frage frei eingeben (Tippfehler sind ok).\n• Jede Antwort verweist auf die Original-Checkliste im Netzlaufwerk:\n📁 '+REF+'\n\nGut zu wissen: Ich bin eine schnelle Orientierungshilfe – kein Ersatz für die verbindlichen Original-Dokumente und Rücksprachen mit Kolleg:innen/Vorgesetzten.'},
+   a:'Ablauf-Assistent der Wohnraumverwaltung – kurz erklärt:\n\nIch erkläre dir die wichtigsten Verwaltungs-Abläufe Schritt für Schritt – von der Neuvermietung bis zur Wohnungsabnahme. Statt lange in Ordnern zu suchen, tippst du dein Anliegen ein (z.B. „Kaution auflösen", „Abnahme", „Mahnkennzeichen T") oder wählst unten eine Kategorie.\n\nThemen (rund 40 Abläufe in 7 Bereichen):\n📄 Neuvermietung & Vertrag\n📋 Kündigung & Abnahme\n💰 Kaution\n🛠️ Nach Auszug / Instandsetzung\n⚖️ Forderungen & Recht\n🗂️ Organisation & Ablage\n💻 IT & System\n(plus 🎭 Witz des Tages)\n\nSo nutzt du mich:\n• Kategorie antippen oder Frage frei eingeben (Tippfehler sind ok).\n• Jede Antwort verweist auf die Original-Checkliste im Netzlaufwerk:\n📁 '+REF+'\n\nGut zu wissen: Ich bin eine schnelle Orientierungshilfe – kein Ersatz für die verbindlichen Original-Dokumente und Rücksprachen mit Kolleg:innen/Vorgesetzten.'},
 
   {q:'Danke',cat:'sys',kw:['danke','super','klasse','top','perfekt'],
    a:'Gerne! Falls noch etwas unklar ist, frag einfach weiter. 😊'}
@@ -462,6 +475,22 @@ const CATS=[
   {key:'orga',label:'Organisation & Ablage', emoji:'🗂️', topics:['Arbeitstagsablauf (morgens)','Arbeitsmappen (Mappenfarben)','Indexpflege & Lastschrift-Sperren','Aufzug-Stillstand (Meldung & Nachverfolgung)','Mängelmeldung über den externen Ticker (Instandsetzung)','Mieterservice – Mängelmeldung durch Mieter','Klingelschildbestellungen','Arbeitszeiterfassung (ATOSS – Ein-/Ausbuchen)','ATOSS – Urlaub, Korrekturen & Stundenzettel','Wo finde ich die Dateien?']},
   {key:'it', label:'IT & System', emoji:'💻', topics:['Öffentlichen Ordner einbinden (Outlook)','Outlook-Abwesenheit einrichten','Elektronisches Archiv (nscale)','Kartenregistrierung (Drucker)','Rundschreiben erstellen & drucken','DOKU@WEB – Zugang & Rechnungen','Zugang zum Ticker / Hausmanager (Instandsetzung)']}
 ];
+/* Querverweise „weiter mit …" – Schlüssel/Werte müssen exakt den FAQ-Titeln entsprechen */
+const REL={
+  'Abnahme (Rückgabe)':['Abnahmeprotokoll vorbereiten','Kaution auflösen (Teil-/Gesamt)'],
+  'Abnahmeprotokoll vorbereiten':['Abnahme (Rückgabe)','Hinweise für Abnahmen'],
+  'Kautionskonto anlegen + Referenznummer':['Kaution auflösen (Teil-/Gesamt)','Sicherheitseinbehalt (SE) bestimmen'],
+  'Kaution auflösen (Teil-/Gesamt)':['Sicherheitseinbehalt (SE) bestimmen','Kautionskonto anlegen + Referenznummer'],
+  'Renovierungsaufforderung (ReNo)':['Kostenschätzung'],
+  'Kostenschätzung':['Renovierungsaufforderung (ReNo)'],
+  'Mietpreisbremse – zulässige Miete bei Neuvermietung':['Conny / „aus abgetretenem Recht" (Mietpreisbremse)'],
+  'Conny / „aus abgetretenem Recht" (Mietpreisbremse)':['Mietpreisbremse – zulässige Miete bei Neuvermietung'],
+  'Mängelmeldung über den externen Ticker (Instandsetzung)':['Zugang zum Ticker / Hausmanager (Instandsetzung)','Mieterservice – Mängelmeldung durch Mieter'],
+  'Zugang zum Ticker / Hausmanager (Instandsetzung)':['Mängelmeldung über den externen Ticker (Instandsetzung)'],
+  'Mieterservice – Mängelmeldung durch Mieter':['Mängelmeldung über den externen Ticker (Instandsetzung)'],
+  'Arbeitszeiterfassung (ATOSS – Ein-/Ausbuchen)':['ATOSS – Urlaub, Korrekturen & Stundenzettel'],
+  'ATOSS – Urlaub, Korrekturen & Stundenzettel':['Arbeitszeiterfassung (ATOSS – Ein-/Ausbuchen)']
+};
 let chipMode='cats';
 function mkChip(label,cls,fn){const c=document.createElement('button');c.type='button';c.className='chip'+(cls?' '+cls:'');c.textContent=label;c.onclick=fn;chipsEl.appendChild(c);}
 function renderChips(){
@@ -486,8 +515,8 @@ function sendMsg(){
   sendBtn.disabled=true;showTyping();
   setTimeout(()=>{
     hideTyping();
-    const nt=normalize(text);
-    if(nt.includes('witz')||nt.includes('joke')||nt.includes('lach')){
+    const nt=normalize(text);const toks=new Set(nt.split(' ').filter(Boolean));
+    if(nt.includes('witz')||nt.includes('joke')||toks.has('lachen')||toks.has('lach')||toks.has('lustig')){
       addMsg('bot','😄 '+jokeOfTheDay()+'\n\nMehr davon findest du oben im Reiter „Witz des Tages".');
       sendBtn.disabled=false;return;
     }
@@ -495,15 +524,41 @@ function sendMsg(){
     const best=ranked[0];
     const clearLeader=best.score>=2||(best.score>=1&&(!ranked[1]||best.score>ranked[1].score));
     if(clearLeader){
-      addMsg('bot',best.f.a);
-      if(best.f.cat==='proz'||best.f.cat==='ref')addActions(best.f.a,text,best.f.q);
+      showAnswer(best.f,text);
     }else{
-      const soft=softRank(text).filter(x=>x.s>0).slice(0,3);
-      if(soft.length)addSuggestions('Ich bin nicht ganz sicher, was du meinst. Meintest du vielleicht:',soft.map(x=>x.f));
+      // Vorschläge aus Schlagwort- UND Volltextsuche zusammenführen (mehr Treffer)
+      const merged=[];const seen=new Set();
+      softRank(text).filter(x=>x.s>0).concat(fullTextRank(text).filter(x=>x.s>0)).forEach(x=>{if(!seen.has(x.f.q)){seen.add(x.f.q);merged.push(x.f);}});
+      if(merged.length)addSuggestions('Ich bin nicht ganz sicher, was du meinst. Meintest du vielleicht:',merged.slice(0,4));
       else addMsg('bot',FALLBACK[Math.floor(Math.random()*FALLBACK.length)]);
     }
     sendBtn.disabled=false;
   },450+Math.random()*350);
+}
+function showAnswer(f,question){
+  addMsg('bot',f.a);
+  if(f.cat==='proz'||f.cat==='ref')addActions(f.a,question,f.q);
+  const rel=REL[f.q];
+  if(rel&&rel.length)addRelated(rel);
+}
+/* Volltextsuche über Titel + Antworttext (nicht nur Schlagworte) */
+function fullTextRank(text){
+  const words=contentWords(text);
+  return FAQ.filter(f=>f.cat==='proz'||f.cat==='ref').map(f=>{
+    const hay=new Set(normalize(f.q+' '+f.a).split(' ').filter(Boolean));
+    let s=0;words.forEach(w=>{if(wordPresent(w,hay))s++;});
+    return {f,s};
+  }).sort((a,b)=>b.s-a.s);
+}
+/* „Weiter mit …" – Querverweise zwischen verwandten Abläufen */
+function addRelated(rels){
+  const valid=rels.filter(q=>FAQ.some(f=>f.q===q));
+  if(!valid.length)return;
+  const row=document.createElement('div');row.className='rel-row';
+  const lbl=document.createElement('span');lbl.className='rel-lbl';lbl.textContent='↪ Weiter mit:';
+  row.appendChild(lbl);
+  valid.forEach(q=>{const btn=document.createElement('button');btn.type='button';btn.className='rel-chip';btn.textContent=q;btn.onclick=function(){ta.value=q;sendMsg();};row.appendChild(btn);});
+  chatEl.appendChild(row);chatEl.scrollTop=chatEl.scrollHeight;
 }
 
 const WITZE=[
@@ -623,7 +678,7 @@ function todayWitz(){witzIdx=jokeIndexToday();renderWitz();}
 function nextWitz(){witzIdx=(witzIdx+1)%WITZE.length;renderWitz();}
 function switchTab(t){
   const map={assist:'assistView',urteil:'urteilView',witz:'witzView'};
-  document.querySelectorAll('.tab').forEach(b=>b.classList.toggle('active',b.dataset.tab===t));
+  document.querySelectorAll('.tab').forEach(b=>{const on=b.dataset.tab===t;b.classList.toggle('active',on);b.setAttribute('aria-selected',on?'true':'false');});
   for(const k in map){
     document.getElementById(map[k]).classList.toggle('hidden',k!==t);
   }
@@ -681,8 +736,17 @@ const URTEILE=[
 function renderUrteile(){
   const wrap=document.getElementById('urtWrap');
   var html='<div class="urt-intro">⚖️ Wichtige BGH-Entscheidungen zum Wohnraummietrecht – aktuelle Urteile und zentrale Leitentscheidungen (Stand: '+URTEILE[0].datum.slice(6)+'). Kurzüberblick – keine Rechtsberatung; verbindlich ist allein der Urteilstext des BGH.</div>';
+  html+='<div class="urt-controls">'
+    +'<input id="urtSearch" class="urt-search" type="search" placeholder="🔎 Urteile durchsuchen (Aktenzeichen, Stichwort …)" aria-label="Urteile durchsuchen">'
+    +'<div class="urt-filters" role="group" aria-label="Nach Ausrichtung filtern">'
+    +'<button type="button" class="urt-filter active" data-lean="">Alle</button>'
+    +'<button type="button" class="urt-filter" data-lean="v">Für Vermieter</button>'
+    +'<button type="button" class="urt-filter" data-lean="m">Für Mieter</button>'
+    +'</div></div>';
+  html+='<div id="urtList">';
   html+=URTEILE.map(function(u){
-    return '<div class="urt-card">'
+    var txt=(u.az+' '+u.datum+' '+u.pl+' '+u.t+' '+u.b).toLowerCase().replace(/"/g,'&quot;');
+    return '<div class="urt-card" data-lean="'+u.p+'" data-text="'+esc(txt)+'">'
       +'<div class="urt-top"><span class="urt-az">BGH '+esc(u.az)+'</span>'
       +'<span class="urt-date">'+esc(u.datum)+'</span>'
       +'<span class="urt-tag '+u.p+'">'+esc(u.pl)+'</span></div>'
@@ -690,14 +754,38 @@ function renderUrteile(){
       +'<div class="urt-body">'+esc(u.b)+'</div>'
       +'</div>';
   }).join('');
+  html+='<div id="urtEmpty" class="urt-empty hidden">Keine Treffer – Suchbegriff oder Filter anpassen.</div>';
+  html+='</div>';
   wrap.innerHTML=html;
+  document.getElementById('urtSearch').addEventListener('input',applyUrtFilter);
+  document.querySelectorAll('.urt-filter').forEach(function(btn){
+    btn.addEventListener('click',function(){
+      document.querySelectorAll('.urt-filter').forEach(function(b){b.classList.remove('active');});
+      btn.classList.add('active');applyUrtFilter();
+    });
+  });
+}
+function applyUrtFilter(){
+  var s=document.getElementById('urtSearch');var term=(s?s.value:'').toLowerCase().trim();
+  var lb=document.querySelector('.urt-filter.active');var lean=lb?lb.dataset.lean:'';
+  var shown=0;
+  document.querySelectorAll('#urtList .urt-card').forEach(function(c){
+    var show=(!lean||c.dataset.lean===lean)&&(!term||c.dataset.text.indexOf(term)>=0);
+    c.classList.toggle('hidden',!show);if(show)shown++;
+  });
+  var e=document.getElementById('urtEmpty');if(e)e.classList.toggle('hidden',shown>0);
 }
 
 /* ---------- Init ---------- */
 renderChips();
 todayWitz();
 renderUrteile();
-if(history.length){history.forEach(m=>addMsg(m.r,m.t,false));}
+if(history.length){
+  history.forEach(m=>{
+    addMsg(m.r,m.t,false);
+    if(m.r==='bot'){const f=FAQ.find(x=>x.a===m.t);if(f&&(f.cat==='proz'||f.cat==='ref')){addActions(f.a,'',f.q);const rel=REL[f.q];if(rel)addRelated(rel);}}
+  });
+}
 else{addMsg('bot',FAQ[0].a);}
 </script>
 </body>
