@@ -255,7 +255,7 @@ header .status .dot{width:7px;height:7px;border-radius:50%;background:#4ade80;bo
   <div id="urteilView" class="view hidden" role="tabpanel" aria-labelledby="tab-urteil">
     <div class="urt-wrap" id="urtWrap"></div>
   </div>
-  <div class="foot" title="Hinweis: 5× tippen öffnet die Feedback-Auswertung">Bot &amp; Software © 2026 Karl Opelt · <span class="ver">Stand&nbsp;2026-08-18</span></div>
+  <div class="foot" title="Hinweis: 5× tippen öffnet die Feedback-Auswertung">Bot &amp; Software © 2026 Karl Opelt · <span class="ver">Stand&nbsp;2026-08-24</span></div>
 </div>
 <div id="printArea" aria-hidden="true"></div>
 <script>
@@ -293,7 +293,7 @@ const FAQ=[
    a:'Ablauf „Mietvertrag versenden":\n\nVorbereitung:\n• Unterlagen prüfen (Verw): Mietvertrag vorhanden; Daten in SAP korrekt (Vertragspartner, Mietbeginn, Miete); beidseitig unterzeichnet (Verw/GF).\n\nDurchführung (Assist):\n• Begrüßungsschreiben über SAP/OPCC fertigen\n• Vorlage zur Unterschrift\n• Unterlagen in nscale scannen\n• MV ösen\n• Versenden\n\nNacharbeit:\n• Übergabe vorbereiten: Schlüssel, Unterlagen, Kaution + 1. Miete vorhanden (Assist/Verw)\n• Übergabeprotokoll\n• Weiter mit: Fertigung Übergabeprotokoll'+FILEHINT},
 
   {q:'Kündigungsbestätigung',cat:'proz',kw:['kündigungsbestätigung','kündigung bestätigen','kündigung eingegangen','kündigung bearbeiten','kündigungseingang'],
-   a:'Ablauf „Kündigungsbestätigung":\n\nVorbereitung:\n• Kündigung prüfen (Assist): Originalunterschrift, alle Mieter unterzeichnet\n• Prüfung Kündigungsausschluss\n• Terminklärung Abnahme\n\nDurchführung:\n• Kündigungsbestätigung über SAP/OPCC fertigen (Assist)\n• Eckdatenblatt, Kündigungsbestätigung, Kündigung in gelbe Mappe\n• Mietspiegel nach Ausstattung online berechnen (Verw)\n• Prüfung sichere Miete\n• Prüfung und Unterzeichnung\n• Unterzeichnung GF (GF)\n• nscale-Scan und Versand (Assist)\n\nNacharbeit:\n• Kopie an Vertrieb und BeKo (Assist)\n• Mietspiegel und gesicherte Miete an Vertrieb\n• Wiedervorlage vier Wochen vor Abnahme\n• Weiter mit: Prozess Abnahme'+FILEHINT},
+   a:'Ablauf „Kündigungsbestätigung":\n\nVorbereitung:\n• Kündigung prüfen: Originalunterschrift, alle Mieter unterzeichnet\n• Prüfung Kündigungsausschluss\n• Terminklärung Abnahme\n\nDurchführung:\n• Kündigungsbestätigung über SAP/OPCC fertigen\n• Eckdatenblatt, Kündigungsbestätigung\n• Mietspiegel nach Ausstattung online berechnen (Verw)\n• Prüfung sichere Miete\n• Prüfung und Unterzeichnung\n• Unterzeichnung GF (GF)\n• nscale-Scan und Versand\n\nNacharbeit:\n• Mietspiegel und gesicherte Miete an Vertrieb\n\nWeiter mit: Prozess Abnahme'+FILEHINT},
 
   {q:'Vertragsaktivierung',cat:'proz',kw:['aktivierung','vertragsaktivierung','aktivieren','vertrag aktivieren','vertrag scharf schalten','gegenzeichnung aktivierung'],
    a:'Ablauf „Vertragsaktivierung":\n\nEinfache Mietverträge (nach Gegenzeichnung, Verw):\n• Pflegen: Unterschrift Vermieter, Unterschrift Mieter, „Vermietet d. MA1 BH" (bei Maklervermietung „Vermietet d. Makler")\n• Kontrolle + Aktivierung (Stammpflege)\n\nBauO-Verträge:\n• Wie oben; bei Nachtragseingang (Verw): Konditionen, letzter Nachtrag vom\n• Kontrolle / Konditionsfreigabe + Aktivierung (Stammpflege)\n\nHauptmieterwechsel / Nachträge (ohne BauO):\n• Bei Nachtragseingang (Verw): Konditionen, letzter Nachtrag vom, „Vermietet d. MA1 BH"\n• Kontrolle / Konditionsfreigabe + Aktivierung (Stammpflege)\n\nGeplatzte Mietverträge:\n• Zeitnahe Mitteilung an die Stammdatenpflege (Verw)\n\nSonstiges:\n• Bei Nachträgen (außer BauO-Nachtrag): „Vermietet d. MA1 BH" mit Name des Nachtragserstellers anpassen\n• Pflege spätestens 48 Std. nach Erhalt; Aktivierung bis spätestens zum 9. eines Monats'+FILEHINT},
@@ -603,6 +603,7 @@ const CATS=[
 ];
 /* Querverweise „weiter mit …" – Schlüssel/Werte müssen exakt den FAQ-Titeln entsprechen */
 const REL={
+  'Kündigungsbestätigung':['Abnahme (Rückgabe)','Abnahmeprotokoll vorbereiten'],
   'Abnahme (Rückgabe)':['Abnahmeprotokoll vorbereiten','Kaution auflösen (Teil-/Gesamt)'],
   'Abnahmeprotokoll vorbereiten':['Abnahme (Rückgabe)','Hinweise für Abnahmen'],
   'Kautionskonto anlegen + Referenznummer':['Kaution auflösen (Teil-/Gesamt)','Sicherheitseinbehalt (SE) bestimmen'],
