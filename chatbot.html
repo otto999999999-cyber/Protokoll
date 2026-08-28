@@ -255,7 +255,7 @@ header .status .dot{width:7px;height:7px;border-radius:50%;background:#4ade80;bo
   <div id="urteilView" class="view hidden" role="tabpanel" aria-labelledby="tab-urteil">
     <div class="urt-wrap" id="urtWrap"></div>
   </div>
-  <div class="foot" title="Hinweis: 5× tippen öffnet die Feedback-Auswertung">Bot &amp; Software © 2026 Karl Opelt · <span class="ver">Stand&nbsp;2026-08-24</span></div>
+  <div class="foot" title="Hinweis: 5× tippen öffnet die Feedback-Auswertung">Bot &amp; Software © 2026 Karl Opelt · <span class="ver">Stand&nbsp;2026-08-28</span></div>
 </div>
 <div id="printArea" aria-hidden="true"></div>
 <script>
@@ -360,6 +360,9 @@ const FAQ=[
 
   {q:'Outlook-Abwesenheit einrichten',cat:'proz',kw:['abwesenheit','outlook abwesenheit','automatische antwort','abwesenheitsassistent','oof','out of office','urlaub outlook'],
    a:'Outlook-Abwesenheit (Automatische Antworten) einrichten:\n1. In Outlook oben links auf „Datei" → „Automatische Antworten".\n2. „Automatische Antworten senden" auswählen (Felder werden aktiv).\n3. Optional „Nur in diesem Zeitraum senden" mit Beginn/Ende setzen.\n4. Text für „innerhalb" und „außerhalb der Organisation" anpassen – WICHTIG: es steht der zuletzt verwendete Text drin, immer neu anpassen und die Signatur einfügen.\n5. Mit „OK" bestätigen.\n\nMit Weiterleitung: vor „OK" auf „Regeln" → „Regel hinzufügen" → „Weiterleiten" (Methode „Original"), Empfänger über das Adressbuch wählen. Achtung: Weiterleitungen greifen sofort nach Bestätigung.\n\nEmpfehlung der IT: den Outlook-Abwesenheitsassistenten verwenden (zuverlässiger als das interne OOF-Tool).'+FILEHINT},
+
+  {q:'Abwesenheitsnotiz (Vorlage)',cat:'ref',kw:['abwesenheitsnotiz','abwesenheitstext','abwesenheitsnachricht','vorlage abwesenheit','abwesenheit vorlage','abwesenheit text','ooo text','ooo vorlage','muster abwesenheit','text automatische antwort'],
+   a:'Vorlage für die Abwesenheitsnotiz (Automatische Antwort):\n\n————————————————\nSehr geehrte Damen und Herren,\n\nich bin wieder erreichbar am XX.XX.XXXX\n\nIhre Mails werden nicht weitergeleitet. In wichtigen Fällen wenden Sie sich bitte an verwaltung@berlinhaus.com.\n\nBei etwaigen Mängeln/Havarien beachten Sie bitte die örtlichen Hausaushänge. Die Berliner und Dresdener Mieter können ihre Mängel direkt an die Firma SFI Facility Management GmbH melden: www.sfi-berlin.de/schaden\n\nEtwaige Sachbeschädigungen und Einbrüche sind direkt bei der örtlichen Polizei zu melden.\n\nBitte beachten Sie, dass bei Problemen mit den Rauchwarnmeldern die SFI Facility Management GmbH nicht zuständig ist. Bei Fehlermeldungen oder Problemen hiermit wenden Sie sich bitte unter Angabe Ihrer Mietvertragsnummer sowie Adresse an die Firma Sidur Rauchmelder und Messdienst GmbH. Diese hat folgende Kontaktdaten: 0451-2001-500 / info@sidur.de.\n\n[Signatur]\n————————————————\n\nTipp: Datum (XX.XX.XXXX) anpassen und die eigene Signatur einfügen. Mit „📋 Kopieren" lässt sich der Text direkt übernehmen.'},
 
   {q:'Elektronisches Archiv (nscale)',cat:'proz',kw:['archiv','nscale','dms','dokumentenmanagement','elektronisches archiv','barcode','scannen archiv'],
    a:'Elektronisches Archiv (nscale / DMS):\n• Das Dokumentenmanagement-System heißt nscale (Firma Ceyoniq); bedient über „nscale desktop" (auf jedem PC installiert).\n• Für Barcodes muss die Schriftart „Free 3 of 9" vorhanden sein.\n\nOberfläche (über Menü „Ansicht" anpassbar):\n• Menüleiste, Volltext-/Schnellsuche (SmartSearch), Workflows/Posteingang, Baumansicht der Ordnerstruktur, Trefferliste.\n• „Verknüpfungsleiste": Akten/Dokumente für schnellen Zugriff ablegen (per Maus rein/raus). „Löschen" = nur aus der Verknüpfung lösen – das Dokument bleibt erhalten.\n\nStruktur: Buchungskreise → Wirtschaftseinheiten → Gebäude → Mietobjekte; darunter u.a. Buchhaltung/Eingangsrechnungen/Gesellschaftsakte/Prozessakten sowie Bau-, Gebäude-/Mietobjekt-, Mietvertrags-, WE- und Versicherungsakten.\n\nAblauf: Posteingang scannen (Barcode) → über Workflows bearbeiten → in klar definierten Ordnern ablegen; Suche über Volltext-/Schnellsuche.'+FILEHINT},
@@ -599,11 +602,13 @@ const CATS=[
   {key:'reno',label:'Nach Auszug / Instandsetzung', emoji:'🛠️', topics:['Renovierungsaufforderung (ReNo)','Kostenschätzung']},
   {key:'recht',label:'Forderungen & Recht', emoji:'⚖️', topics:['Buchung von Titeln (Forderungen gegen uns)','Zwangsvollstreckung vermeiden (Titel)','Kennzeichnung Urteile/Vergleiche (E-Mail)','Widersprüche Betriebs-/Heizkosten (NKA)','Mahnlisten-Abkürzungen','Conny / „aus abgetretenem Recht" (Mietpreisbremse)','Externe Rechtsanwälte','Mietpreisbremsefälle – Fallordner anlegen & bearbeiten (MPB)','Dateibenennung im MPB-Fallordner (Nomenklatur)','Mietspiegelanpassung – Wiedervorlagen (Zustimmung & Klagefrist)']},
   {key:'orga',label:'Organisation & Ablage', emoji:'🗂️', topics:['Arbeitstagsablauf (morgens)','Arbeitsmappen (Mappenfarben)','Indexpflege & Lastschrift-Sperren','Aufzug-Stillstand (Meldung & Nachverfolgung)','Mängelmeldung über den externen Ticker (Instandsetzung)','Mieterservice – Mängelmeldung durch Mieter','Klingelschildbestellungen','Arbeitszeiterfassung (ATOSS – Ein-/Ausbuchen)','ATOSS – Urlaub, Korrekturen & Stundenzettel','Pflege der Umsatzmeldungen (Umsatzmiete, SAP)','Index-Überprüfung in SAP (hängende Anpassungen)','Fläche anpassen in SAP (Flächenwanderung)','Wo finde ich die Dateien?']},
-  {key:'it', label:'IT & System', emoji:'💻', topics:['Öffentlichen Ordner einbinden (Outlook)','Outlook-Abwesenheit einrichten','Elektronisches Archiv (nscale)','Kartenregistrierung (Drucker)','Rundschreiben erstellen & drucken','DOKU@WEB – Zugang & Rechnungen','Zugang zum Ticker / Hausmanager (Instandsetzung)']}
+  {key:'it', label:'IT & System', emoji:'💻', topics:['Öffentlichen Ordner einbinden (Outlook)','Outlook-Abwesenheit einrichten','Abwesenheitsnotiz (Vorlage)','Elektronisches Archiv (nscale)','Kartenregistrierung (Drucker)','Rundschreiben erstellen & drucken','DOKU@WEB – Zugang & Rechnungen','Zugang zum Ticker / Hausmanager (Instandsetzung)']}
 ];
 /* Querverweise „weiter mit …" – Schlüssel/Werte müssen exakt den FAQ-Titeln entsprechen */
 const REL={
   'Kündigungsbestätigung':['Abnahme (Rückgabe)','Abnahmeprotokoll vorbereiten'],
+  'Outlook-Abwesenheit einrichten':['Abwesenheitsnotiz (Vorlage)'],
+  'Abwesenheitsnotiz (Vorlage)':['Outlook-Abwesenheit einrichten'],
   'Abnahme (Rückgabe)':['Abnahmeprotokoll vorbereiten','Kaution auflösen (Teil-/Gesamt)'],
   'Abnahmeprotokoll vorbereiten':['Abnahme (Rückgabe)','Hinweise für Abnahmen'],
   'Kautionskonto anlegen + Referenznummer':['Kaution auflösen (Teil-/Gesamt)','Sicherheitseinbehalt (SE) bestimmen'],
