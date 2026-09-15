@@ -164,6 +164,16 @@ header .status .dot{width:7px;height:7px;border-radius:50%;background:#4ade80;bo
 .ml-li::before{content:"";position:absolute;left:2px;top:8px;width:6px;height:6px;border-radius:50%;background:var(--brand)}
 .ml-step{display:flex;gap:9px;align-items:flex-start;margin:5px 0}
 .ml-num{flex:0 0 auto;min-width:21px;height:21px;padding:0 5px;border-radius:7px;background:var(--grad);color:#fff;font-size:11.5px;font-weight:700;display:inline-flex;align-items:center;justify-content:center;margin-top:1px}
+/* Treffer-Hervorhebung in Antworten */
+mark.hl{background:rgba(250,204,21,.5);color:inherit;border-radius:3px;padding:0 1.5px;font-weight:600}
+@media (prefers-color-scheme: dark){mark.hl{background:rgba(250,204,21,.32);color:#fde68a}}
+/* Zuletzt-genutzt-Chips + Zwischenüberschriften im Chip-Bereich */
+.chip-lbl{flex-basis:100%;width:100%;font-size:10px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin:3px 3px -3px}
+.chip.recent{background:var(--grad-soft);color:var(--brand)}
+/* Urteil kopieren */
+.urt-copy{margin-left:6px;background:var(--surface-2);border:1px solid var(--border);border-radius:9px;min-width:34px;height:26px;padding:0 8px;font-size:12px;font-weight:600;color:var(--brand-ink);cursor:pointer;transition:all .15s}
+.urt-copy:hover{border-color:var(--brand);transform:translateY(-1px)}
+.urt-copy.fb-copied{color:#16a34a;border-color:#16a34a}
 /* Aktionen: Kopieren + Feedback */
 .fb-grp{display:inline-flex;align-items:center;gap:8px}
 .fb-copy{width:auto!important;padding:0 11px;font-size:12px;font-weight:600;color:var(--brand-ink)}
@@ -255,7 +265,7 @@ header .status .dot{width:7px;height:7px;border-radius:50%;background:#4ade80;bo
   <div id="urteilView" class="view hidden" role="tabpanel" aria-labelledby="tab-urteil">
     <div class="urt-wrap" id="urtWrap"></div>
   </div>
-  <div class="foot" title="Hinweis: 5× tippen öffnet die Feedback-Auswertung">Bot &amp; Software © 2026 Karl Opelt · <span class="ver">Stand&nbsp;2026-09-15</span></div>
+  <div class="foot" title="Hinweis: 5× tippen öffnet die Feedback-Auswertung">Bot &amp; Software © 2026 Karl Opelt · <span class="ver">Stand&nbsp;2026-09-15b</span></div>
 </div>
 <div id="printArea" aria-hidden="true"></div>
 <script>
@@ -467,24 +477,44 @@ function loadHistory(){try{return JSON.parse(localStorage.getItem('va_chat'))||[
 function saveHistory(){try{localStorage.setItem('va_chat',JSON.stringify(history.slice(-120)));}catch(e){}}
 function logFeedback(v,topic){try{const f=JSON.parse(localStorage.getItem('va_fb'))||{up:0,down:0,topics:{}};if(!f.topics)f.topics={};f[v?'up':'down']++;if(topic){if(!f.topics[topic])f.topics[topic]={up:0,down:0};f.topics[topic][v?'up':'down']++;}localStorage.setItem('va_fb',JSON.stringify(f));}catch(e){}}
 function logMiss(q,hadSugg){try{const a=JSON.parse(localStorage.getItem('va_miss'))||[];a.push({q:q,s:hadSugg?1:0,t:Date.now()});localStorage.setItem('va_miss',JSON.stringify(a.slice(-200)));}catch(e){}}
+/* Zuletzt genutzte Abläufe (nur dieses Gerät) */
+function loadRecent(){try{return (JSON.parse(localStorage.getItem('va_recent'))||[]).filter(function(q){return FAQ.some(function(f){return f.q===q;});});}catch(e){return [];}}
+function pushRecent(q){try{var a=(JSON.parse(localStorage.getItem('va_recent'))||[]).filter(function(x){return x!==q;});a.unshift(q);localStorage.setItem('va_recent',JSON.stringify(a.slice(0,8)));}catch(e){}}
 function timeNow(){return new Date().toLocaleTimeString('de-DE',{hour:'2-digit',minute:'2-digit'});}
 
 function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
-function fmtBot(text){
-  return esc(text).split('\n').map(function(raw){
+/* Suchbegriffe fürs Hervorheben – Umlaute bleiben erhalten (anders als normalize) */
+function hlTerms(q){return (q||'').toLowerCase().replace(/[^a-z0-9äöüß\s]/g,' ').split(/\s+/).filter(function(w){return w.length>=4&&!STOPWORDS.has(w);});}
+function escapeRegex(s){return s.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');}
+/* Escapt Text und markiert Treffer (<mark>) – Marken werden nie in HTML-Entities gesetzt, da vor dem Escapen gesucht wird */
+function hlEsc(text,terms){
+  if(!terms||!terms.length)return esc(text);
+  var re=new RegExp('('+terms.map(escapeRegex).join('|')+')','gi');
+  var out='',last=0,m;
+  while((m=re.exec(text))){
+    if(m.index>last)out+=esc(text.slice(last,m.index));
+    out+='<mark class="hl">'+esc(m[0])+'</mark>';
+    last=m.index+m[0].length;
+    if(re.lastIndex===m.index)re.lastIndex++;
+  }
+  out+=esc(text.slice(last));
+  return out;
+}
+function fmtBot(text,terms){
+  return String(text).split('\n').map(function(raw){
     var t=raw.trim();
     if(!t)return '<div class="ml-sp"></div>';
-    if(/^[•·]/.test(t))return '<div class="ml-li">'+t.replace(/^[•·]\s*/,'')+'</div>';
+    if(/^[•·]/.test(t))return '<div class="ml-li">'+hlEsc(t.replace(/^[•·]\s*/,''),terms)+'</div>';
     var m=t.match(/^(\d{1,2})[.)]\s+(.+)$/);
-    if(m)return '<div class="ml-step"><span class="ml-num">'+m[1]+'</span><span>'+m[2]+'</span></div>';
-    if(t.length<=70&&/:$/.test(t))return '<div class="ml-h">'+t+'</div>';
-    return '<div class="ml-p">'+t+'</div>';
+    if(m)return '<div class="ml-step"><span class="ml-num">'+m[1]+'</span><span>'+hlEsc(m[2],terms)+'</span></div>';
+    if(t.length<=70&&/:$/.test(t))return '<div class="ml-h">'+hlEsc(t,terms)+'</div>';
+    return '<div class="ml-p">'+hlEsc(t,terms)+'</div>';
   }).join('');
 }
-function addMsg(role,text,save){
+function addMsg(role,text,save,terms){
   if(save===undefined)save=true;
   const wrap=document.createElement('div');wrap.className='msg '+role;
-  if(role==='bot')wrap.innerHTML=fmtBot(text);else wrap.textContent=text;
+  if(role==='bot')wrap.innerHTML=fmtBot(text,terms);else wrap.textContent=text;
   chatEl.appendChild(wrap);
   const t=document.createElement('div');t.className='msg-time';t.style.alignSelf=role==='user'?'flex-end':'flex-start';t.textContent=timeNow();chatEl.appendChild(t);
   chatEl.scrollTop=chatEl.scrollHeight;
@@ -638,6 +668,12 @@ function allTopics(){return FAQ.filter(f=>f.cat==='proz'||f.cat==='ref').map(f=>
 function renderChips(){
   chipsEl.innerHTML='';
   if(chipMode==='cats'){
+    const rec=loadRecent();
+    if(rec.length){
+      const rl=document.createElement('span');rl.className='chip-lbl';rl.textContent='🕘 Zuletzt genutzt';chipsEl.appendChild(rl);
+      rec.slice(0,4).forEach(q=>mkChip(q,'recent',()=>{ta.value=q;sendMsg();}));
+      const cl=document.createElement('span');cl.className='chip-lbl';cl.textContent='Kategorien';chipsEl.appendChild(cl);
+    }
     CATS.forEach(cat=>mkChip(cat.emoji+' '+cat.label,'cat',()=>{chipMode=cat.key;addMsg('bot','Themen zu „'+cat.label+'" – wähle eins aus oder stell direkt deine Frage:');renderChips();}));
     mkChip('📖 Alle Abläufe A–Z','back',()=>{chipMode='__all';addMsg('bot','Alle Abläufe alphabetisch ('+allTopics().length+') – wähle einen aus oder tippe deine Frage:');renderChips();});
   }else if(chipMode==='__all'){
@@ -683,8 +719,12 @@ function sendMsg(){
   },450+Math.random()*350);
 }
 function showAnswer(f,question){
-  addMsg('bot',f.a);
-  if(f.cat==='proz'||f.cat==='ref')addActions(f.a,question,f.q);
+  addMsg('bot',f.a,true,hlTerms(question));
+  if(f.cat==='proz'||f.cat==='ref'){
+    addActions(f.a,question,f.q);
+    pushRecent(f.q);
+    if(chipMode==='cats')renderChips();
+  }
   const rel=REL[f.q];
   if(rel&&rel.length)addRelated(rel);
 }
@@ -891,12 +931,13 @@ function renderUrteile(){
     +'<button type="button" class="urt-filter" data-lean="m">Für Mieter</button>'
     +'</div></div>';
   html+='<div id="urtList">';
-  html+=URTEILE.map(function(u){
+  html+=URTEILE.map(function(u,idx){
     var txt=(u.az+' '+u.datum+' '+u.pl+' '+u.t+' '+u.b).toLowerCase().replace(/"/g,'&quot;');
     return '<div class="urt-card" data-lean="'+u.p+'" data-text="'+esc(txt)+'">'
       +'<div class="urt-top"><span class="urt-az">BGH '+esc(u.az)+'</span>'
       +'<span class="urt-date">'+esc(u.datum)+'</span>'
-      +'<span class="urt-tag '+u.p+'">'+esc(u.pl)+'</span></div>'
+      +'<span class="urt-tag '+u.p+'">'+esc(u.pl)+'</span>'
+      +'<button type="button" class="urt-copy" data-i="'+idx+'" aria-label="Urteil kopieren" title="Urteil kopieren">📋</button></div>'
       +'<div class="urt-title">'+esc(u.t)+'</div>'
       +'<div class="urt-body">'+esc(u.b)+'</div>'
       +'</div>';
@@ -904,6 +945,13 @@ function renderUrteile(){
   html+='<div id="urtEmpty" class="urt-empty hidden">Keine Treffer – Suchbegriff oder Filter anpassen.</div>';
   html+='</div>';
   wrap.innerHTML=html;
+  wrap.querySelectorAll('.urt-copy').forEach(function(btn){
+    btn.addEventListener('click',function(){
+      var u=URTEILE[+btn.dataset.i];if(!u)return;
+      var txt='BGH '+u.az+' · '+u.datum+' ('+u.pl+')\n'+u.t+'\n\n'+u.b+'\n\nKurzüberblick – keine Rechtsberatung; verbindlich ist allein der Urteilstext des BGH.';
+      copyText(txt,btn);
+    });
+  });
   document.getElementById('urtSearch').addEventListener('input',applyUrtFilter);
   document.querySelectorAll('.urt-filter').forEach(function(btn){
     btn.addEventListener('click',function(){
