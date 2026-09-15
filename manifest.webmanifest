@@ -1,0 +1,18 @@
+{
+  "id": "/Protokoll/",
+  "name": "Ablauf-Assistent – Wohnraumverwaltung",
+  "short_name": "Ablauf-Assistent",
+  "description": "Interner Ablauf-Assistent der Wohnraumverwaltung – Abläufe, BGH-Urteile und Vorlagen, offline nutzbar.",
+  "start_url": "chatbot.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#eaeff7",
+  "theme_color": "#2563eb",
+  "lang": "de",
+  "icons": [
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
