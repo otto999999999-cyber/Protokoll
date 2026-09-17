@@ -12,7 +12,7 @@
 <meta name="theme-color" content="#2563eb">
 <meta name="author" content="Karl Opelt">
 <meta name="apple-mobile-web-app-title" content="Ablauf-Assistent">
-<link rel="manifest" href="manifest.webmanifest?v=20260915c">
+<link rel="manifest" href="manifest.webmanifest?v=20260917">
 <link rel="apple-touch-icon" href="icon-192.png">
 <link rel="icon" type="image/png" sizes="512x512" href="icon-512.png">
 <title>Ablauf-Assistent – Wohnraumverwaltung</title>
@@ -78,8 +78,12 @@ header .status .dot{width:7px;height:7px;border-radius:50%;background:#4ade80;bo
 .fb-report-lbl{font-size:12px;color:var(--muted);font-weight:600}
 .fb-report-input{width:100%;border:1px solid var(--border);border-radius:10px;padding:8px 10px;font:inherit;font-size:12.5px;color:var(--text);background:var(--surface-2);resize:vertical;min-height:38px}
 .fb-report-input:focus{outline:none;border-color:var(--brand)}
+.fb-report-btns{display:flex;flex-wrap:wrap;gap:8px}
 .fb-report-send{align-self:flex-start;width:auto!important;height:auto;padding:7px 13px;font-size:12px;font-weight:700;color:#fff;background:var(--grad);border:none}
 .fb-report-send:hover{filter:brightness(1.05);transform:translateY(-1px)}
+.fb-report-copy{align-self:flex-start;width:auto!important;height:auto;padding:7px 13px;font-size:12px;font-weight:700;color:var(--brand-ink);background:var(--surface-2);border:1px solid var(--border)}
+.fb-report-copy:hover{border-color:var(--brand);transform:translateY(-1px)}
+.fb-report-copy.fb-copied{color:#16a34a;border-color:#16a34a}
 .fb-report-hint{font-size:11px;color:var(--muted)}
 /* suggestions */
 .sugg-row{align-self:flex-start;display:flex;flex-direction:column;gap:8px;margin:2px 0;max-width:86%}
@@ -269,10 +273,10 @@ mark.hl{background:rgba(250,204,21,.5);color:inherit;border-radius:3px;padding:0
   <div id="urteilView" class="view hidden" role="tabpanel" aria-labelledby="tab-urteil">
     <div class="urt-wrap" id="urtWrap"></div>
   </div>
-  <div class="foot" title="Hinweis: 5× tippen öffnet die Feedback-Auswertung">Bot &amp; Software © 2026 Karl Opelt · <span class="ver">Stand&nbsp;2026-09-15c</span></div>
+  <div class="foot" title="Hinweis: 5× tippen öffnet die Feedback-Auswertung">Bot &amp; Software © 2026 Karl Opelt · <span class="ver">Stand&nbsp;2026-09-17</span></div>
 </div>
 <div id="printArea" aria-hidden="true"></div>
-<script src="daten.js?v=20260915c"></script>
+<script src="daten.js?v=20260917"></script>
 <script>
 /* ---------- Matching ---------- */
 const STOPWORDS=new Set(['ich','du','er','sie','es','wir','ihr','der','die','das','ein','eine','einen','einem','einer','wie','was','wann','wo','ist','sind','war','wird','muss','kann','mir','mich','dir','dich','zu','im','in','am','an','bei','für','und','oder','mit','auf','ab','habe','hat','hab','bitte','mal','denn','doch','noch','auch','nur','schon','meine','mein','meinen','wer','soll','möchte','will','brauche']);
@@ -392,20 +396,34 @@ function doFb(grp,ok,question,topic,answer){
   const inp=document.createElement('textarea');inp.className='fb-report-input';inp.rows=2;
   inp.setAttribute('aria-label',ok?'Positive Rückmeldung (optional)':'Was hat gefehlt oder war falsch?');
   inp.placeholder=ok?'z.B. sehr hilfreich, gut erklärt …':'z.B. Antwort unvollständig, falscher Ansprechpartner, veraltet …';
+  const btns=document.createElement('div');btns.className='fb-report-btns';
   const send=document.createElement('button');send.className='fb-btn fb-report-send';send.type='button';send.textContent='✉️ An Opelt senden';
   send.onclick=function(){sendSupportFeedback(ok,question,topic,answer,inp.value);box.replaceWith(mkFbDone('✓ E-Mail an Opelt geöffnet – bitte noch absenden. Danke!'));chatEl.scrollTop=chatEl.scrollHeight;};
-  const hint=document.createElement('div');hint.className='fb-report-hint';hint.textContent='Feedback bitte an Opelt senden ('+SUPPORT_MAIL+').';
-  box.append(lbl,inp,send,hint);grp.replaceWith(box);chatEl.scrollTop=chatEl.scrollHeight;
+  const cp=document.createElement('button');cp.className='fb-btn fb-report-copy';cp.type='button';cp.textContent='📋 Text kopieren';cp.setAttribute('aria-label','Feedback-Text kopieren');
+  cp.onclick=function(){const m=buildFeedbackMail(ok,question,topic,answer,inp.value);copyText('An: '+SUPPORT_MAIL+'\nBetreff: '+m.subj+'\n\n'+m.body,cp);};
+  btns.append(send,cp);
+  const hint=document.createElement('div');hint.className='fb-report-hint';hint.textContent='Öffnet Outlook mit Empfänger '+SUPPORT_MAIL+'. Falls sich nichts öffnet: „📋 Text kopieren" und die Rückmeldung manuell an diese Adresse schicken.';
+  box.append(lbl,inp,btns,hint);grp.replaceWith(box);chatEl.scrollTop=chatEl.scrollHeight;
 }
-function sendSupportFeedback(ok,question,topic,answer,comment){
+/* Baut Betreff + kurzen Text der Feedback-Mail (ohne die komplette Antwort – hält den mailto-Link kurz, damit Outlook ihn nicht abschneidet) */
+function buildFeedbackMail(ok,question,topic,answer,comment){
   const mark=ok?'👍 hilfreich':'👎 nicht hilfreich';
   const subj='Feedback Ablauf-Assistent ('+(ok?'👍':'👎')+'): '+(topic||question||'Rückmeldung');
   var body='Rückmeldung aus dem Ablauf-Assistenten ('+mark+')\n\n';
   body+='Frage / Suche: '+(question||'-')+'\n';
-  body+='Zugeordnetes Thema: '+(topic||'-')+'\n\n';
+  body+='Zugeordnetes Thema: '+(topic||'-')+'\n';
+  body+='Zeitpunkt: '+new Date().toLocaleString('de-DE')+'\n\n';
   if(comment&&comment.trim())body+='Kommentar:\n'+comment.trim()+'\n\n';
-  body+='------------------------------\nAngezeigte Antwort:\n'+(answer||'');
-  window.location.href='mailto:'+encodeURIComponent(SUPPORT_MAIL)+'?subject='+encodeURIComponent(subj)+'&body='+encodeURIComponent(body);
+  var excerpt=(answer||'').replace(/\s+/g,' ').trim();
+  if(excerpt.length>240)excerpt=excerpt.slice(0,240)+' …';
+  body+='Auszug der Antwort: '+excerpt;
+  return {subj:subj,body:body};
+}
+function sendSupportFeedback(ok,question,topic,answer,comment){
+  const m=buildFeedbackMail(ok,question,topic,answer,comment);
+  const href='mailto:'+encodeURIComponent(SUPPORT_MAIL)+'?subject='+encodeURIComponent(m.subj)+'&body='+encodeURIComponent(m.body);
+  const a=document.createElement('a');a.href=href;a.style.display='none';document.body.appendChild(a);a.click();
+  setTimeout(function(){if(a.parentNode)a.parentNode.removeChild(a);},300);
 }
 /* ---------- Feedback-Auswertung (nur lokal, dieses Gerät) ---------- */
 function readFb(){try{return JSON.parse(localStorage.getItem('va_fb'))||{up:0,down:0,topics:{}};}catch(e){return {up:0,down:0,topics:{}};}}
