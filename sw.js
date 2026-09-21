@@ -1,7 +1,7 @@
 /* Service Worker – Ablauf-Assistent der Wohnraumverwaltung
    Cache-first mit Netzwerk-Fallback. Bei jedem Release CACHE-Namen erhöhen,
    damit die neue Version sicher ausgeliefert wird. */
-const CACHE = 'ablauf-assistent-20260921e';
+const CACHE = 'ablauf-assistent-20260921f';
 const ASSETS = [
   './',
   'index.html',
@@ -31,6 +31,9 @@ self.addEventListener('fetch', function (e) {
   if (req.method !== 'GET') return;
   const url = new URL(req.url);
   if (url.origin !== self.location.origin) return; // nichts Fremdes cachen
+  // Videos NICHT über den Service Worker cachen – immer frisch aus dem Netz
+  // (unterstützt Range-Requests sauber und verhindert veraltete Fassungen).
+  if (/\.mp4($|\?)/i.test(url.pathname)) return;
 
   e.respondWith(
     caches.match(req, { ignoreSearch: true }).then(function (cached) {
