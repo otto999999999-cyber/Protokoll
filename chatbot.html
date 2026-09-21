@@ -12,7 +12,7 @@
 <meta name="theme-color" content="#2563eb">
 <meta name="author" content="Karl Opelt">
 <meta name="apple-mobile-web-app-title" content="Ablauf-Assistent">
-<link rel="manifest" href="manifest.webmanifest?v=20260917">
+<link rel="manifest" href="manifest.webmanifest?v=20260921">
 <link rel="apple-touch-icon" href="icon-192.png">
 <link rel="icon" type="image/png" sizes="512x512" href="icon-512.png">
 <title>Ablauf-Assistent – Wohnraumverwaltung</title>
@@ -210,6 +210,42 @@ mark.hl{background:rgba(250,204,21,.5);color:inherit;border-radius:3px;padding:0
 .aus-btn{flex:1;min-width:120px;background:var(--surface);border:1px solid var(--border);border-radius:11px;padding:9px 12px;font-size:12.5px;font-weight:700;color:var(--brand-ink);cursor:pointer}
 .aus-btn:hover{border-color:var(--brand)}
 .aus-btn.danger{color:#dc2626;border-color:rgba(220,38,38,.4)}
+/* ---- Barrierefreiheit: reduzierte Bewegung ---- */
+@media (prefers-reduced-motion: reduce){*{animation-duration:.001ms!important;animation-iteration-count:1!important;transition-duration:.001ms!important;scroll-behavior:auto!important}}
+/* ---- Tabs: 4 Reiter sicher nebeneinander ---- */
+.tab{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+/* ---- Live-Suchvorschläge (Autocomplete) ---- */
+.ac{flex-shrink:0;margin:0 12px;background:var(--surface);border:1px solid var(--border);border-radius:14px;box-shadow:var(--shadow-md);overflow:hidden;max-height:230px;overflow-y:auto}
+.ac.hidden{display:none}
+.ac-item{display:flex;gap:8px;align-items:center;width:100%;text-align:left;background:transparent;border:none;border-bottom:1px solid var(--border);padding:10px 13px;font:inherit;font-size:13.5px;color:var(--text);cursor:pointer}
+.ac-item:last-child{border-bottom:none}
+.ac-item:hover,.ac-item.sel{background:var(--surface-2)}
+.ac-item .ac-ico{opacity:.6;flex-shrink:0}
+.ac-item mark.hl{background:rgba(250,204,21,.5);border-radius:3px}
+/* ---- Glossar ---- */
+.glo-wrap{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:16px 14px calc(20px + env(safe-area-inset-bottom,0px));display:flex;flex-direction:column;gap:10px}
+.glo-intro{font-size:12.5px;line-height:1.55;color:var(--muted);text-align:center;max-width:600px;margin:2px auto 4px}
+.glo-search{width:100%;max-width:620px;margin:0 auto;border:1px solid var(--border);border-radius:12px;padding:10px 13px;font:inherit;font-size:13.5px;color:var(--text);background:var(--surface);box-shadow:var(--shadow-sm)}
+.glo-search:focus{outline:none;border-color:var(--brand)}
+.glo-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:11px 14px;width:100%;max-width:620px;margin:0 auto;box-shadow:var(--shadow-sm);display:flex;gap:12px;align-items:flex-start}
+.glo-k{flex:0 0 auto;font-weight:800;color:#fff;background:var(--grad);border-radius:8px;padding:4px 9px;font-size:12.5px;min-width:52px;text-align:center}
+.glo-t{font-size:13.5px;line-height:1.5;color:var(--text)}
+.glo-empty{text-align:center;color:var(--muted);font-size:13px;padding:18px 8px}
+/* ---- Checklisten- & Intro-Overlay (nutzt aus-overlay-Grundgerüst) ---- */
+.ck-item{display:flex;gap:11px;align-items:flex-start;padding:9px 4px;border-bottom:1px solid var(--border);cursor:pointer}
+.ck-item:last-child{border-bottom:none}
+.ck-item input{margin-top:2px;width:19px;height:19px;flex-shrink:0;accent-color:var(--brand);cursor:pointer}
+.ck-item.done .ck-txt{text-decoration:line-through;color:var(--muted)}
+.ck-txt{font-size:13.5px;line-height:1.45}
+.ck-sec{font-size:12px;font-weight:800;letter-spacing:.03em;text-transform:uppercase;color:var(--muted);margin:12px 0 2px}
+.ck-prog{height:9px;border-radius:6px;background:var(--surface-2);overflow:hidden;margin:4px 0 2px}
+.ck-prog>i{display:block;height:100%;background:var(--grad);width:0;transition:width .25s}
+.ck-prog-lbl{font-size:12px;font-weight:700;color:var(--brand-ink);margin-bottom:8px}
+.intro-slide{font-size:13.5px;line-height:1.55;color:var(--text)}
+.intro-slide h4{font-size:15px;margin:0 0 8px}
+.intro-li{display:flex;gap:10px;align-items:flex-start;margin:9px 0}
+.intro-li .ico{font-size:19px;line-height:1;flex-shrink:0}
+.intro-li b{color:var(--brand-ink)}
 /* Antwort als PDF/Drucken */
 #printArea{display:none}
 @media print{
@@ -239,22 +275,28 @@ mark.hl{background:rgba(250,204,21,.5);color:inherit;border-radius:3px;padding:0
     <div class="avatar">🗂️</div>
     <div class="htxt">
       <h1>Ablauf-Assistent</h1>
-      <div class="status"><span class="dot"></span>Wohnraumverwaltung</div>
+      <div class="status"><span class="dot"></span>Einarbeitung &amp; Abläufe der Wohnraumverwaltung</div>
     </div>
+    <button class="hdr-btn" id="helpBtn" onclick="openIntro()" aria-label="Kurzeinführung anzeigen" title="Kurzeinführung / Hilfe">❓</button>
     <button class="hdr-btn" id="resetBtn" onclick="resetChat()" aria-label="Gespräch neu starten" title="Gespräch neu starten">↺</button>
   </header>
   <div class="tabs" id="tabs" role="tablist" aria-label="Ansicht wählen">
-    <button class="tab active" id="tab-assist" role="tab" aria-selected="true" aria-controls="assistView" data-tab="assist" type="button" onclick="switchTab('assist')">💬 Assistent</button>
+    <button class="tab active" id="tab-assist" role="tab" aria-selected="true" aria-controls="assistView" data-tab="assist" type="button" onclick="switchTab('assist')">💬 Chat</button>
+    <button class="tab" id="tab-glossar" role="tab" aria-selected="false" aria-controls="glossarView" data-tab="glossar" type="button" onclick="switchTab('glossar')">📖 Glossar</button>
     <button class="tab" id="tab-urteil" role="tab" aria-selected="false" aria-controls="urteilView" data-tab="urteil" type="button" onclick="switchTab('urteil')">⚖️ Urteile</button>
     <button class="tab" id="tab-witz" role="tab" aria-selected="false" aria-controls="witzView" data-tab="witz" type="button" onclick="switchTab('witz')">🎭 Witz</button>
   </div>
   <div id="assistView" class="view" role="tabpanel" aria-labelledby="tab-assist">
     <div id="chat" role="log" aria-live="polite" aria-atomic="false" aria-label="Chatverlauf"></div>
     <div class="chips" id="chips" role="group" aria-label="Themenvorschläge"></div>
+    <div id="ac" class="ac hidden" role="listbox" aria-label="Suchvorschläge"></div>
     <div class="inputbar">
-      <textarea id="ta" rows="1" placeholder="Frage eingeben…" aria-label="Frage eingeben" onkeydown="onKey(event)" oninput="autoGrow(this)"></textarea>
+      <textarea id="ta" rows="1" placeholder="Frage eingeben…" aria-label="Frage eingeben" onkeydown="onKey(event)" oninput="autoGrow(this);acUpdate(this.value)" onblur="setTimeout(acHide,150)"></textarea>
       <button class="sendbtn" id="sendBtn" onclick="sendMsg()" aria-label="Nachricht senden">➤</button>
     </div>
+  </div>
+  <div id="glossarView" class="view hidden" role="tabpanel" aria-labelledby="tab-glossar">
+    <div class="glo-wrap" id="gloWrap"></div>
   </div>
   <div id="witzView" class="view hidden" role="tabpanel" aria-labelledby="tab-witz">
     <div class="witz-wrap">
@@ -273,10 +315,10 @@ mark.hl{background:rgba(250,204,21,.5);color:inherit;border-radius:3px;padding:0
   <div id="urteilView" class="view hidden" role="tabpanel" aria-labelledby="tab-urteil">
     <div class="urt-wrap" id="urtWrap"></div>
   </div>
-  <div class="foot" title="Hinweis: 5× tippen öffnet die Feedback-Auswertung">Bot &amp; Software © 2026 Karl Opelt · <span class="ver">Stand&nbsp;2026-09-17</span></div>
+  <div class="foot" title="Hinweis: 5× tippen öffnet die Feedback-Auswertung">Bot &amp; Software © 2026 Karl Opelt · <span class="ver">Stand&nbsp;2026-09-21</span></div>
 </div>
 <div id="printArea" aria-hidden="true"></div>
-<script src="daten.js?v=20260917"></script>
+<script src="daten.js?v=20260921"></script>
 <script>
 /* ---------- Matching ---------- */
 const STOPWORDS=new Set(['ich','du','er','sie','es','wir','ihr','der','die','das','ein','eine','einen','einem','einer','wie','was','wann','wo','ist','sind','war','wird','muss','kann','mir','mich','dir','dich','zu','im','in','am','an','bei','für','und','oder','mit','auf','ab','habe','hat','hab','bitte','mal','denn','doch','noch','auch','nur','schon','meine','mein','meinen','wer','soll','möchte','will','brauche']);
@@ -368,7 +410,11 @@ function addActions(text,question,topic){
   const up=document.createElement('button');up.className='fb-btn';up.type='button';up.textContent='👍';up.setAttribute('aria-label','Antwort war hilfreich');
   const down=document.createElement('button');down.className='fb-btn';down.type='button';down.textContent='👎';down.setAttribute('aria-label','Antwort war nicht hilfreich');
   up.onclick=function(){doFb(grp,true,question,topic,text);};down.onclick=function(){doFb(grp,false,question,topic,text);};
-  grp.append(q,up,down);row.append(cp,pr,grp);chatEl.appendChild(row);chatEl.scrollTop=chatEl.scrollHeight;
+  grp.append(q,up,down);
+  row.append(cp,pr);
+  if(hasSteps(text)){const ck=document.createElement('button');ck.className='fb-btn fb-copy';ck.type='button';ck.textContent='☑️ Checkliste';ck.setAttribute('aria-label','Ablauf als abhakbare Checkliste öffnen');ck.onclick=function(){openChecklist(topic,text);};row.append(ck);}
+  row.append(grp);
+  chatEl.appendChild(row);chatEl.scrollTop=chatEl.scrollHeight;
 }
 function printAnswer(answer,topic){
   const pa=document.getElementById('printArea');
@@ -470,10 +516,10 @@ function openAuswertung(){
   document.getElementById('ausCsv').onclick=function(){downloadFile('feedback-auswertung.csv','﻿'+auswertungCSV(),'text/csv;charset=utf-8');};
   document.getElementById('ausReset').onclick=function(){if(confirm('Alle lokal auf diesem Gerät gespeicherten Feedback-Daten löschen?')){localStorage.removeItem('va_fb');localStorage.removeItem('va_miss');openAuswertung();}};
 }
-function addSuggestions(intro,faqs){
+function addSuggestions(intro,faqs,terms){
   addMsg('bot',intro);
   const row=document.createElement('div');row.className='sugg-row';
-  faqs.forEach(f=>{const b=document.createElement('button');b.className='sugg-btn';b.type='button';b.textContent=f.q;b.onclick=()=>{ta.value=f.q;sendMsg();};row.appendChild(b);});
+  faqs.forEach(f=>{const b=document.createElement('button');b.className='sugg-btn';b.type='button';b.innerHTML=hlEsc(f.q,terms);b.setAttribute('aria-label',f.q);b.onclick=()=>{ta.value=f.q;sendMsg();};row.appendChild(b);});
   chatEl.appendChild(row);chatEl.scrollTop=chatEl.scrollHeight;
 }
 let chipMode='cats';
@@ -483,6 +529,7 @@ function allTopics(){return FAQ.filter(f=>f.cat==='proz'||f.cat==='ref').map(f=>
 function renderChips(){
   chipsEl.innerHTML='';
   if(chipMode==='cats'){
+    mkChip('🧭 Start hier','cat',()=>{startHere();});
     const rec=loadRecent();
     if(rec.length){
       const rl=document.createElement('span');rl.className='chip-lbl';rl.textContent='🕘 Zuletzt genutzt';chipsEl.appendChild(rl);
@@ -507,6 +554,7 @@ function resetChat(){history=[];saveHistory();chatEl.innerHTML='';chipMode='cats
 function sendMsg(){
   const text=ta.value.trim();
   if(!text)return;
+  acHide();
   addMsg('user',text);
   ta.value='';autoGrow(ta);
   sendBtn.disabled=true;showTyping();
@@ -527,7 +575,7 @@ function sendMsg(){
       const merged=[];const seen=new Set();
       softRank(text).filter(x=>x.s>0).concat(fullTextRank(text).filter(x=>x.s>0)).forEach(x=>{if(!seen.has(x.f.q)){seen.add(x.f.q);merged.push(x.f);}});
       logMiss(text,merged.length>0);
-      if(merged.length)addSuggestions('Ich bin nicht ganz sicher, was du meinst. Meintest du vielleicht:',merged.slice(0,4));
+      if(merged.length)addSuggestions('Ich bin nicht ganz sicher, was du meinst. Meintest du vielleicht:',merged.slice(0,4),hlTerms(text));
       else addMsg('bot',FALLBACK[Math.floor(Math.random()*FALLBACK.length)]);
     }
     sendBtn.disabled=false;
@@ -576,11 +624,12 @@ function renderWitz(){
 function todayWitz(){witzIdx=jokeIndexToday();renderWitz();}
 function nextWitz(){witzIdx=(witzIdx+1)%WITZE.length;renderWitz();}
 function switchTab(t){
-  const map={assist:'assistView',urteil:'urteilView',witz:'witzView'};
+  const map={assist:'assistView',glossar:'glossarView',urteil:'urteilView',witz:'witzView'};
   document.querySelectorAll('.tab').forEach(b=>{const on=b.dataset.tab===t;b.classList.toggle('active',on);b.setAttribute('aria-selected',on?'true':'false');});
   for(const k in map){
     document.getElementById(map[k]).classList.toggle('hidden',k!==t);
   }
+  acHide();
 }
 
 function renderUrteile(){
@@ -634,10 +683,143 @@ function applyUrtFilter(){
   var e=document.getElementById('urtEmpty');if(e)e.classList.toggle('hidden',shown>0);
 }
 
+/* ---------- Glossar ---------- */
+function renderGlossar(){
+  var wrap=document.getElementById('gloWrap');if(!wrap)return;
+  var html='<div class="glo-intro">📖 Kürzel & Fachbegriffe der Wohnraumverwaltung – kurz erklärt für den schnellen Einstieg. Im Zweifel bitte Rücksprache.</div>';
+  html+='<input id="gloSearch" class="glo-search" type="search" placeholder="🔎 Begriff oder Kürzel suchen …" aria-label="Glossar durchsuchen">';
+  html+='<div id="gloList">';
+  html+=GLOSSAR.slice().sort(function(a,b){return a.k.localeCompare(b.k,'de');}).map(function(g){
+    var t=(g.k+' '+g.t).toLowerCase();
+    return '<div class="glo-card" data-text="'+esc(t)+'"><span class="glo-k">'+esc(g.k)+'</span><span class="glo-t">'+esc(g.t)+'</span></div>';
+  }).join('');
+  html+='<div id="gloEmpty" class="glo-empty hidden">Keine Treffer – anderen Begriff versuchen.</div></div>';
+  wrap.innerHTML=html;
+  document.getElementById('gloSearch').addEventListener('input',applyGloFilter);
+}
+function applyGloFilter(){
+  var s=document.getElementById('gloSearch');var term=(s?s.value:'').toLowerCase().trim();var shown=0;
+  document.querySelectorAll('#gloList .glo-card').forEach(function(c){var show=!term||c.dataset.text.indexOf(term)>=0;c.classList.toggle('hidden',!show);if(show)shown++;});
+  var e=document.getElementById('gloEmpty');if(e)e.classList.toggle('hidden',shown>0);
+}
+
+/* ---------- Live-Suchvorschläge (Autocomplete) ---------- */
+function liveMatches(v){
+  var t=normalize(v);if(t.length<2)return [];
+  var toks=t.split(' ').filter(Boolean);var last=toks[toks.length-1]||'';
+  var res=[];
+  FAQ.forEach(function(f){
+    if(f.cat!=='proz'&&f.cat!=='ref')return;
+    var hayQ=normalize(f.q);var kwHay=f.kw.join(' ');var score=0;
+    if(hayQ.indexOf(t)>=0)score=3;
+    else if(hayQ.indexOf(last)>=0)score=2;
+    else if(last.length>=3&&kwHay.indexOf(last)>=0)score=1;
+    if(score>0)res.push({q:f.q,s:score});
+  });
+  res.sort(function(a,b){return b.s-a.s||a.q.localeCompare(b.q,'de');});
+  return res.slice(0,6);
+}
+function acUpdate(v){
+  var box=document.getElementById('ac');if(!box)return;
+  var m=liveMatches(v||'');
+  if(!m.length){acHide();return;}
+  var terms=hlTerms(v||'');
+  box.innerHTML=m.map(function(x){return '<button type="button" class="ac-item" role="option" data-q="'+esc(x.q).replace(/"/g,'&quot;')+'"><span class="ac-ico">🔎</span><span>'+hlEsc(x.q,terms)+'</span></button>';}).join('');
+  box.querySelectorAll('.ac-item').forEach(function(btn){btn.addEventListener('mousedown',function(e){e.preventDefault();acPick(btn.getAttribute('data-q'));});});
+  box.classList.remove('hidden');
+}
+function acHide(){var box=document.getElementById('ac');if(box)box.classList.add('hidden');}
+function acPick(q){acHide();ta.value=q;sendMsg();}
+
+/* ---------- Geführter Einstieg „Start hier" ---------- */
+function startHere(){
+  switchTab('assist');
+  addMsg('bot','🧭 Start hier – dein Einstieg in die Wohnraumverwaltung.\n\nArbeite dich am besten von oben nach unten durch. Du kannst jederzeit auch eigene Fragen eintippen.');
+  addStartList('Schritt 1 – Orientierung',['Was ist dieser Assistent?','Wo finde ich die Dateien?']);
+  addStartList('Schritt 2 – Wichtigste Abläufe',['Mietvertrag versenden','Abnahme (Rückgabe)','Kaution auflösen (Teil-/Gesamt)','Kündigungsbestätigung']);
+  addStartList('Schritt 3 – System & Alltag',['Outlook-Abwesenheit einrichten','Arbeitszeiterfassung (ATOSS – Ein-/Ausbuchen)','Elektronisches Archiv (nscale)']);
+  addMsg('bot','Tipp: Fachbegriffe und Kürzel findest du oben im Reiter „📖 Glossar".');
+}
+function addStartList(title,titles){
+  var valid=titles.filter(function(q){return FAQ.some(function(f){return f.q===q;});});
+  if(!valid.length)return;
+  addMsg('bot',title);
+  var row=document.createElement('div');row.className='sugg-row';
+  valid.forEach(function(q){var b=document.createElement('button');b.className='sugg-btn';b.type='button';b.textContent=q;b.onclick=function(){ta.value=q;sendMsg();};row.appendChild(b);});
+  chatEl.appendChild(row);chatEl.scrollTop=chatEl.scrollHeight;
+}
+
+/* ---------- Interaktive Checkliste ---------- */
+function hasSteps(text){return String(text).split('\n').some(function(l){l=l.trim();return /^[•·]/.test(l)||/^\d{1,2}[.)]\s/.test(l);});}
+function parseSteps(text){
+  var out=[];
+  String(text).split('\n').forEach(function(raw){
+    var t=raw.trim();if(!t)return;
+    if(/^📁/.test(t)||/^Weiter mit:/i.test(t))return;
+    if(/^[•·]/.test(t)){out.push({type:'item',txt:t.replace(/^[•·]\s*/,'')});return;}
+    var m=t.match(/^(\d{1,2})[.)]\s+(.+)$/);if(m){out.push({type:'item',txt:m[2]});return;}
+    if(t.length<=70&&/:$/.test(t)){out.push({type:'sec',txt:t});return;}
+  });
+  return out;
+}
+function ckKey(topic){return 'va_ck_'+topic;}
+function ckLoad(topic,n){try{var o=JSON.parse(localStorage.getItem(ckKey(topic)));if(o&&o.n===n&&Array.isArray(o.done))return o.done;}catch(e){}return new Array(n).fill(false);}
+function ckSave(topic,n,done){try{localStorage.setItem(ckKey(topic),JSON.stringify({n:n,done:done}));}catch(e){}}
+function closeCk(){var o=document.getElementById('ckOverlay');if(o)o.remove();}
+function openChecklist(topic,answer){
+  closeCk();
+  var steps=parseSteps(answer);var n=steps.filter(function(s){return s.type==='item';}).length;
+  var done=ckLoad(topic,n);var itemIdx=-1;
+  var rows=steps.map(function(s){
+    if(s.type==='sec')return '<div class="ck-sec">'+esc(s.txt)+'</div>';
+    itemIdx++;var i=itemIdx;
+    return '<label class="ck-item'+(done[i]?' done':'')+'" data-i="'+i+'"><input type="checkbox"'+(done[i]?' checked':'')+'><span class="ck-txt">'+esc(s.txt)+'</span></label>';
+  }).join('');
+  var ov=document.createElement('div');ov.className='aus-overlay';ov.id='ckOverlay';
+  ov.innerHTML='<div class="aus-card" role="dialog" aria-modal="true" aria-label="Checkliste">'
+    +'<div class="aus-h"><b>☑️ '+esc(topic||'Ablauf')+'</b><button class="aus-x" id="ckX" aria-label="Schließen">✕</button></div>'
+    +'<div class="ck-prog-lbl" id="ckLbl"></div><div class="ck-prog"><i id="ckBar"></i></div>'
+    +'<div class="aus-note">Haken bleiben auf diesem Gerät gespeichert. Orientierungshilfe – verbindlich sind die Original-Checklisten.</div>'
+    +'<div id="ckList">'+rows+'</div>'
+    +'<div class="aus-btns"><button class="aus-btn danger" id="ckReset">Haken zurücksetzen</button></div></div>';
+  document.body.appendChild(ov);
+  function upd(){var d=0;for(var i=0;i<n;i++)if(done[i])d++;var bar=document.getElementById('ckBar');if(bar)bar.style.width=(n?Math.round(d/n*100):0)+'%';var lbl=document.getElementById('ckLbl');if(lbl)lbl.textContent=d+' von '+n+' erledigt';}
+  ov.querySelectorAll('.ck-item').forEach(function(lab){var i=+lab.dataset.i;var box=lab.querySelector('input');box.addEventListener('change',function(){done[i]=box.checked;lab.classList.toggle('done',box.checked);ckSave(topic,n,done);upd();});});
+  upd();
+  ov.addEventListener('click',function(e){if(e.target===ov)closeCk();});
+  document.getElementById('ckX').onclick=closeCk;
+  document.getElementById('ckReset').onclick=function(){if(confirm('Alle Haken dieser Checkliste zurücksetzen?')){done=new Array(n).fill(false);ckSave(topic,n,done);openChecklist(topic,answer);}};
+}
+
+/* ---------- Kurzeinführung / Erststart-Tour ---------- */
+function closeIntro(){var o=document.getElementById('introOverlay');if(o)o.remove();}
+function openIntro(){
+  closeIntro();
+  var ov=document.createElement('div');ov.className='aus-overlay';ov.id='introOverlay';
+  ov.innerHTML='<div class="aus-card" role="dialog" aria-modal="true" aria-label="Kurzeinführung">'
+    +'<div class="aus-h"><b>👋 Willkommen beim Ablauf-Assistenten</b><button class="aus-x" id="introX" aria-label="Schließen">✕</button></div>'
+    +'<div class="intro-slide">'
+    +'<div class="intro-li"><span class="ico">⌨️</span><div><b>Frage eingeben</b> – tippe dein Anliegen (z. B. „Kaution auflösen"). Tippfehler sind ok; Vorschläge erscheinen schon beim Tippen.</div></div>'
+    +'<div class="intro-li"><span class="ico">🧭</span><div><b>Start hier</b> – der geführte Einstieg zeigt die wichtigsten Abläufe für den Anfang.</div></div>'
+    +'<div class="intro-li"><span class="ico">📖</span><div><b>Glossar</b> – Kürzel wie SAP, OPCC oder nscale kurz erklärt.</div></div>'
+    +'<div class="intro-li"><span class="ico">☑️</span><div><b>Checkliste</b> – mehrstufige Abläufe kannst du Schritt für Schritt abhaken.</div></div>'
+    +'<div class="intro-li"><span class="ico">📲</span><div><b>Offline</b> – über das Browser-Menü „Zum Startbildschirm hinzufügen" installierbar und ohne Netz nutzbar.</div></div>'
+    +'</div>'
+    +'<div class="aus-btns"><button class="aus-btn" id="introStart">🧭 Zeig mir den Einstieg</button><button class="aus-btn" id="introClose">Los geht\'s</button></div></div>';
+  document.body.appendChild(ov);
+  try{localStorage.setItem('va_intro','1');}catch(e){}
+  ov.addEventListener('click',function(e){if(e.target===ov)closeIntro();});
+  document.getElementById('introX').onclick=closeIntro;
+  document.getElementById('introClose').onclick=closeIntro;
+  document.getElementById('introStart').onclick=function(){closeIntro();startHere();};
+}
+
 /* ---------- Init ---------- */
 renderChips();
 todayWitz();
 renderUrteile();
+renderGlossar();
+try{if(!localStorage.getItem('va_intro'))setTimeout(openIntro,500);}catch(e){}
 /* Feedback-Auswertung: über #auswertung oder 5× Tippen auf die Fußzeile */
 if(location.hash==='#auswertung')openAuswertung();
 window.addEventListener('hashchange',function(){if(location.hash==='#auswertung')openAuswertung();});

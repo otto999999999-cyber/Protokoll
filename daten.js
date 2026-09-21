@@ -366,3 +366,34 @@ const URTEILE=[
   t:'Vormiete nur aus dem unmittelbar vorhergehenden Mietverhältnis',
   b:'Als geschützte Vormiete (§556e Abs.1 BGB) zählt nur die Miete aus dem unmittelbar vorhergehenden Wohnraummietverhältnis. Frühere oder anderweitige Mietverhältnisse sind für den Vormietenschutz nicht maßgeblich.'}
 ];
+
+
+/* ---------- Glossar: Kürzel & Fachbegriffe der Wohnraumverwaltung ---------- */
+const GLOSSAR=[
+  {k:'SAP', t:'Zentrales Verwaltungssystem der Wohnraumverwaltung (Verträge, Mieter, Konten, Buchhaltung). Viele Abläufe starten hier.'},
+  {k:'OPCC', t:'Schreiben-/Korrespondenzmodul in SAP – erzeugt Vorlagen wie Begrüßungsschreiben oder Kautionsabrechnung.'},
+  {k:'RE80', t:'SAP-Transaktion, mit der ein Mietvertrag aufgerufen wird.'},
+  {k:'nscale', t:'Elektronisches Archiv / Dokumentenmanagement (DMS) – Scannen und revisionssichere Ablage von Unterlagen.'},
+  {k:'HBM', t:'Hausbank München – dort werden die Kautionskonten geführt und abgerechnet.'},
+  {k:'WE', t:'Wirtschaftseinheit – Objekt-/Gebäudekennung (z. B. WE-Nummer).'},
+  {k:'MV', t:'Mietvertrag.'},
+  {k:'ReNo / Reno', t:'Renovierungsaufforderung bzw. die vom Mieter geschuldete Renovierung.'},
+  {k:'SE', t:'Sicherheitseinbehalt – Teil der Kaution, der bei Auszug zunächst einbehalten wird (z. B. bis zur Nebenkostenabrechnung).'},
+  {k:'HKA', t:'Heizkostenabrechnung.'},
+  {k:'BKA', t:'Betriebskostenabrechnung.'},
+  {k:'BeKo', t:'Bereich Betriebskosten (Abrechnung und Meldungen, z. B. Ab-/Anmeldungen bei Auszug).'},
+  {k:'MPB', t:'Mietpreisbremse bzw. Mietpreisbremse-Fälle (§§556d ff. BGB).'},
+  {k:'DLE', t:'Durchlauferhitzer (Warmwasserbereitung) – bei der Abnahme zu prüfen.'},
+  {k:'ATOSS', t:'System zur Arbeitszeiterfassung (Ein-/Ausbuchen, Urlaub, Korrekturen, Stundenzettel).'},
+  {k:'Eckdatenblatt', t:'Übersichtsblatt mit den wichtigsten Vertrags-/Objektdaten, das vielen Vorgängen beigelegt wird.'},
+  {k:'GF', t:'Geschäftsführung – zeichnet u. a. Kündigungsbestätigungen und Verträge gegen.'},
+  {k:'AbtL', t:'Abteilungsleitung.'},
+  {k:'Verw', t:'Verwalter:in – zuständig für die inhaltliche Bearbeitung eines Ablaufs.'},
+  {k:'Assist', t:'Assistenz – übernimmt vorbereitende und nachbereitende Schritte.'},
+  {k:'SFI', t:'SFI Facility Management GmbH – externer Dienstleister für Instandsetzung und Mängelbearbeitung.'},
+  {k:'Ticker / Hausmanager', t:'System der SFI, über das Mängel und Störungen gemeldet und nachverfolgt werden.'},
+  {k:'DC', t:'Kürzel eines internen Ansprechpartners (Assistenz Bau), u. a. beim Ablauf Aufzug-Stillstand.'},
+  {k:'Conny', t:'Externer Legal-Tech-Dienstleister im Zusammenhang mit Mietpreisbremse-Ansprüchen („aus abgetretenem Recht").'},
+  {k:'Indexmiete', t:'Miete, die sich an den Verbraucherpreisindex koppelt (Indexklausel); Anpassungen werden in SAP gepflegt.'},
+  {k:'Staffelmiete', t:'Miete mit vertraglich festgelegten, gestaffelten Erhöhungen zu bestimmten Zeitpunkten.'}
+];
