@@ -12,7 +12,7 @@
 <meta name="theme-color" content="#2563eb">
 <meta name="author" content="Karl Opelt">
 <meta name="apple-mobile-web-app-title" content="Ablauf-Assistent">
-<link rel="manifest" href="manifest.webmanifest?v=20260921b">
+<link rel="manifest" href="manifest.webmanifest?v=20260921c">
 <link rel="apple-touch-icon" href="icon-192.png">
 <link rel="icon" type="image/png" sizes="512x512" href="icon-512.png">
 <title>Ablauf-Assistent – Wohnraumverwaltung</title>
@@ -246,6 +246,9 @@ mark.hl{background:rgba(250,204,21,.5);color:inherit;border-radius:3px;padding:0
 .intro-li{display:flex;gap:10px;align-items:flex-start;margin:9px 0}
 .intro-li .ico{font-size:19px;line-height:1;flex-shrink:0}
 .intro-li b{color:var(--brand-ink)}
+/* ---- Schulungsvideo-Overlay ---- */
+.vid-card{max-width:840px}
+.vid-el{width:100%;border-radius:10px;background:#000;max-height:70vh;display:block}
 /* Antwort als PDF/Drucken */
 #printArea{display:none}
 @media print{
@@ -315,10 +318,10 @@ mark.hl{background:rgba(250,204,21,.5);color:inherit;border-radius:3px;padding:0
   <div id="urteilView" class="view hidden" role="tabpanel" aria-labelledby="tab-urteil">
     <div class="urt-wrap" id="urtWrap"></div>
   </div>
-  <div class="foot" title="Hinweis: 5× tippen öffnet die Feedback-Auswertung">Bot &amp; Software © 2026 Karl Opelt · <span class="ver">Stand&nbsp;2026-09-21b</span></div>
+  <div class="foot" title="Hinweis: 5× tippen öffnet die Feedback-Auswertung">Bot &amp; Software © 2026 Karl Opelt · <span class="ver">Stand&nbsp;2026-09-21c</span></div>
 </div>
 <div id="printArea" aria-hidden="true"></div>
-<script src="daten.js?v=20260921b"></script>
+<script src="daten.js?v=20260921c"></script>
 <script>
 /* ---------- Matching ---------- */
 const STOPWORDS=new Set(['ich','du','er','sie','es','wir','ihr','der','die','das','ein','eine','einen','einem','einer','wie','was','wann','wo','ist','sind','war','wird','muss','kann','mir','mich','dir','dich','zu','im','in','am','an','bei','für','und','oder','mit','auf','ab','habe','hat','hab','bitte','mal','denn','doch','noch','auch','nur','schon','meine','mein','meinen','wer','soll','möchte','will','brauche']);
@@ -401,6 +404,21 @@ function addMsg(role,text,save,terms){
 }
 function showTyping(){const el=document.createElement('div');el.className='typing';el.id='typingInd';el.innerHTML='<span></span><span></span><span></span>';chatEl.appendChild(el);chatEl.scrollTop=chatEl.scrollHeight;}
 function hideTyping(){const el=document.getElementById('typingInd');if(el)el.remove();}
+/* Schulungsvideos je Thema (geschwärzte, stumme Fassung – nur interne Verwendung) */
+const VIDEOS={'Bestellnummer anlegen (SAP)':'schulung-bestellnummer-sap.mp4?v=20260921c'};
+function closeVid(){var o=document.getElementById('vidOverlay');if(o){var v=o.querySelector('video');if(v){try{v.pause();}catch(e){}}o.remove();}}
+function openVideo(topic){
+  closeVid();
+  var src=VIDEOS[topic];if(!src)return;
+  var ov=document.createElement('div');ov.className='aus-overlay';ov.id='vidOverlay';
+  ov.innerHTML='<div class="aus-card vid-card" role="dialog" aria-modal="true" aria-label="Schulungsvideo">'
+    +'<div class="aus-h"><b>🎬 '+esc(topic)+'</b><button class="aus-x" id="vidX" aria-label="Schließen">✕</button></div>'
+    +'<video class="vid-el" controls playsinline preload="metadata" src="'+esc(src)+'"></video>'
+    +'<div class="aus-note">Schulungsvideo ohne Ton. Interne Daten (Adresse, Eigentümer, Budget, Lieferanten, Belegnummern) sind geschwärzt. Nur zur internen Verwendung.</div></div>';
+  document.body.appendChild(ov);
+  ov.addEventListener('click',function(e){if(e.target===ov)closeVid();});
+  document.getElementById('vidX').onclick=closeVid;
+}
 function addActions(text,question,topic){
   const row=document.createElement('div');row.className='fb-row';
   const cp=document.createElement('button');cp.className='fb-btn fb-copy';cp.type='button';cp.textContent='📋 Kopieren';cp.setAttribute('aria-label','Antwort kopieren');cp.onclick=function(){copyText(text,cp);};
@@ -413,6 +431,7 @@ function addActions(text,question,topic){
   grp.append(q,up,down);
   row.append(cp,pr);
   if(hasSteps(text)){const ck=document.createElement('button');ck.className='fb-btn fb-copy';ck.type='button';ck.textContent='☑️ Checkliste';ck.setAttribute('aria-label','Ablauf als abhakbare Checkliste öffnen');ck.onclick=function(){openChecklist(topic,text);};row.append(ck);}
+  if(VIDEOS[topic]){const vb=document.createElement('button');vb.className='fb-btn fb-copy';vb.type='button';vb.textContent='🎬 Video';vb.setAttribute('aria-label','Schulungsvideo ansehen');vb.onclick=function(){openVideo(topic);};row.append(vb);}
   row.append(grp);
   chatEl.appendChild(row);chatEl.scrollTop=chatEl.scrollHeight;
 }
