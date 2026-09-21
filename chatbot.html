@@ -12,7 +12,7 @@
 <meta name="theme-color" content="#2563eb">
 <meta name="author" content="Karl Opelt">
 <meta name="apple-mobile-web-app-title" content="Ablauf-Assistent">
-<link rel="manifest" href="manifest.webmanifest?v=20260921d">
+<link rel="manifest" href="manifest.webmanifest?v=20260921e">
 <link rel="apple-touch-icon" href="icon-192.png">
 <link rel="icon" type="image/png" sizes="512x512" href="icon-512.png">
 <title>Ablauf-Assistent – Wohnraumverwaltung</title>
@@ -318,10 +318,10 @@ mark.hl{background:rgba(250,204,21,.5);color:inherit;border-radius:3px;padding:0
   <div id="urteilView" class="view hidden" role="tabpanel" aria-labelledby="tab-urteil">
     <div class="urt-wrap" id="urtWrap"></div>
   </div>
-  <div class="foot" title="Hinweis: 5× tippen öffnet die Feedback-Auswertung">Bot &amp; Software © 2026 Karl Opelt · <span class="ver">Stand&nbsp;2026-09-21d</span></div>
+  <div class="foot" title="Hinweis: 5× tippen öffnet die Feedback-Auswertung">Bot &amp; Software © 2026 Karl Opelt · <span class="ver">Stand&nbsp;2026-09-21e</span></div>
 </div>
 <div id="printArea" aria-hidden="true"></div>
-<script src="daten.js?v=20260921d"></script>
+<script src="daten.js?v=20260921e"></script>
 <script>
 /* ---------- Matching ---------- */
 const STOPWORDS=new Set(['ich','du','er','sie','es','wir','ihr','der','die','das','ein','eine','einen','einem','einer','wie','was','wann','wo','ist','sind','war','wird','muss','kann','mir','mich','dir','dich','zu','im','in','am','an','bei','für','und','oder','mit','auf','ab','habe','hat','hab','bitte','mal','denn','doch','noch','auch','nur','schon','meine','mein','meinen','wer','soll','möchte','will','brauche']);
@@ -405,7 +405,7 @@ function addMsg(role,text,save,terms){
 function showTyping(){const el=document.createElement('div');el.className='typing';el.id='typingInd';el.innerHTML='<span></span><span></span><span></span>';chatEl.appendChild(el);chatEl.scrollTop=chatEl.scrollHeight;}
 function hideTyping(){const el=document.getElementById('typingInd');if(el)el.remove();}
 /* Schulungsvideos je Thema (geschwärzte, stumme Fassung – nur interne Verwendung) */
-const VIDEOS={'Bestellnummer anlegen (SAP)':'schulung-bestellnummer-sap.mp4?v=20260921d'};
+const VIDEOS={'Bestellnummer anlegen (SAP)':'schulung-bestellnummer-sap.mp4?v=20260921e'};
 function closeVid(){var o=document.getElementById('vidOverlay');if(o){var v=o.querySelector('video');if(v){try{v.pause();}catch(e){}}o.remove();}}
 function openVideo(topic){
   closeVid();
