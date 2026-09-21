@@ -12,7 +12,7 @@
 <meta name="theme-color" content="#2563eb">
 <meta name="author" content="Karl Opelt">
 <meta name="apple-mobile-web-app-title" content="Ablauf-Assistent">
-<link rel="manifest" href="manifest.webmanifest?v=20260921">
+<link rel="manifest" href="manifest.webmanifest?v=20260921b">
 <link rel="apple-touch-icon" href="icon-192.png">
 <link rel="icon" type="image/png" sizes="512x512" href="icon-512.png">
 <title>Ablauf-Assistent – Wohnraumverwaltung</title>
@@ -277,6 +277,7 @@ mark.hl{background:rgba(250,204,21,.5);color:inherit;border-radius:3px;padding:0
       <h1>Ablauf-Assistent</h1>
       <div class="status"><span class="dot"></span>Einarbeitung &amp; Abläufe der Wohnraumverwaltung</div>
     </div>
+    <button class="hdr-btn" id="witzBtn" onclick="switchTab('witz')" aria-label="Witz des Tages" title="Witz des Tages">🎭</button>
     <button class="hdr-btn" id="helpBtn" onclick="openIntro()" aria-label="Kurzeinführung anzeigen" title="Kurzeinführung / Hilfe">❓</button>
     <button class="hdr-btn" id="resetBtn" onclick="resetChat()" aria-label="Gespräch neu starten" title="Gespräch neu starten">↺</button>
   </header>
@@ -284,7 +285,6 @@ mark.hl{background:rgba(250,204,21,.5);color:inherit;border-radius:3px;padding:0
     <button class="tab active" id="tab-assist" role="tab" aria-selected="true" aria-controls="assistView" data-tab="assist" type="button" onclick="switchTab('assist')">💬 Chat</button>
     <button class="tab" id="tab-glossar" role="tab" aria-selected="false" aria-controls="glossarView" data-tab="glossar" type="button" onclick="switchTab('glossar')">📖 Glossar</button>
     <button class="tab" id="tab-urteil" role="tab" aria-selected="false" aria-controls="urteilView" data-tab="urteil" type="button" onclick="switchTab('urteil')">⚖️ Urteile</button>
-    <button class="tab" id="tab-witz" role="tab" aria-selected="false" aria-controls="witzView" data-tab="witz" type="button" onclick="switchTab('witz')">🎭 Witz</button>
   </div>
   <div id="assistView" class="view" role="tabpanel" aria-labelledby="tab-assist">
     <div id="chat" role="log" aria-live="polite" aria-atomic="false" aria-label="Chatverlauf"></div>
@@ -315,10 +315,10 @@ mark.hl{background:rgba(250,204,21,.5);color:inherit;border-radius:3px;padding:0
   <div id="urteilView" class="view hidden" role="tabpanel" aria-labelledby="tab-urteil">
     <div class="urt-wrap" id="urtWrap"></div>
   </div>
-  <div class="foot" title="Hinweis: 5× tippen öffnet die Feedback-Auswertung">Bot &amp; Software © 2026 Karl Opelt · <span class="ver">Stand&nbsp;2026-09-21</span></div>
+  <div class="foot" title="Hinweis: 5× tippen öffnet die Feedback-Auswertung">Bot &amp; Software © 2026 Karl Opelt · <span class="ver">Stand&nbsp;2026-09-21b</span></div>
 </div>
 <div id="printArea" aria-hidden="true"></div>
-<script src="daten.js?v=20260921"></script>
+<script src="daten.js?v=20260921b"></script>
 <script>
 /* ---------- Matching ---------- */
 const STOPWORDS=new Set(['ich','du','er','sie','es','wir','ihr','der','die','das','ein','eine','einen','einem','einer','wie','was','wann','wo','ist','sind','war','wird','muss','kann','mir','mich','dir','dich','zu','im','in','am','an','bei','für','und','oder','mit','auf','ab','habe','hat','hab','bitte','mal','denn','doch','noch','auch','nur','schon','meine','mein','meinen','wer','soll','möchte','will','brauche']);
@@ -562,7 +562,7 @@ function sendMsg(){
     hideTyping();
     const nt=normalize(text);const toks=new Set(nt.split(' ').filter(Boolean));
     if(nt.includes('witz')||nt.includes('joke')||toks.has('lachen')||toks.has('lach')||toks.has('lustig')){
-      addMsg('bot','😄 '+jokeOfTheDay()+'\n\nMehr davon findest du oben im Reiter „Witz des Tages".');
+      addMsg('bot','😄 '+jokeOfTheDay()+'\n\nMehr davon über das 🎭-Symbol oben rechts.');
       sendBtn.disabled=false;return;
     }
     const ranked=rankMatches(text);
