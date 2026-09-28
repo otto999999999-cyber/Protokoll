@@ -1,7 +1,7 @@
 /* Service Worker – Ablauf-Assistent der Wohnraumverwaltung
    Cache-first mit Netzwerk-Fallback. Bei jedem Release CACHE-Namen erhöhen,
    damit die neue Version sicher ausgeliefert wird. */
-const CACHE = 'ablauf-assistent-20260921f';
+const CACHE = 'ablauf-assistent-20260928';
 const ASSETS = [
   './',
   'index.html',
