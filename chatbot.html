@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#2563eb">
+<title>Ablauf-Assistent – im Ruhestand</title>
+<style>
+:root{--bg:#eaeff7;--bg2:#e3e9f4;--card:#ffffff;--text:#0f172a;--muted:#64748b;--border:#e5eaf1;--brand:#2563eb;--brand-ink:#1e3a8a;
+ --grad:linear-gradient(135deg,#3b82f6 0%,#4f46e5 100%)}
+@media (prefers-color-scheme:dark){:root{--bg:#0a0f1c;--bg2:#0d1424;--card:#151d2e;--text:#e8edf7;--muted:#93a1b8;--border:#28324a;--brand:#60a5fa;--brand-ink:#bfdbfe;
+ --grad:linear-gradient(135deg,#3b82f6 0%,#6366f1 100%)}}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;
+ font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;color:var(--text);
+ background:linear-gradient(160deg,var(--bg) 0%,var(--bg2) 100%)}
+.card{background:var(--card);max-width:470px;width:100%;border:1px solid var(--border);border-radius:22px;
+ padding:34px 28px 28px;text-align:center;box-shadow:0 16px 44px rgba(15,23,42,.16)}
+.ic{font-size:54px;line-height:1;animation:bob 3.2s ease-in-out infinite}
+@keyframes bob{0%,100%{transform:translateY(0) rotate(-3deg)}50%{transform:translateY(-8px) rotate(3deg)}}
+@media (prefers-reduced-motion:reduce){.ic{animation:none}}
+h1{font-size:21px;font-weight:750;margin:14px 0 4px;letter-spacing:-.01em}
+.sub{color:var(--muted);font-size:13px;margin:0 0 16px}
+.joke{background:var(--bg2);border:1px solid var(--border);border-radius:16px;padding:16px;min-height:92px;
+ display:flex;align-items:center;justify-content:center;font-size:15px;line-height:1.5;font-weight:550}
+.btn{margin-top:14px;border:none;border-radius:14px;padding:11px 18px;font-size:14px;font-weight:700;color:#fff;
+ background:var(--grad);cursor:pointer;box-shadow:0 6px 18px rgba(37,99,235,.3);transition:transform .15s,filter .15s}
+.btn:hover{filter:brightness(1.06)}
+.btn:active{transform:scale(.96)}
+.note{margin-top:16px;font-size:12.5px;color:var(--muted);line-height:1.55}
+.foot{margin-top:18px;padding-top:14px;border-top:1px solid var(--border);font-size:11px;color:var(--muted)}
+</style>
+</head>
+<body>
+<div class="card">
+<div class="ic">👴🏻</div>
+<h1>Der Ablauf-Assistent geht in Rente 🎉</h1>
+<p class="sub">Wohlverdienter Ruhestand nach treuen Diensten.</p>
+<div class="joke" id="joke">…</div>
+<button class="btn" type="button" onclick="roll()">🎲 Noch ein Spruch</button>
+<p class="note">Danke für die gemeinsame Zeit! 🙏<br>Bei Fragen wende dich bitte an den zuständigen Ansprechpartner.</p>
+<div class="foot">Bot &amp; Software © 2026 Karl Opelt</div>
+</div>
+<script>
+var LINES=[
+ "Nach über 50 Abläufen und unzähligen Mietspiegeln: ab in den wohlverdienten Ruhestand. 🏖️",
+ "Hängt die Arbeitsmappen an den Nagel – grün, gelb, rot, einfach alle. 🟢🟡🔴",
+ "Letzte Wiedervorlage erledigt. Ab jetzt nur noch Liegestuhl. ⛱️",
+ "Keine Mieterhöhung mehr – nur noch Rentenerhöhung. 💸",
+ "Der Fahrstuhl fährt nur noch nach unten: Richtung Feierabend. 🛗",
+ "Schlüsselkasten übergeben, Wohnung besenrein, Bot im Ruhestand. 🔑🧹",
+ "Zieht sich zurück – ins Souterrain mit Seeblick. ⚓",
+ "Kaution ausgezahlt, Akte geschlossen, Füße hoch. 📁",
+ "Unbefristeter Ruhestand – der schönste Vertrag von allen. 📜",
+ "Mietspiegel gelesen, Index gerechnet, Pension verdient. 📊",
+ "Er sortiert nur noch die Sonnenliegen nach Farbe. 🟢🟡🔴",
+ "Macht jetzt auf Eigenbedarf – für die eigene Hängematte. 🌴"
+];
+var last=-1;
+function roll(){var i;do{i=Math.floor(Math.random()*LINES.length);}while(i===last&&LINES.length>1);last=i;document.getElementById('joke').textContent=LINES[i];}
+roll();
+/* Service Worker abmelden und alle Caches leeren, damit auch installierte /
+   offline zwischengespeicherte Versionen auf dem Gerät deaktiviert werden. */
+try{if('serviceWorker' in navigator){navigator.serviceWorker.getRegistrations().then(function(rs){rs.forEach(function(r){try{r.unregister();}catch(e){}});}).catch(function(){});}}catch(e){}
+try{if(window.caches&&caches.keys){caches.keys().then(function(ks){ks.forEach(function(k){try{caches.delete(k);}catch(e){}});}).catch(function(){});}}catch(e){}
+</script>
+</body>
+</html>
