@@ -1,17 +1,54 @@
-/* Ablauf-Assistent – DEAKTIVIERT (Kill-Switch Service Worker)
-   Dieser SW ersetzt den frueheren. Er cached nichts mehr, leert alle alten
-   Caches, meldet sich selbst ab und laedt offene Fenster neu – damit auch
-   installierte / offline zwischengespeicherte App-Versionen deaktiviert werden. */
-self.addEventListener('install', function () { self.skipWaiting(); });
+/* Service Worker – Ablauf-Assistent der Wohnraumverwaltung
+   Cache-first mit Netzwerk-Fallback. Bei jedem Release CACHE-Namen erhöhen,
+   damit die neue Version sicher ausgeliefert wird. */
+const CACHE = 'ablauf-assistent-20260928';
+const ASSETS = [
+  './',
+  'index.html',
+  'chatbot.html',
+  'daten.js',
+  'manifest.webmanifest',
+  'icon-192.png',
+  'icon-512.png'
+];
+
+self.addEventListener('install', function (e) {
+  e.waitUntil(
+    caches.open(CACHE).then(function (c) { return c.addAll(ASSETS); }).then(function () { return self.skipWaiting(); })
+  );
+});
 
 self.addEventListener('activate', function (e) {
-  e.waitUntil((async function () {
-    try { var keys = await caches.keys(); await Promise.all(keys.map(function (k) { return caches.delete(k); })); } catch (err) {}
-    try { await self.registration.unregister(); } catch (err) {}
-    try {
-      var cs = await self.clients.matchAll({ type: 'window' });
-      cs.forEach(function (c) { try { c.navigate(c.url); } catch (err) {} });
-    } catch (err) {}
-  })());
+  e.waitUntil(
+    caches.keys().then(function (keys) {
+      return Promise.all(keys.filter(function (k) { return k !== CACHE; }).map(function (k) { return caches.delete(k); }));
+    }).then(function () { return self.clients.claim(); })
+  );
 });
-/* Kein fetch-Handler: alle Anfragen gehen direkt ans Netz (Deaktivierungs-Seite). */
+
+self.addEventListener('fetch', function (e) {
+  const req = e.request;
+  if (req.method !== 'GET') return;
+  const url = new URL(req.url);
+  if (url.origin !== self.location.origin) return; // nichts Fremdes cachen
+  // Videos NICHT über den Service Worker cachen – immer frisch aus dem Netz
+  // (unterstützt Range-Requests sauber und verhindert veraltete Fassungen).
+  if (/\.mp4($|\?)/i.test(url.pathname)) return;
+
+  e.respondWith(
+    caches.match(req, { ignoreSearch: true }).then(function (cached) {
+      const network = fetch(req).then(function (res) {
+        if (res && res.ok && res.type === 'basic') {
+          const copy = res.clone();
+          caches.open(CACHE).then(function (c) { c.put(req, copy); });
+        }
+        return res;
+      }).catch(function () {
+        // Offline: bei Navigationen die App-Seite aus dem Cache liefern
+        if (req.mode === 'navigate') return caches.match('chatbot.html', { ignoreSearch: true });
+        return cached;
+      });
+      return cached || network;
+    })
+  );
+});
